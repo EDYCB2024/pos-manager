@@ -1,0 +1,329 @@
+/* Shared page styles */
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.page-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.page-header__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* ─── Buttons ────────────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.btn--primary {
+    background: var(--accent);
+    color: #000;
+}
+
+.btn--primary:hover {
+    background: #33deff;
+    box-shadow: 0 0 16px rgba(0, 212, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn--secondary {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--border-glow);
+}
+
+.btn--secondary:hover {
+    background: rgba(0, 212, 255, 0.25);
+}
+
+.btn--ghost {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.btn--ghost:hover {
+    border-color: var(--border-glow);
+    color: var(--text-primary);
+}
+
+.btn--danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn--danger:hover {
+    background: rgba(239, 68, 68, 0.28);
+}
+
+.btn--sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ─── Data Table ─────────────────────────────────────────── */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+.data-table th {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+
+.data-table__row:hover td {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.data-table__row:last-child td {
+    border-bottom: none;
+}
+
+/* Serial */
+.serial-code {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 12.5px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.serial-code--link {
+    cursor: pointer;
+}
+
+.serial-code--link:hover {
+    background: rgba(0, 212, 255, 0.25);
+}
+
+.serial-hero {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+}
+
+/* Garantia badge */
+.garantia-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.garantia-badge--yes {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.garantia-badge--no {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+/* ─── Action buttons ─────────────────────────────────────── */
+.action-btns {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.action-btn--edit {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+
+.action-btn--edit:hover {
+    background: rgba(0, 212, 255, 0.28);
+}
+
+.action-btn--delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}
+
+.action-btn--delete:hover {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+/* ─── Search box ─────────────────────────────────────────── */
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-box__icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.search-box__input {
+    width: 100%;
+    padding: 10px 36px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.search-box__input:focus {
+    outline: none;
+    border-color: var(--border-glow);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.search-box__clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.filter-select {
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 14px;
+    min-width: 160px;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--border-glow);
+}
+
+/* ─── Empty state ────────────────────────────────────────── */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 60px 0;
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.empty-state__icon {
+    font-size: 40px;
+}
+
+/* ─── Modal ──────────────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+
+.modal {
+    max-width: 420px;
+    width: 90%;
+    padding: 28px;
+}
+
+.modal__title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.modal__body {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.modal__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* ─── Section title ──────────────────────────────────────── */
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}

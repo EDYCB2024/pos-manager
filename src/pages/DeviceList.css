@@ -1,0 +1,13 @@
+@import './shared.css';
+
+.device-list__filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}

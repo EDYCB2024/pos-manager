@@ -1,0 +1,67 @@
+@import './shared.css';
+
+.det-status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.det-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+}
+
+.det-card {
+    padding: 20px 22px;
+}
+
+.det-card__title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+
+.det-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 12px;
+}
+
+.det-field:last-child {
+    margin-bottom: 0;
+}
+
+.det-field__label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.det-field__value {
+    font-size: 15px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.det-field__value.mono {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    color: var(--accent);
+    font-size: 14px;
+}
+
+.det-prose {
+    padding: 20px 24px;
+}
+
+.det-prose__text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    white-space: pre-wrap;
+}
