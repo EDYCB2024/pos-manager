@@ -7,12 +7,16 @@ import './DeviceSearch.css';
 export default function DeviceSearch() {
     const [query, setQuery] = useState('');
     const [result, setResult] = useState(undefined); // undefined=not searched, null=not found
+    const [searching, setSearching] = useState(false);
     const navigate = useNavigate();
 
-    function handleSearch(e) {
+    async function handleSearch(e) {
         e.preventDefault();
         if (!query.trim()) return;
-        setResult(getDeviceBySerial(query.trim()));
+        setSearching(true);
+        const found = await getDeviceBySerial(query.trim());
+        setResult(found ?? null);
+        setSearching(false);
     }
 
     const field = (label, value, mono = false) => value ? (
@@ -42,7 +46,9 @@ export default function DeviceSearch() {
                         onChange={e => setQuery(e.target.value)}
                         autoFocus
                     />
-                    <button type="submit" className="btn btn--primary search-hero__btn">Buscar</button>
+                    <button type="submit" className="btn btn--primary search-hero__btn" disabled={searching}>
+                        {searching ? 'Buscando...' : 'Buscar'}
+                    </button>
                 </div>
             </form>
 
@@ -58,10 +64,11 @@ export default function DeviceSearch() {
                     <div className="device-detail__header">
                         <div>
                             <code className="serial-hero">{result.serial}</code>
-                            <p className="device-detail__razon">{result.razonSocial}</p>
+                            <p className="device-detail__razon">{result.razon_social}</p>
                         </div>
                         <div className="device-detail__header-right">
-                            <StatusBadge status={result.estatus} />
+                            <StatusBadge status={result.estatus_caso} type="caso" />
+                            <StatusBadge status={result.estatus_reparacion} type="reparacion" />
                             <button
                                 className="btn btn--ghost btn--sm"
                                 onClick={() => navigate(`/devices/${result.serial}/edit`)}
@@ -73,23 +80,25 @@ export default function DeviceSearch() {
 
                     <div className="detail-grid">
                         {field('RIF', result.rif)}
+                        {field('Aliado', result.aliado)}
                         {field('Modelo', result.modelo)}
-                        {field('Garantía', result.garantia)}
-                        {field('Fecha de Ingreso', result.fechaIngreso)}
-                        {field('Fecha Final', result.fechaFinal || '—')}
+                        {field('Categoría', result.categoria)}
+                        {field('Garantía', result.garantia ? 'Sí' : 'No')}
+                        {field('Fecha', result.fecha)}
+                        {field('Serial Reemplazo', result.serial_reemplazo)}
                         {field('Cotización', result.cotizacion ? `$${Number(result.cotizacion).toFixed(2)}` : '—')}
                     </div>
 
-                    {result.informe && (
+                    {result.falla_notificada && (
                         <div className="detail-section">
-                            <h4 className="detail-section__title">Informe Técnico</h4>
-                            <p className="detail-section__text">{result.informe}</p>
+                            <h4 className="detail-section__title">Falla Notificada</h4>
+                            <p className="detail-section__text">{result.falla_notificada}</p>
                         </div>
                     )}
-                    {result.observaciones && (
+                    {result.informes && (
                         <div className="detail-section">
-                            <h4 className="detail-section__title">Observaciones</h4>
-                            <p className="detail-section__text">{result.observaciones}</p>
+                            <h4 className="detail-section__title">Informes</h4>
+                            <p className="detail-section__text">{result.informes}</p>
                         </div>
                     )}
                 </div>

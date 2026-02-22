@@ -8,25 +8,29 @@ export default function DeviceDetail() {
     const { serial } = useParams();
     const [device, setDevice] = useState(null);
     const [confirm, setConfirm] = useState(false);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const d = getDeviceBySerial(serial);
-        if (!d) navigate('/devices');
-        else setDevice(d);
+        getDeviceBySerial(serial).then(d => {
+            if (!d) navigate('/devices');
+            else setDevice(d);
+            setLoading(false);
+        });
     }, [serial, navigate]);
 
+    if (loading) return <div className="loading-state">Cargando...</div>;
     if (!device) return null;
 
-    function handleDelete() {
-        deleteDevice(serial);
+    async function handleDelete() {
+        await deleteDevice(device.id);
         navigate('/devices');
     }
 
     const field = (label, value, mono = false) => (
         <div className="det-field">
             <span className="det-field__label">{label}</span>
-            <span className={`det-field__value${mono ? ' mono' : ''}`}>{value || '—'}</span>
+            <span className={`det-field__value${mono ? ' mono' : ''}`}>{value ?? '—'}</span>
         </div>
     );
 
@@ -35,7 +39,7 @@ export default function DeviceDetail() {
             <div className="page-header">
                 <div>
                     <code className="serial-hero">{device.serial}</code>
-                    <p className="page-sub">{device.razonSocial}</p>
+                    <p className="page-sub">{device.razon_social}</p>
                 </div>
                 <div className="page-header__actions">
                     <button className="btn btn--ghost" onClick={() => navigate(-1)}>← Volver</button>
@@ -45,46 +49,51 @@ export default function DeviceDetail() {
             </div>
 
             <div className="det-status-row">
-                <StatusBadge status={device.estatus} />
-                {device.garantia === 'Sí' && <span className="garantia-badge garantia-badge--yes">🛡 Garantía</span>}
+                <StatusBadge status={device.estatus_caso} type="caso" />
+                <StatusBadge status={device.estatus_reparacion} type="reparacion" />
+                {device.garantia && <span className="garantia-badge garantia-badge--yes">🛡 Garantía</span>}
             </div>
 
             <div className="det-grid">
                 <div className="det-card glass">
                     <h3 className="det-card__title">Datos del Cliente</h3>
                     {field('RIF', device.rif)}
-                    {field('Razón Social', device.razonSocial)}
+                    {field('Razón Social', device.razon_social)}
+                    {field('Aliado', device.aliado)}
                 </div>
                 <div className="det-card glass">
                     <h3 className="det-card__title">Datos del Equipo</h3>
                     {field('Modelo', device.modelo)}
                     {field('Serial', device.serial, true)}
+                    {field('Serial Reemplazo', device.serial_reemplazo, true)}
+                    {field('Categoría', device.categoria)}
                 </div>
                 <div className="det-card glass">
-                    <h3 className="det-card__title">Fechas y Cotización</h3>
-                    {field('Fecha de Ingreso', device.fechaIngreso)}
-                    {field('Fecha Final', device.fechaFinal)}
+                    <h3 className="det-card__title">Caso</h3>
+                    {field('Fecha', device.fecha)}
+                    {field('Estatus Caso', device.estatus_caso)}
+                    {field('Estatus Reparación', device.estatus_reparacion)}
                     {field('Cotización', device.cotizacion ? `$${Number(device.cotizacion).toFixed(2)}` : null)}
                 </div>
             </div>
 
-            {device.informe && (
+            {device.falla_notificada && (
                 <div className="det-prose glass">
-                    <h3 className="det-card__title">Informe Técnico</h3>
-                    <p className="det-prose__text">{device.informe}</p>
+                    <h3 className="det-card__title">Falla Notificada</h3>
+                    <p className="det-prose__text">{device.falla_notificada}</p>
                 </div>
             )}
-            {device.observaciones && (
+            {device.informes && (
                 <div className="det-prose glass">
-                    <h3 className="det-card__title">Observaciones</h3>
-                    <p className="det-prose__text">{device.observaciones}</p>
+                    <h3 className="det-card__title">Informes</h3>
+                    <p className="det-prose__text">{device.informes}</p>
                 </div>
             )}
 
             {confirm && (
                 <div className="modal-overlay" onClick={() => setConfirm(false)}>
                     <div className="modal glass" onClick={e => e.stopPropagation()}>
-                        <h3 className="modal__title">¿Eliminar equipo?</h3>
+                        <h3 className="modal__title">¿Eliminar caso?</h3>
                         <p className="modal__body">
                             Se eliminará <code className="serial-code">{serial}</code>. Esta acción no se puede deshacer.
                         </p>

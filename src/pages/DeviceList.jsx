@@ -1,32 +1,42 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllDevices, deleteDevice, ESTATUSES } from '../store';
+import { getAllDevices, deleteDevice, ESTATUSES_CASO, ESTATUSES_REPARACION } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import './DeviceList.css';
 
 export default function DeviceList() {
     const [devices, setDevices] = useState([]);
     const [search, setSearch] = useState('');
-    const [filter, setFilter] = useState('');
-    const [confirm, setConfirm] = useState(null);
+    const [filterCaso, setFilterCaso] = useState('');
+    const [filterRep, setFilterRep] = useState('');
+    const [confirm, setConfirm] = useState(null); // { id, serial }
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const load = () => setDevices(getAllDevices());
+    const load = () => {
+        setLoading(true);
+        getAllDevices().then(data => {
+            setDevices(data);
+            setLoading(false);
+        }).catch(() => setLoading(false));
+    };
     useEffect(load, []);
 
     const filtered = devices.filter(d => {
         const q = search.toLowerCase();
         const matchSearch =
-            d.serial.toLowerCase().includes(q) ||
-            d.razonSocial.toLowerCase().includes(q) ||
-            d.rif.toLowerCase().includes(q) ||
-            d.modelo.toLowerCase().includes(q);
-        const matchFilter = filter ? d.estatus === filter : true;
-        return matchSearch && matchFilter;
+            (d.serial || '').toLowerCase().includes(q) ||
+            (d.razon_social || '').toLowerCase().includes(q) ||
+            (d.rif || '').toLowerCase().includes(q) ||
+            (d.aliado || '').toLowerCase().includes(q) ||
+            (d.modelo || '').toLowerCase().includes(q);
+        const matchCaso = filterCaso ? d.estatus_caso === filterCaso : true;
+        const matchRep = filterRep ? d.estatus_reparacion === filterRep : true;
+        return matchSearch && matchCaso && matchRep;
     });
 
-    function handleDelete(serial) {
-        deleteDevice(serial);
+    async function handleDelete(id) {
+        await deleteDevice(id);
         setConfirm(null);
         load();
     }
@@ -35,11 +45,11 @@ export default function DeviceList() {
         <div className="device-list anim-fadeUp">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">Equipos</h1>
-                    <p className="page-sub">{devices.length} equipo{devices.length !== 1 ? 's' : ''} registrado{devices.length !== 1 ? 's' : ''}</p>
+                    <h1 className="page-title">Casos POS</h1>
+                    <p className="page-sub">{devices.length} caso{devices.length !== 1 ? 's' : ''} registrado{devices.length !== 1 ? 's' : ''}</p>
                 </div>
                 <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
-                    + Nuevo Equipo
+                    + Nuevo Caso
                 </button>
             </div>
 
@@ -50,7 +60,7 @@ export default function DeviceList() {
                     <input
                         className="search-box__input"
                         type="text"
-                        placeholder="Buscar por serial, RIF, razón social, modelo..."
+                        placeholder="Buscar por serial, RIF, razón social, aliado..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                     />
@@ -58,22 +68,24 @@ export default function DeviceList() {
                         <button className="search-box__clear" onClick={() => setSearch('')}>✕</button>
                     )}
                 </div>
-                <select
-                    className="filter-select"
-                    value={filter}
-                    onChange={e => setFilter(e.target.value)}
-                >
-                    <option value="">Todos los estatus</option>
-                    {ESTATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                <select className="filter-select" value={filterCaso} onChange={e => setFilterCaso(e.target.value)}>
+                    <option value="">Estatus caso</option>
+                    {ESTATUSES_CASO.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <select className="filter-select" value={filterRep} onChange={e => setFilterRep(e.target.value)}>
+                    <option value="">Estatus reparación</option>
+                    {ESTATUSES_REPARACION.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
             </div>
 
             {/* Table */}
-            {filtered.length === 0 ? (
+            {loading ? (
+                <div className="empty-state"><span className="empty-state__icon">⏳</span><p>Cargando casos...</p></div>
+            ) : filtered.length === 0 ? (
                 <div className="empty-state">
-                    <span className="empty-state__icon">{search || filter ? '🔍' : '📭'}</span>
-                    <p>{search || filter ? 'No hay resultados para esta búsqueda.' : 'No hay equipos registrados aún.'}</p>
-                    {!search && !filter && (
+                    <span className="empty-state__icon">{search || filterCaso || filterRep ? '🔍' : '📭'}</span>
+                    <p>{search || filterCaso || filterRep ? 'No hay resultados para esta búsqueda.' : 'No hay casos registrados aún.'}</p>
+                    {!search && !filterCaso && !filterRep && (
                         <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
                             Agregar primero
                         </button>
@@ -84,13 +96,16 @@ export default function DeviceList() {
                     <table className="data-table">
                         <thead>
                             <tr>
+                                <th>Fecha</th>
                                 <th>Serial</th>
+                                <th>Aliado</th>
+                                <th>Modelo</th>
                                 <th>RIF</th>
                                 <th>Razón Social</th>
-                                <th>Modelo</th>
-                                <th>Estatus</th>
+                                <th>Categoría</th>
+                                <th>Estatus Caso</th>
+                                <th>Estatus Rep.</th>
                                 <th>Garantía</th>
-                                <th>Ingreso</th>
                                 <th>Cotización</th>
                                 <th>Acciones</th>
                             </tr>
@@ -98,6 +113,7 @@ export default function DeviceList() {
                         <tbody>
                             {filtered.map(d => (
                                 <tr key={d.id} className="data-table__row">
+                                    <td>{d.fecha || '—'}</td>
                                     <td>
                                         <code
                                             className="serial-code serial-code--link"
@@ -106,16 +122,18 @@ export default function DeviceList() {
                                             {d.serial}
                                         </code>
                                     </td>
-                                    <td>{d.rif}</td>
-                                    <td>{d.razonSocial}</td>
-                                    <td>{d.modelo}</td>
-                                    <td><StatusBadge status={d.estatus} /></td>
+                                    <td>{d.aliado || '—'}</td>
+                                    <td>{d.modelo || '—'}</td>
+                                    <td>{d.rif || '—'}</td>
+                                    <td>{d.razon_social}</td>
+                                    <td>{d.categoria || '—'}</td>
+                                    <td><StatusBadge status={d.estatus_caso} type="caso" /></td>
+                                    <td><StatusBadge status={d.estatus_reparacion} type="reparacion" /></td>
                                     <td>
-                                        <span className={`garantia-badge garantia-badge--${d.garantia === 'Sí' ? 'yes' : 'no'}`}>
-                                            {d.garantia}
+                                        <span className={`garantia-badge garantia-badge--${d.garantia ? 'yes' : 'no'}`}>
+                                            {d.garantia ? 'Sí' : 'No'}
                                         </span>
                                     </td>
-                                    <td>{d.fechaIngreso || '—'}</td>
                                     <td>{d.cotizacion ? `$${Number(d.cotizacion).toFixed(2)}` : '—'}</td>
                                     <td>
                                         <div className="action-btns">
@@ -127,7 +145,7 @@ export default function DeviceList() {
                                             <button
                                                 className="action-btn action-btn--delete"
                                                 title="Eliminar"
-                                                onClick={() => setConfirm(d.serial)}
+                                                onClick={() => setConfirm({ id: d.id, serial: d.serial })}
                                             >🗑</button>
                                         </div>
                                     </td>
@@ -142,13 +160,13 @@ export default function DeviceList() {
             {confirm && (
                 <div className="modal-overlay" onClick={() => setConfirm(null)}>
                     <div className="modal glass" onClick={e => e.stopPropagation()}>
-                        <h3 className="modal__title">¿Eliminar equipo?</h3>
+                        <h3 className="modal__title">¿Eliminar caso?</h3>
                         <p className="modal__body">
-                            Se eliminará el equipo con serial <code className="serial-code">{confirm}</code>. Esta acción no se puede deshacer.
+                            Se eliminará el caso con serial <code className="serial-code">{confirm.serial}</code>. Esta acción no se puede deshacer.
                         </p>
                         <div className="modal__actions">
                             <button className="btn btn--ghost" onClick={() => setConfirm(null)}>Cancelar</button>
-                            <button className="btn btn--danger" onClick={() => handleDelete(confirm)}>Sí, eliminar</button>
+                            <button className="btn btn--danger" onClick={() => handleDelete(confirm.id)}>Sí, eliminar</button>
                         </div>
                     </div>
                 </div>

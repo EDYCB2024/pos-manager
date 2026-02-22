@@ -1,12 +1,32 @@
-// ─── localStorage CRUD helpers ───────────────────────────────
-const KEY = 'pos_devices';
+import { supabase } from './lib/supabase';
 
-export const ESTATUSES = [
-    'Ingresado',
-    'En revisión',
-    'Listo',
-    'Entregado',
+// ─── Opciones de campos de selección ────────────────────────────
+export const ESTATUSES_CASO = [
+    'Abierto',
+    'En proceso',
+    'Cerrado',
+    'Cancelado',
+];
+
+export const ESTATUSES_REPARACION = [
+    'Pendiente',
+    'En diagnóstico',
+    'En reparación',
+    'Reparado',
     'Sin reparación',
+    'Entregado',
+];
+
+export const CATEGORIAS = [
+    'Hardware',
+    'Software',
+    'Conectividad',
+    'Pantalla',
+    'Teclado / Pinpad',
+    'Batería',
+    'Lector de tarjetas',
+    'Impresora',
+    'Otro',
 ];
 
 export const MODELOS = [
@@ -22,105 +42,91 @@ export const MODELOS = [
     'Otro',
 ];
 
-function load() {
-    try {
-        const raw = localStorage.getItem(KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch {
-        return [];
-    }
+// ─── CRUD usando Supabase ─────────────────────────────────────────
+
+export async function getAllDevices() {
+    const { data, error } = await supabase
+        .from('casos_pos')
+        .select('*')
+        .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data;
 }
 
-function save(data) {
-    localStorage.setItem(KEY, JSON.stringify(data));
+export async function getDeviceBySerial(serial) {
+    const { data, error } = await supabase
+        .from('casos_pos')
+        .select('*')
+        .ilike('serial', serial)
+        .single();
+    if (error) return null;
+    return data;
 }
 
-export function getAllDevices() {
-    return load();
+export async function addDevice(device) {
+    const payload = {
+        fecha: device.fecha || new Date().toISOString().slice(0, 10),
+        aliado: device.aliado,
+        modelo: device.modelo,
+        razon_social: device.razon_social,
+        serial: device.serial,
+        informes: device.informes,
+        rif: device.rif,
+        serial_reemplazo: device.serial_reemplazo,
+        falla_notificada: device.falla_notificada,
+        categoria: device.categoria,
+        estatus_caso: device.estatus_caso,
+        estatus_reparacion: device.estatus_reparacion,
+        garantia: device.garantia === true || device.garantia === 'Sí',
+        cotizacion: parseFloat(device.cotizacion) || 0,
+    };
+    const { data, error } = await supabase.from('casos_pos').insert([payload]).select().single();
+    if (error) throw new Error(error.message);
+    return data;
 }
 
-export function getDeviceBySerial(serial) {
-    return load().find(d => d.serial.toLowerCase() === serial.toLowerCase()) || null;
+export async function updateDevice(id, updates) {
+    const payload = {
+        fecha: updates.fecha,
+        aliado: updates.aliado,
+        modelo: updates.modelo,
+        razon_social: updates.razon_social,
+        serial: updates.serial,
+        informes: updates.informes,
+        rif: updates.rif,
+        serial_reemplazo: updates.serial_reemplazo,
+        falla_notificada: updates.falla_notificada,
+        categoria: updates.categoria,
+        estatus_caso: updates.estatus_caso,
+        estatus_reparacion: updates.estatus_reparacion,
+        garantia: updates.garantia === true || updates.garantia === 'Sí',
+        cotizacion: parseFloat(updates.cotizacion) || 0,
+    };
+    const { data, error } = await supabase.from('casos_pos').update(payload).eq('id', id).select().single();
+    if (error) throw new Error(error.message);
+    return data;
 }
 
-export function addDevice(device) {
-    const devices = load();
-    if (devices.find(d => d.serial.toLowerCase() === device.serial.toLowerCase())) {
-        throw new Error('Ya existe un equipo con ese serial.');
-    }
-    const newDevice = { ...device, id: Date.now().toString(), createdAt: new Date().toISOString() };
-    save([...devices, newDevice]);
-    return newDevice;
+export async function deleteDevice(id) {
+    const { error } = await supabase.from('casos_pos').delete().eq('id', id);
+    if (error) throw new Error(error.message);
 }
 
-export function updateDevice(serial, updates) {
-    const devices = load();
-    const idx = devices.findIndex(d => d.serial.toLowerCase() === serial.toLowerCase());
-    if (idx === -1) throw new Error('Equipo no encontrado.');
-    devices[idx] = { ...devices[idx], ...updates, updatedAt: new Date().toISOString() };
-    save(devices);
-    return devices[idx];
-}
+export async function getStats() {
+    const { data, error } = await supabase.from('casos_pos').select('estatus_caso, estatus_reparacion');
+    if (error) throw new Error(error.message);
 
-export function deleteDevice(serial) {
-    const devices = load().filter(d => d.serial.toLowerCase() !== serial.toLowerCase());
-    save(devices);
-}
+    const total = data.length;
+    const byCaso = {};
+    const byReparacion = {};
 
-export function getStats() {
-    const devices = load();
-    const total = devices.length;
-    const byStatus = {};
-    ESTATUSES.forEach(s => { byStatus[s] = 0; });
-    devices.forEach(d => { if (byStatus[d.estatus] !== undefined) byStatus[d.estatus]++; });
-    return { total, byStatus };
-}
+    ESTATUSES_CASO.forEach(s => { byCaso[s] = 0; });
+    ESTATUSES_REPARACION.forEach(s => { byReparacion[s] = 0; });
 
-// ─── Seed demo data ──────────────────────────────────────────
-export function seedDemo() {
-    if (load().length > 0) return;
-    const demo = [
-        {
-            serial: 'VX520-001234',
-            rif: 'J-12345678-9',
-            razonSocial: 'Comercial El Éxito C.A.',
-            modelo: 'Verifone VX520',
-            estatus: 'Listo',
-            garantia: 'Sí',
-            fechaIngreso: '2026-02-10',
-            fechaFinal: '2026-02-18',
-            informe: 'Cambio de lector de tarjetas y actualización de firmware.',
-            observaciones: 'El cliente fue notificado por WhatsApp.',
-            cotizacion: 85,
-        },
-        {
-            serial: 'ICT220-005678',
-            rif: 'J-98765432-1',
-            razonSocial: 'Farmacia La Salud S.R.L.',
-            modelo: 'Ingenico iCT220',
-            estatus: 'En revisión',
-            garantia: 'No',
-            fechaIngreso: '2026-02-20',
-            fechaFinal: '',
-            informe: '',
-            observaciones: 'No enciende. Se sospecha problema de batería.',
-            cotizacion: 0,
-        },
-        {
-            serial: 'A920-009999',
-            rif: 'J-55566677-0',
-            razonSocial: 'Distribuidora López e Hijos',
-            modelo: 'PAX A920',
-            estatus: 'Ingresado',
-            garantia: 'Sí',
-            fechaIngreso: '2026-02-22',
-            fechaFinal: '',
-            informe: '',
-            observaciones: 'Pantalla fisurada.',
-            cotizacion: 0,
-        },
-    ];
-    demo.forEach((d, i) => {
-        save([...load(), { ...d, id: String(i + 1), createdAt: new Date().toISOString() }]);
+    data.forEach(d => {
+        if (byCaso[d.estatus_caso] !== undefined) byCaso[d.estatus_caso]++;
+        if (byReparacion[d.estatus_reparacion] !== undefined) byReparacion[d.estatus_reparacion]++;
     });
+
+    return { total, byCaso, byReparacion };
 }

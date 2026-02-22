@@ -1,13 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addDevice, updateDevice, getDeviceBySerial, ESTATUSES, MODELOS } from '../store';
+import {
+    addDevice, updateDevice, getDeviceBySerial,
+    ESTATUSES_CASO, ESTATUSES_REPARACION, CATEGORIAS, MODELOS
+} from '../store';
 import './DeviceForm.css';
 
+const today = new Date().toISOString().slice(0, 10);
+
 const EMPTY = {
-    serial: '', rif: '', razonSocial: '', modelo: MODELOS[0],
-    estatus: ESTATUSES[0], garantia: 'No',
-    fechaIngreso: '', fechaFinal: '',
-    informe: '', observaciones: '', cotizacion: '',
+    fecha: today,
+    aliado: '',
+    modelo: MODELOS[0],
+    razon_social: '',
+    serial: '',
+    informes: '',
+    rif: '',
+    serial_reemplazo: '',
+    falla_notificada: '',
+    categoria: CATEGORIAS[0],
+    estatus_caso: ESTATUSES_CASO[0],
+    estatus_reparacion: ESTATUSES_REPARACION[0],
+    garantia: 'No',
+    cotizacion: '',
 };
 
 export default function DeviceForm() {
@@ -18,13 +33,20 @@ export default function DeviceForm() {
     const [form, setForm] = useState(EMPTY);
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(isEdit);
 
     useEffect(() => {
-        if (isEdit) {
-            const d = getDeviceBySerial(serial);
+        if (!isEdit) return;
+        getDeviceBySerial(serial).then(d => {
             if (!d) { navigate('/devices'); return; }
-            setForm({ ...EMPTY, ...d });
-        }
+            setForm({
+                ...EMPTY,
+                ...d,
+                garantia: d.garantia ? 'Sí' : 'No',
+                fecha: d.fecha || today,
+            });
+            setLoading(false);
+        });
     }, [serial, isEdit, navigate]);
 
     function handleChange(e) {
@@ -32,31 +54,34 @@ export default function DeviceForm() {
         setForm(prev => ({ ...prev, [name]: value }));
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
         setError('');
         if (!form.serial.trim()) { setError('El serial es obligatorio.'); return; }
-        if (!form.razonSocial.trim()) { setError('La razón social es obligatoria.'); return; }
+        if (!form.razon_social.trim()) { setError('La razón social es obligatoria.'); return; }
         setSaving(true);
         try {
             if (isEdit) {
-                updateDevice(serial, form);
+                const existing = await getDeviceBySerial(serial);
+                await updateDevice(existing.id, form);
             } else {
-                addDevice(form);
+                await addDevice(form);
             }
-            navigate(isEdit ? `/devices/${form.serial}` : '/devices');
+            navigate('/devices');
         } catch (err) {
             setError(err.message);
             setSaving(false);
         }
     }
 
+    if (loading) return <div className="loading-state">Cargando...</div>;
+
     return (
         <div className="device-form-page anim-fadeUp">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">{isEdit ? 'Editar Equipo' : 'Nuevo Equipo'}</h1>
-                    <p className="page-sub">{isEdit ? `Serial: ${serial}` : 'Complete los datos del punto de venta'}</p>
+                    <h1 className="page-title">{isEdit ? 'Editar Caso' : 'Nuevo Caso'}</h1>
+                    <p className="page-sub">{isEdit ? `Serial: ${serial}` : 'Complete los datos del caso POS'}</p>
                 </div>
                 <button className="btn btn--ghost" onClick={() => navigate(-1)}>← Volver</button>
             </div>
@@ -65,10 +90,14 @@ export default function DeviceForm() {
 
             <form className="device-form glass" onSubmit={handleSubmit}>
 
-                {/* ─── Identificación ─────────────────────── */}
+                {/* ─── Identificación del Equipo ─────────────── */}
                 <div className="form-section">
-                    <h3 className="form-section__title">Identificación</h3>
+                    <h3 className="form-section__title">Identificación del Equipo</h3>
                     <div className="form-grid">
+                        <div className="form-field">
+                            <label className="form-label">Fecha *</label>
+                            <input className="form-input" type="date" name="fecha" value={form.fecha} onChange={handleChange} required />
+                        </div>
                         <div className="form-field">
                             <label className="form-label">Serial *</label>
                             <input
@@ -88,24 +117,51 @@ export default function DeviceForm() {
                             </select>
                         </div>
                         <div className="form-field">
+                            <label className="form-label">Serial de Reemplazo</label>
+                            <input className="form-input" name="serial_reemplazo" value={form.serial_reemplazo} onChange={handleChange} placeholder="Ej. VX520-009999" />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Aliado</label>
+                            <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* ─── Datos del Cliente ─────────────────────── */}
+                <div className="form-section">
+                    <h3 className="form-section__title">Datos del Cliente</h3>
+                    <div className="form-grid">
+                        <div className="form-field">
                             <label className="form-label">RIF</label>
                             <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="Ej. J-12345678-9" />
                         </div>
                         <div className="form-field form-field--wide">
                             <label className="form-label">Razón Social *</label>
-                            <input className="form-input" name="razonSocial" value={form.razonSocial} onChange={handleChange} placeholder="Ej. Comercial El Éxito C.A." required />
+                            <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Ej. Comercial El Éxito C.A." required />
                         </div>
                     </div>
                 </div>
 
-                {/* ─── Estado y Fechas ─────────────────────── */}
+                {/* ─── Estatus y Clasificación ─────────────── */}
                 <div className="form-section">
-                    <h3 className="form-section__title">Estado y Fechas</h3>
+                    <h3 className="form-section__title">Estatus y Clasificación</h3>
                     <div className="form-grid">
                         <div className="form-field">
-                            <label className="form-label">Estatus</label>
-                            <select className="form-input" name="estatus" value={form.estatus} onChange={handleChange}>
-                                {ESTATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                            <label className="form-label">Estatus del Caso</label>
+                            <select className="form-input" name="estatus_caso" value={form.estatus_caso} onChange={handleChange}>
+                                {ESTATUSES_CASO.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Estatus de Reparación</label>
+                            <select className="form-input" name="estatus_reparacion" value={form.estatus_reparacion} onChange={handleChange}>
+                                {ESTATUSES_REPARACION.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Categoría</label>
+                            <select className="form-input" name="categoria" value={form.categoria} onChange={handleChange}>
+                                {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
                         <div className="form-field">
@@ -116,31 +172,23 @@ export default function DeviceForm() {
                             </select>
                         </div>
                         <div className="form-field">
-                            <label className="form-label">Fecha de Ingreso</label>
-                            <input className="form-input" type="date" name="fechaIngreso" value={form.fechaIngreso} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Fecha Final</label>
-                            <input className="form-input" type="date" name="fechaFinal" value={form.fechaFinal} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
                             <label className="form-label">Cotización (USD)</label>
                             <input className="form-input" type="number" min="0" step="0.01" name="cotizacion" value={form.cotizacion} onChange={handleChange} placeholder="0.00" />
                         </div>
                     </div>
                 </div>
 
-                {/* ─── Informe y Observaciones ─────────────── */}
+                {/* ─── Falla e Informes ────────────────────── */}
                 <div className="form-section">
-                    <h3 className="form-section__title">Informe Técnico</h3>
+                    <h3 className="form-section__title">Falla e Informes</h3>
                     <div className="form-grid form-grid--single">
                         <div className="form-field">
-                            <label className="form-label">Informe</label>
-                            <textarea className="form-input form-textarea" name="informe" value={form.informe} onChange={handleChange} rows={4} placeholder="Describe el trabajo realizado..." />
+                            <label className="form-label">Falla Notificada</label>
+                            <textarea className="form-input form-textarea" name="falla_notificada" value={form.falla_notificada} onChange={handleChange} rows={3} placeholder="Describe la falla reportada por el cliente..." />
                         </div>
                         <div className="form-field">
-                            <label className="form-label">Observaciones</label>
-                            <textarea className="form-input form-textarea" name="observaciones" value={form.observaciones} onChange={handleChange} rows={3} placeholder="Notas adicionales..." />
+                            <label className="form-label">Informes</label>
+                            <textarea className="form-input form-textarea" name="informes" value={form.informes} onChange={handleChange} rows={4} placeholder="Describe el diagnóstico y trabajo realizado..." />
                         </div>
                     </div>
                 </div>
@@ -148,7 +196,7 @@ export default function DeviceForm() {
                 <div className="form-actions">
                     <button type="button" className="btn btn--ghost" onClick={() => navigate(-1)}>Cancelar</button>
                     <button type="submit" className="btn btn--primary" disabled={saving}>
-                        {saving ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Registrar equipo'}
+                        {saving ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Registrar caso'}
                     </button>
                 </div>
             </form>
