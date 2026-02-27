@@ -1,5 +1,5 @@
 $headers = @{
-    "Authorization" = "Bearer sb_secret_VEGgu0ohhhf4foqHVGTsYQ_bEzxlSs5"
+    "Authorization" = "Bearer sbp_3641981fce557b47fe19320831da1a6541547660"
     "Content-Type"  = "application/json"
 }
 
