@@ -18,8 +18,8 @@ export default function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/devices" element={<DeviceList />} />
               <Route path="/devices/new" element={<DeviceForm />} />
-              <Route path="/devices/:serial" element={<DeviceDetail />} />
-              <Route path="/devices/:serial/edit" element={<DeviceForm />} />
+              <Route path="/devices/:id" element={<DeviceDetail />} />
+              <Route path="/devices/:id/edit" element={<DeviceForm />} />
               <Route path="/search" element={<DeviceSearch />} />
               <Route path="*" element={<Dashboard />} />
             </Routes>

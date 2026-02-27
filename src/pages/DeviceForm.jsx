@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-    addDevice, updateDevice, getDeviceBySerial,
-    ESTATUSES_CASO, ESTATUSES_REPARACION, CATEGORIAS, MODELOS
+    addDevice, updateDevice, getDeviceById,
+    ESTATUSES_CASO, ESTATUSES_REPARACION, CATEGORIAS, MODELOS,
+    PROCESADORAS, TECNICOS
 } from '../store';
 import './DeviceForm.css';
 
@@ -16,18 +17,27 @@ const EMPTY = {
     serial: '',
     informes: '',
     rif: '',
+    ingreso: '',
     serial_reemplazo: '',
     falla_notificada: '',
     categoria: CATEGORIAS[0],
+    fecha_final: '',
     estatus_caso: ESTATUSES_CASO[0],
-    estatus_reparacion: ESTATUSES_REPARACION[0],
+    estatus: ESTATUSES_REPARACION[0],
+    nivel: '',
     garantia: 'No',
+    informe: '',
     cotizacion: '',
+    repuesto_1: '',
+    repuesto_2: '',
+    repuesto_3: '',
+    procesadora: PROCESADORAS[0],
+    tecnico: TECNICOS[0],
 };
 
 export default function DeviceForm() {
-    const { serial } = useParams();
-    const isEdit = Boolean(serial);
+    const { id } = useParams();
+    const isEdit = Boolean(id);
     const navigate = useNavigate();
 
     const [form, setForm] = useState(EMPTY);
@@ -37,17 +47,16 @@ export default function DeviceForm() {
 
     useEffect(() => {
         if (!isEdit) return;
-        getDeviceBySerial(serial).then(d => {
+        getDeviceById(id).then(d => {
             if (!d) { navigate('/devices'); return; }
             setForm({
                 ...EMPTY,
                 ...d,
-                garantia: d.garantia ? 'Sí' : 'No',
                 fecha: d.fecha || today,
             });
             setLoading(false);
         });
-    }, [serial, isEdit, navigate]);
+    }, [id, isEdit, navigate]);
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -62,8 +71,7 @@ export default function DeviceForm() {
         setSaving(true);
         try {
             if (isEdit) {
-                const existing = await getDeviceBySerial(serial);
-                await updateDevice(existing.id, form);
+                await updateDevice(id, form);
             } else {
                 await addDevice(form);
             }
@@ -81,7 +89,7 @@ export default function DeviceForm() {
             <div className="page-header">
                 <div>
                     <h1 className="page-title">{isEdit ? 'Editar Caso' : 'Nuevo Caso'}</h1>
-                    <p className="page-sub">{isEdit ? `Serial: ${serial}` : 'Complete los datos del caso POS'}</p>
+                    <p className="page-sub">{isEdit ? `ID Caso: ${id}` : 'Complete los datos del caso POS'}</p>
                 </div>
                 <button className="btn btn--ghost" onClick={() => navigate(-1)}>← Volver</button>
             </div>
@@ -135,9 +143,25 @@ export default function DeviceForm() {
                             <label className="form-label">RIF</label>
                             <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="Ej. J-12345678-9" />
                         </div>
+                        <div className="form-field">
+                            <label className="form-label">Ingreso</label>
+                            <input className="form-input" name="ingreso" value={form.ingreso} onChange={handleChange} placeholder="Nro. de ingreso" />
+                        </div>
                         <div className="form-field form-field--wide">
                             <label className="form-label">Razón Social *</label>
                             <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Ej. Comercial El Éxito C.A." required />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Procesadora</label>
+                            <select className="form-input" name="procesadora" value={form.procesadora} onChange={handleChange}>
+                                {PROCESADORAS.map(p => <option key={p} value={p}>{p}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Técnico Encargado</label>
+                            <select className="form-input" name="tecnico" value={form.tecnico} onChange={handleChange}>
+                                {TECNICOS.map(t => <option key={t} value={t}>{t}</option>)}
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -154,9 +178,13 @@ export default function DeviceForm() {
                         </div>
                         <div className="form-field">
                             <label className="form-label">Estatus de Reparación</label>
-                            <select className="form-input" name="estatus_reparacion" value={form.estatus_reparacion} onChange={handleChange}>
+                            <select className="form-input" name="estatus" value={form.estatus} onChange={handleChange}>
                                 {ESTATUSES_REPARACION.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Nivel</label>
+                            <input className="form-input" name="nivel" value={form.nivel} onChange={handleChange} placeholder="Nivel técnico" />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Categoría</label>
@@ -172,8 +200,31 @@ export default function DeviceForm() {
                             </select>
                         </div>
                         <div className="form-field">
-                            <label className="form-label">Cotización (USD)</label>
-                            <input className="form-input" type="number" min="0" step="0.01" name="cotizacion" value={form.cotizacion} onChange={handleChange} placeholder="0.00" />
+                            <label className="form-label">Fecha Final</label>
+                            <input className="form-input" type="date" name="fecha_final" value={form.fecha_final} onChange={handleChange} />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Cotización</label>
+                            <input className="form-input" name="cotizacion" value={form.cotizacion} onChange={handleChange} placeholder="Ej. 50.00 o Pendiente" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* ─── Repuestos y Servicios ────────────────── */}
+                <div className="form-section">
+                    <h3 className="form-section__title">Repuestos y Servicios</h3>
+                    <div className="form-grid">
+                        <div className="form-field">
+                            <label className="form-label">Repuesto/Servicio 1</label>
+                            <input className="form-input" name="repuesto_1" value={form.repuesto_1} onChange={handleChange} placeholder="Descripción del repuesto 1" />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Repuesto/Servicio 2</label>
+                            <input className="form-input" name="repuesto_2" value={form.repuesto_2} onChange={handleChange} placeholder="Descripción del repuesto 2" />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Repuesto/Servicio 3</label>
+                            <input className="form-input" name="repuesto_3" value={form.repuesto_3} onChange={handleChange} placeholder="Descripción del repuesto 3" />
                         </div>
                     </div>
                 </div>
@@ -187,7 +238,11 @@ export default function DeviceForm() {
                             <textarea className="form-input form-textarea" name="falla_notificada" value={form.falla_notificada} onChange={handleChange} rows={3} placeholder="Describe la falla reportada por el cliente..." />
                         </div>
                         <div className="form-field">
-                            <label className="form-label">Informes</label>
+                            <label className="form-label">Informe Técnico</label>
+                            <textarea className="form-input form-textarea" name="informe" value={form.informe} onChange={handleChange} rows={3} placeholder="Detalle del informe técnico..." />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Observaciones Generales</label>
                             <textarea className="form-input form-textarea" name="informes" value={form.informes} onChange={handleChange} rows={4} placeholder="Describe el diagnóstico y trabajo realizado..." />
                         </div>
                     </div>

@@ -45,7 +45,7 @@ export default function Dashboard() {
             </div>
 
             {/* KPI Cards */}
-            <div className="dashboard__cards">
+            <div className="dashboard__cards grid grid--cols-3">
                 <StatCard label="Total Casos" value={stats.total} color="accent" icon="◈" />
                 {Object.entries(stats.byCaso).map(([status, count]) => (
                     <StatCard
@@ -73,7 +73,7 @@ export default function Dashboard() {
                     </div>
                 ) : (
                     <div className="recent-table-wrap glass">
-                        <table className="data-table">
+                        <table className="data-table responsive-table">
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
@@ -90,15 +90,15 @@ export default function Dashboard() {
                                     <tr
                                         key={d.id}
                                         className="data-table__row"
-                                        onClick={() => navigate(`/devices/${d.serial}`)}
+                                        onClick={() => navigate(`/devices/${d.id}`)}
                                     >
-                                        <td>{d.fecha || '—'}</td>
-                                        <td><code className="serial-code">{d.serial}</code></td>
-                                        <td>{d.razon_social}</td>
-                                        <td>{d.aliado || '—'}</td>
-                                        <td>{d.modelo || '—'}</td>
-                                        <td><StatusBadge status={d.estatus_caso} type="caso" /></td>
-                                        <td><StatusBadge status={d.estatus_reparacion} type="reparacion" /></td>
+                                        <td data-label="Fecha">{d.fecha || '—'}</td>
+                                        <td data-label="Serial"><code className="serial-code">{d.serial}</code></td>
+                                        <td data-label="Razon">{d.razon_social}</td>
+                                        <td data-label="Aliado">{d.aliado || '—'}</td>
+                                        <td data-label="Modelo">{d.modelo || '—'}</td>
+                                        <td data-label="Caso"><StatusBadge status={d.estatus_caso} type="caso" /></td>
+                                        <td data-label="Reparación"><StatusBadge status={d.estatus} type="reparacion" /></td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -1,39 +1,43 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllDevices, deleteDevice, ESTATUSES_CASO, ESTATUSES_REPARACION } from '../store';
+import { getDevicesPaged, deleteDevice, ESTATUSES_CASO, ESTATUSES_REPARACION, getReportUrl } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import './DeviceList.css';
 
 export default function DeviceList() {
     const [devices, setDevices] = useState([]);
+    const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [filterCaso, setFilterCaso] = useState('');
     const [filterRep, setFilterRep] = useState('');
     const [confirm, setConfirm] = useState(null); // { id, serial }
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const pageSize = 50;
 
     const load = () => {
         setLoading(true);
-        getAllDevices().then(data => {
+        getDevicesPaged({ page, pageSize, search, filterCaso, filterRep }).then(({ data, count }) => {
             setDevices(data);
+            setTotal(count || 0);
             setLoading(false);
         }).catch(() => setLoading(false));
     };
-    useEffect(load, []);
 
-    const filtered = devices.filter(d => {
-        const q = search.toLowerCase();
-        const matchSearch =
-            (d.serial || '').toLowerCase().includes(q) ||
-            (d.razon_social || '').toLowerCase().includes(q) ||
-            (d.rif || '').toLowerCase().includes(q) ||
-            (d.aliado || '').toLowerCase().includes(q) ||
-            (d.modelo || '').toLowerCase().includes(q);
-        const matchCaso = filterCaso ? d.estatus_caso === filterCaso : true;
-        const matchRep = filterRep ? d.estatus_reparacion === filterRep : true;
-        return matchSearch && matchCaso && matchRep;
-    });
+    // Recargar cuando cambie la página o los filtros
+    useEffect(() => {
+        load();
+    }, [page, filterCaso, filterRep]);
+
+    // Recargar cuando cambie la búsqueda (con debounce)
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (page === 1) load();
+            else setPage(1); // El cambio de página disparará el otro useEffect
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [search]);
 
     async function handleDelete(id) {
         await deleteDevice(id);
@@ -41,12 +45,17 @@ export default function DeviceList() {
         load();
     }
 
+    const totalPages = Math.ceil(total / pageSize);
+
     return (
         <div className="device-list anim-fadeUp">
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Casos POS</h1>
-                    <p className="page-sub">{devices.length} caso{devices.length !== 1 ? 's' : ''} registrado{devices.length !== 1 ? 's' : ''}</p>
+                    <p className="page-sub">
+                        {total} caso{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
+                        {totalPages > 1 && ` (Página ${page} de ${totalPages})`}
+                    </p>
                 </div>
                 <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
                     + Nuevo Caso
@@ -60,7 +69,7 @@ export default function DeviceList() {
                     <input
                         className="search-box__input"
                         type="text"
-                        placeholder="Buscar por serial, RIF, razón social, aliado..."
+                        placeholder="Buscar por serial, RIF, razón social..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                     />
@@ -81,79 +90,87 @@ export default function DeviceList() {
             {/* Table */}
             {loading ? (
                 <div className="empty-state"><span className="empty-state__icon">⏳</span><p>Cargando casos...</p></div>
-            ) : filtered.length === 0 ? (
+            ) : devices.length === 0 ? (
                 <div className="empty-state">
                     <span className="empty-state__icon">{search || filterCaso || filterRep ? '🔍' : '📭'}</span>
                     <p>{search || filterCaso || filterRep ? 'No hay resultados para esta búsqueda.' : 'No hay casos registrados aún.'}</p>
-                    {!search && !filterCaso && !filterRep && (
-                        <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
-                            Agregar primero
-                        </button>
-                    )}
                 </div>
             ) : (
-                <div className="table-wrap glass">
-                    <table className="data-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Serial</th>
-                                <th>Aliado</th>
-                                <th>Modelo</th>
-                                <th>RIF</th>
-                                <th>Razón Social</th>
-                                <th>Categoría</th>
-                                <th>Estatus Caso</th>
-                                <th>Estatus Rep.</th>
-                                <th>Garantía</th>
-                                <th>Cotización</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map(d => (
-                                <tr key={d.id} className="data-table__row">
-                                    <td>{d.fecha || '—'}</td>
-                                    <td>
-                                        <code
-                                            className="serial-code serial-code--link"
-                                            onClick={() => navigate(`/devices/${d.serial}`)}
-                                        >
-                                            {d.serial}
-                                        </code>
-                                    </td>
-                                    <td>{d.aliado || '—'}</td>
-                                    <td>{d.modelo || '—'}</td>
-                                    <td>{d.rif || '—'}</td>
-                                    <td>{d.razon_social}</td>
-                                    <td>{d.categoria || '—'}</td>
-                                    <td><StatusBadge status={d.estatus_caso} type="caso" /></td>
-                                    <td><StatusBadge status={d.estatus_reparacion} type="reparacion" /></td>
-                                    <td>
-                                        <span className={`garantia-badge garantia-badge--${d.garantia ? 'yes' : 'no'}`}>
-                                            {d.garantia ? 'Sí' : 'No'}
-                                        </span>
-                                    </td>
-                                    <td>{d.cotizacion ? `$${Number(d.cotizacion).toFixed(2)}` : '—'}</td>
-                                    <td>
-                                        <div className="action-btns">
-                                            <button
-                                                className="action-btn action-btn--edit"
-                                                title="Editar"
-                                                onClick={() => navigate(`/devices/${d.serial}/edit`)}
-                                            >✎</button>
-                                            <button
-                                                className="action-btn action-btn--delete"
-                                                title="Eliminar"
-                                                onClick={() => setConfirm({ id: d.id, serial: d.serial })}
-                                            >🗑</button>
-                                        </div>
-                                    </td>
+                <>
+                    <div className="table-wrap glass">
+                        <table className="data-table responsive-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Serial</th>
+                                    <th>Aliado</th>
+                                    <th>Modelo</th>
+                                    <th>RIF</th>
+                                    <th>Razón Social</th>
+                                    <th>Estatus Caso</th>
+                                    <th>Estatus Rep.</th>
+                                    <th>Acciones</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {devices.map(d => (
+                                    <tr key={d.id} className="data-table__row">
+                                        <td data-label="Fecha">{d.fecha || '—'}</td>
+                                        <td data-label="Serial">
+                                            <code
+                                                className="serial-code serial-code--link"
+                                                onClick={() => navigate(`/devices/${d.id}`)}
+                                            >
+                                                {d.serial}
+                                            </code>
+                                        </td>
+                                        <td data-label="Aliado">{d.aliado || '—'}</td>
+                                        <td data-label="Modelo">{d.modelo || '—'}</td>
+                                        <td data-label="RIF">{d.rif || '—'}</td>
+                                        <td data-label="Razon">{d.razon_social}</td>
+                                        <td data-label="Caso"><StatusBadge status={d.estatus_caso} type="caso" /></td>
+                                        <td data-label="Reparación"><StatusBadge status={d.estatus} type="reparacion" /></td>
+                                        <td>
+                                            <div className="action-btns">
+                                                <button
+                                                    className="action-btn action-btn--edit"
+                                                    title="Editar"
+                                                    onClick={() => navigate(`/devices/${d.id}/edit`)}
+                                                >✎</button>
+                                                <button
+                                                    className="action-btn action-btn--delete"
+                                                    title="Eliminar"
+                                                    onClick={() => setConfirm({ id: d.id, serial: d.serial })}
+                                                >🗑</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="pagination">
+                            <button
+                                className="btn btn--ghost"
+                                disabled={page === 1}
+                                onClick={() => setPage(p => p - 1)}
+                            >
+                                ← Anterior
+                            </button>
+                            <span className="pagination__info">Página {page} de {totalPages}</span>
+                            <button
+                                className="btn btn--ghost"
+                                disabled={page === totalPages}
+                                onClick={() => setPage(p => p + 1)}
+                            >
+                                Siguiente →
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
 
             {/* Confirm dialog */}

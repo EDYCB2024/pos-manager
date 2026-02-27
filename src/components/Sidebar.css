@@ -10,7 +10,7 @@
     top: 0;
     left: 0;
     z-index: 100;
-    transition: var(--transition);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Brand */
@@ -65,6 +65,7 @@
     font-weight: 500;
     transition: var(--transition);
     position: relative;
+    border: 1px solid transparent;
 }
 
 .sidebar__link:hover {
@@ -75,20 +76,7 @@
 .sidebar__link--active {
     background: var(--accent-dim);
     color: var(--accent);
-    border: 1px solid var(--border-glow);
-}
-
-.sidebar__link--active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 60%;
-    background: var(--accent);
-    border-radius: 0 3px 3px 0;
-    box-shadow: 0 0 8px var(--accent);
+    border-color: var(--border-glow);
 }
 
 .sidebar__link-icon {
@@ -106,41 +94,50 @@
     color: var(--text-muted);
 }
 
-/* ─── Responsive ─────────────────────────────────────────── */
+/* ─── Responsive Drawer ──────────────────────────────────── */
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 20px;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 95;
+    animation: fadeIn 0.2s ease;
+}
+
 @media (max-width: 768px) {
     .sidebar {
-        width: 100%;
-        min-height: auto;
-        position: sticky;
-        top: 0;
-        flex-direction: row;
-        align-items: center;
-        padding: 0 12px;
-        height: 56px;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
+        transform: translateX(-100%);
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
     }
 
-    .sidebar__brand {
-        border-bottom: none;
-        padding: 0 16px 0 0;
+    .sidebar--open {
+        transform: translateX(0);
     }
 
-    .sidebar__brand-sub {
-        display: none;
+    .sidebar-toggle {
+        display: flex;
     }
 
-    .sidebar__nav {
-        flex-direction: row;
-        padding: 0;
-        gap: 2px;
-    }
-
-    .sidebar__link span:not(.sidebar__link-icon) {
-        display: none;
-    }
-
-    .sidebar__footer {
-        display: none;
+    .sidebar-overlay {
+        display: block;
     }
 }

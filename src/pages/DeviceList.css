@@ -10,4 +10,19 @@
 
 .table-wrap {
     overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.pagination__info {
+    font-size: 0.9rem;
+    color: var(--text-muted);
 }

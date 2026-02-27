@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDeviceBySerial } from '../store';
+import { getDeviceBySerial, getReportUrl } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import './DeviceSearch.css';
 
@@ -52,57 +52,96 @@ export default function DeviceSearch() {
                 </div>
             </form>
 
-            {result === null && (
+            {result && result.length === 0 && (
                 <div className="empty-state anim-fadeUp">
                     <span className="empty-state__icon">🔍</span>
                     <p>No se encontró ningún equipo con serial <code className="serial-code">"{query}"</code>.</p>
                 </div>
             )}
 
-            {result && (
-                <div className="device-detail glass anim-fadeUp">
+            {result && result.length > 0 && result.map(d => (
+                <div key={d.id} className="device-detail glass anim-fadeUp" style={{ marginBottom: '2rem' }}>
                     <div className="device-detail__header">
                         <div>
-                            <code className="serial-hero">{result.serial}</code>
-                            <p className="device-detail__razon">{result.razon_social}</p>
+                            <code className="serial-hero">{d.serial}</code>
+                            <p className="device-detail__razon">{d.razon_social}</p>
+                            <span className="badge badge--ingreso">Ingreso: {d.ingreso || '—'}</span>
                         </div>
                         <div className="device-detail__header-right">
-                            <StatusBadge status={result.estatus_caso} type="caso" />
-                            <StatusBadge status={result.estatus_reparacion} type="reparacion" />
-                            <button
-                                className="btn btn--ghost btn--sm"
-                                onClick={() => navigate(`/devices/${result.serial}/edit`)}
-                            >
-                                ✎ Editar
-                            </button>
+                            <StatusBadge status={d.estatus_caso} type="caso" />
+                            <StatusBadge status={d.estatus} type="reparacion" />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    className="btn btn--secondary btn--sm"
+                                    onClick={() => navigate(`/devices/${d.id}`)}
+                                >
+                                    Ver Detalle
+                                </button>
+                                <button
+                                    className="btn btn--ghost btn--sm"
+                                    onClick={() => navigate(`/devices/${d.id}/edit`)}
+                                >
+                                    ✎ Editar
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <div className="detail-grid">
-                        {field('RIF', result.rif)}
-                        {field('Aliado', result.aliado)}
-                        {field('Modelo', result.modelo)}
-                        {field('Categoría', result.categoria)}
-                        {field('Garantía', result.garantia ? 'Sí' : 'No')}
-                        {field('Fecha', result.fecha)}
-                        {field('Serial Reemplazo', result.serial_reemplazo)}
-                        {field('Cotización', result.cotizacion ? `$${Number(result.cotizacion).toFixed(2)}` : '—')}
+                        {field('RIF', d.rif)}
+                        {field('Aliado', d.aliado)}
+                        {field('Procesadora', d.procesadora)}
+                        {field('Técnico', d.tecnico)}
+                        {field('Ingreso', d.ingreso)}
+                        {field('Modelo', d.modelo)}
+                        {field('Categoría', d.categoria)}
+                        <div className="detail-field">
+                            <span className="detail-field__label">Informe Técnico</span>
+                            <div className="detail-field__value">
+                                {d.informe ? (
+                                    <a
+                                        href={getReportUrl(d.informe)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="report-link"
+                                    >
+                                        📄 {d.informe}
+                                    </a>
+                                ) : '—'}
+                            </div>
+                        </div>
+                        {field('Nivel', d.nivel)}
+                        {field('Garantía', d.garantia || 'No')}
+                        {field('Fecha', d.fecha)}
+                        {field('Fecha Final', d.fecha_final)}
+                        {field('Serial Reemplazo', d.serial_reemplazo)}
+                        {field('Cotización', d.cotizacion)}
                     </div>
 
-                    {result.falla_notificada && (
-                        <div className="detail-section">
-                            <h4 className="detail-section__title">Falla Notificada</h4>
-                            <p className="detail-section__text">{result.falla_notificada}</p>
-                        </div>
-                    )}
-                    {result.informes && (
-                        <div className="detail-section">
-                            <h4 className="detail-section__title">Informes</h4>
-                            <p className="detail-section__text">{result.informes}</p>
+                    {(d.falla_notificada || d.informe || d.informes) && (
+                        <div className="detail-sections">
+                            {d.falla_notificada && (
+                                <div className="detail-section">
+                                    <h4 className="detail-section__title">Falla Notificada</h4>
+                                    <p className="detail-section__text">{d.falla_notificada}</p>
+                                </div>
+                            )}
+                            {d.informe && (
+                                <div className="detail-section">
+                                    <h4 className="detail-section__title">Informe Técnico</h4>
+                                    <p className="detail-section__text">{d.informe}</p>
+                                </div>
+                            )}
+                            {d.informes && (
+                                <div className="detail-section">
+                                    <h4 className="detail-section__title">Observaciones Generales</h4>
+                                    <p className="detail-section__text">{d.informes}</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
-            )}
+            ))}
         </div>
     );
 }

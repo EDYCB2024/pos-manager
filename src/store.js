@@ -30,17 +30,36 @@ export const CATEGORIAS = [
 ];
 
 export const MODELOS = [
-    'Verifone VX520',
-    'Verifone VX670',
-    'Verifone VX680',
-    'Ingenico iWL220',
-    'Ingenico iCT220',
-    'Ingenico Move5000',
-    'PAX S300',
-    'PAX A920',
-    'Newland N910',
+    'N950S',
+    'N970',
+    'N910A7',
+    'N910A10',
+    'ME60',
+    'ME51',
+    'SP600',
     'Otro',
 ];
+
+export const PROCESADORAS = [
+    'Platco',
+    'Credicard',
+    'Banesco',
+    'Pueblo',
+    'Otro',
+];
+
+export const TECNICOS = [
+    'Técnico 1',
+    'Técnico 2',
+    'Técnico 3',
+    'Otro',
+];
+
+export function getReportUrl(code) {
+    if (!code) return null;
+    const url = import.meta.env.VITE_SUPABASE_URL;
+    return `${url}/storage/v1/object/public/reports/${code}.pdf`;
+}
 
 // ─── CRUD usando Supabase ─────────────────────────────────────────
 
@@ -48,8 +67,47 @@ export async function getAllDevices() {
     const { data, error } = await supabase
         .from('casos_pos')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(1000); // Límite de seguridad para listas recientes
     if (error) throw new Error(error.message);
+    return data;
+}
+
+/**
+ * Obtiene dispositivos con paginación, búsqueda y filtros en el servidor.
+ */
+export async function getDevicesPaged({ page = 1, pageSize = 50, search = '', filterCaso = '', filterRep = '' }) {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = supabase
+        .from('casos_pos')
+        .select('*', { count: 'exact' });
+
+    // Filtros en servidor
+    if (filterCaso) query = query.eq('estatus_caso', filterCaso);
+    if (filterRep) query = query.eq('estatus', filterRep);
+
+    // Búsqueda en servidor (OR entre múltiples campos)
+    if (search) {
+        query = query.or(`serial.ilike.%${search}%,razon_social.ilike.%${search}%,rif.ilike.%${search}%,aliado.ilike.%${search}%,modelo.ilike.%${search}%`);
+    }
+
+    const { data, count, error } = await query
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+    if (error) throw new Error(error.message);
+    return { data, count };
+}
+
+export async function getDeviceById(id) {
+    const { data, error } = await supabase
+        .from('casos_pos')
+        .select('*')
+        .eq('id', id)
+        .single();
+    if (error) return null;
     return data;
 }
 
@@ -58,8 +116,8 @@ export async function getDeviceBySerial(serial) {
         .from('casos_pos')
         .select('*')
         .ilike('serial', serial)
-        .single();
-    if (error) return null;
+        .order('fecha', { ascending: false });
+    if (error) return [];
     return data;
 }
 
@@ -72,13 +130,22 @@ export async function addDevice(device) {
         serial: device.serial,
         informes: device.informes,
         rif: device.rif,
+        ingreso: device.ingreso,
         serial_reemplazo: device.serial_reemplazo,
         falla_notificada: device.falla_notificada,
         categoria: device.categoria,
+        fecha_final: device.fecha_final,
         estatus_caso: device.estatus_caso,
-        estatus_reparacion: device.estatus_reparacion,
-        garantia: device.garantia === true || device.garantia === 'Sí',
-        cotizacion: parseFloat(device.cotizacion) || 0,
+        estatus: device.estatus,
+        nivel: device.nivel,
+        garantia: device.garantia,
+        informe: device.informe,
+        cotizacion: device.cotizacion,
+        repuesto_1: device.repuesto_1,
+        repuesto_2: device.repuesto_2,
+        repuesto_3: device.repuesto_3,
+        procesadora: device.procesadora,
+        tecnico: device.tecnico,
     };
     const { data, error } = await supabase.from('casos_pos').insert([payload]).select().single();
     if (error) throw new Error(error.message);
@@ -94,13 +161,22 @@ export async function updateDevice(id, updates) {
         serial: updates.serial,
         informes: updates.informes,
         rif: updates.rif,
+        ingreso: updates.ingreso,
         serial_reemplazo: updates.serial_reemplazo,
         falla_notificada: updates.falla_notificada,
         categoria: updates.categoria,
+        fecha_final: updates.fecha_final,
         estatus_caso: updates.estatus_caso,
-        estatus_reparacion: updates.estatus_reparacion,
-        garantia: updates.garantia === true || updates.garantia === 'Sí',
-        cotizacion: parseFloat(updates.cotizacion) || 0,
+        estatus: updates.estatus,
+        nivel: updates.nivel,
+        garantia: updates.garantia,
+        informe: updates.informe,
+        cotizacion: updates.cotizacion,
+        repuesto_1: updates.repuesto_1,
+        repuesto_2: updates.repuesto_2,
+        repuesto_3: updates.repuesto_3,
+        procesadora: updates.procesadora,
+        tecnico: updates.tecnico,
     };
     const { data, error } = await supabase.from('casos_pos').update(payload).eq('id', id).select().single();
     if (error) throw new Error(error.message);
@@ -113,20 +189,28 @@ export async function deleteDevice(id) {
 }
 
 export async function getStats() {
-    const { data, error } = await supabase.from('casos_pos').select('estatus_caso, estatus_reparacion');
-    if (error) throw new Error(error.message);
+    // Para 35k registros es mejor no traer toda la data. 
+    // Hacemos una consulta rápida para el total y una para cada estatus.
+    const { count: total, error: errTotal } = await supabase
+        .from('casos_pos')
+        .select('*', { count: 'exact', head: true });
 
-    const total = data.length;
+    if (errTotal) throw new Error(errTotal.message);
+
     const byCaso = {};
     const byReparacion = {};
 
-    ESTATUSES_CASO.forEach(s => { byCaso[s] = 0; });
-    ESTATUSES_REPARACION.forEach(s => { byReparacion[s] = 0; });
-
-    data.forEach(d => {
-        if (byCaso[d.estatus_caso] !== undefined) byCaso[d.estatus_caso]++;
-        if (byReparacion[d.estatus_reparacion] !== undefined) byReparacion[d.estatus_reparacion]++;
-    });
+    // Consultamos los conteos por estatus de forma eficiente
+    await Promise.all([
+        ...ESTATUSES_CASO.map(async s => {
+            const { count } = await supabase.from('casos_pos').select('*', { count: 'exact', head: true }).eq('estatus_caso', s);
+            byCaso[s] = count || 0;
+        }),
+        ...ESTATUSES_REPARACION.map(async s => {
+            const { count } = await supabase.from('casos_pos').select('*', { count: 'exact', head: true }).eq('estatus', s);
+            byReparacion[s] = count || 0;
+        })
+    ]);
 
     return { total, byCaso, byReparacion };
 }
