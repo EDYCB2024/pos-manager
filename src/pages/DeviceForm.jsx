@@ -98,6 +98,27 @@ export default function DeviceForm() {
 
             <form className="device-form glass" onSubmit={handleSubmit}>
 
+                {/* ─── Falla e Informes ────────────────────── */}
+                <div className="form-section">
+                    <h3 className="form-section__title">Falla e Información Técnica</h3>
+                    <div className="form-grid">
+                        <div className="form-field form-field--wide">
+                            <label className="form-label">Falla Notificada</label>
+                            <textarea className="form-input form-textarea" name="falla_notificada" value={form.falla_notificada} onChange={handleChange} rows={2} placeholder="Describe la falla reportada por el cliente..." />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Informe Técnico (Link/ID)</label>
+                            <input
+                                className="form-input"
+                                name="informe"
+                                value={form.informe}
+                                onChange={handleChange}
+                                placeholder="Ej. VT.5151"
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 {/* ─── Identificación del Equipo ─────────────── */}
                 <div className="form-section">
                     <h3 className="form-section__title">Identificación del Equipo</h3>
@@ -131,6 +152,13 @@ export default function DeviceForm() {
                         <div className="form-field">
                             <label className="form-label">Aliado</label>
                             <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" />
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Garantía</label>
+                            <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange}>
+                                <option value="Sí">Sí</option>
+                                <option value="No">No</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -193,13 +221,6 @@ export default function DeviceForm() {
                             </select>
                         </div>
                         <div className="form-field">
-                            <label className="form-label">Garantía</label>
-                            <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange}>
-                                <option value="Sí">Sí</option>
-                                <option value="No">No</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
                             <label className="form-label">Fecha Final</label>
                             <input className="form-input" type="date" name="fecha_final" value={form.fecha_final} onChange={handleChange} />
                         </div>
@@ -229,18 +250,10 @@ export default function DeviceForm() {
                     </div>
                 </div>
 
-                {/* ─── Falla e Informes ────────────────────── */}
+                {/* ─── Observaciones ────────────────────── */}
                 <div className="form-section">
-                    <h3 className="form-section__title">Falla e Informes</h3>
+                    <h3 className="form-section__title">Observaciones</h3>
                     <div className="form-grid form-grid--single">
-                        <div className="form-field">
-                            <label className="form-label">Falla Notificada</label>
-                            <textarea className="form-input form-textarea" name="falla_notificada" value={form.falla_notificada} onChange={handleChange} rows={3} placeholder="Describe la falla reportada por el cliente..." />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Informe Técnico</label>
-                            <textarea className="form-input form-textarea" name="informe" value={form.informe} onChange={handleChange} rows={3} placeholder="Detalle del informe técnico..." />
-                        </div>
                         <div className="form-field">
                             <label className="form-label">Observaciones Generales</label>
                             <textarea className="form-input form-textarea" name="informes" value={form.informes} onChange={handleChange} rows={4} placeholder="Describe el diagnóstico y trabajo realizado..." />
