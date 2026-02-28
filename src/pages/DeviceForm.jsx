@@ -88,8 +88,8 @@ export default function DeviceForm() {
         <div className="device-form-page anim-fadeUp">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">{isEdit ? 'Editar Caso' : 'Nuevo Caso'}</h1>
-                    <p className="page-sub">{isEdit ? `ID Caso: ${id}` : 'Complete los datos del caso POS'}</p>
+                    <h1 className="page-title">{isEdit ? 'Detalle de Caso' : 'Nuevo Caso'}</h1>
+                    <p className="page-sub">{isEdit ? `Serial: ${form.serial}` : 'Complete los datos del nuevo caso POS'}</p>
                 </div>
                 <button className="btn btn--ghost" onClick={() => navigate(-1)}>← Volver</button>
             </div>

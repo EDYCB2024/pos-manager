@@ -4,7 +4,6 @@ import Dashboard from './pages/Dashboard';
 import DeviceList from './pages/DeviceList';
 import DeviceForm from './pages/DeviceForm';
 import DeviceSearch from './pages/DeviceSearch';
-import DeviceDetail from './pages/DeviceDetail';
 import './App.css';
 
 export default function App() {
@@ -18,7 +17,7 @@ export default function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/devices" element={<DeviceList />} />
               <Route path="/devices/new" element={<DeviceForm />} />
-              <Route path="/devices/:id" element={<DeviceDetail />} />
+              <Route path="/devices/:id" element={<DeviceForm />} />
               <Route path="/devices/:id/edit" element={<DeviceForm />} />
               <Route path="/search" element={<DeviceSearch />} />
               <Route path="*" element={<Dashboard />} />
