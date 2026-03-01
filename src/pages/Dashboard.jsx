@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getStats, getAllDevices } from '../store';
+import { getStats } from '../store';
 import StatCard from '../components/StatCard';
-import StatusBadge from '../components/StatusBadge';
 import './Dashboard.css';
 
 const CASO_COLORS = {
@@ -16,14 +15,12 @@ const CASO_ICONS = {
 
 export default function Dashboard() {
     const [stats, setStats] = useState({ total: 0, byCaso: {}, byReparacion: {} });
-    const [recent, setRecent] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        Promise.all([getStats(), getAllDevices()]).then(([s, all]) => {
+        getStats().then(s => {
             setStats(s);
-            setRecent(all.slice(0, 5));
             setLoading(false);
         }).catch(() => setLoading(false));
     }, []);
@@ -54,54 +51,6 @@ export default function Dashboard() {
                 ))}
             </div>
 
-            {/* Recent Activity */}
-            <div className="dashboard__recent">
-                <h2 className="section-title">Últimos Casos</h2>
-                {loading ? (
-                    <div className="empty-state"><span className="empty-state__icon">⏳</span><p>Cargando...</p></div>
-                ) : recent.length === 0 ? (
-                    <div className="empty-state">
-                        <span className="empty-state__icon">📭</span>
-                        <p>No hay casos registrados aún.</p>
-                        <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
-                            Agregar primero
-                        </button>
-                    </div>
-                ) : (
-                    <div className="recent-table-wrap glass">
-                        <table className="data-table responsive-table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Serial</th>
-                                    <th>Razón Social</th>
-                                    <th>Aliado</th>
-                                    <th>Modelo</th>
-                                    <th>Estatus Caso</th>
-                                    <th>Estatus Rep.</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {recent.map(d => (
-                                    <tr
-                                        key={d.id}
-                                        className="data-table__row"
-                                        onClick={() => navigate(`/devices/${d.id}`)}
-                                    >
-                                        <td data-label="Fecha">{d.fecha || '—'}</td>
-                                        <td data-label="Serial"><code className="serial-code">{d.serial}</code></td>
-                                        <td data-label="Razon">{d.razon_social}</td>
-                                        <td data-label="Aliado">{d.aliado || '—'}</td>
-                                        <td data-label="Modelo">{d.modelo || '—'}</td>
-                                        <td data-label="Caso"><StatusBadge status={d.estatus_caso} type="caso" /></td>
-                                        <td data-label="Reparación"><StatusBadge status={d.estatus} type="reparacion" /></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
         </div>
     );
 }
