@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import html2pdf from 'html2pdf.js';
+import vatcLogo from '../assets/vatc-logo.jpg';
 import './ReportForm.css';
 
 export default function ReportForm() {
@@ -65,26 +66,26 @@ export default function ReportForm() {
             </div>
 
             <form
-                className={`device-form glass ${isGeneratingPdf ? 'pdf-generation-mode' : ''}`}
+                className={`device-form glass report-form-custom ${isGeneratingPdf ? 'pdf-generation-mode' : ''}`}
                 data-pdf-mode={isGeneratingPdf}
                 ref={reportRef}
                 onSubmit={(e) => e.preventDefault()}
             >
 
-                <div className="pdf-only-header">
-                    <div className="pdf-logo">VAT&C</div>
-                    <h2>INFORME TÉCNICO</h2>
-                </div>
-
-                {/* ─── Encabezado del Informe ────────────────────── */}
-                <div className="form-section">
-                    <h3 className="form-section__title">Encabezado del Informe</h3>
-                    <div className="form-grid">
-                        <div className="form-field">
-                            <label className="form-label">Fecha</label>
+                {/* ─── Cabecera del Documento ────────────────────── */}
+                <div className="report-header-unified">
+                    <div className="report-header__left">
+                        <img src={vatcLogo} alt="VAT&C Logo" className="report-logo-img" />
+                    </div>
+                    <div className="report-header__center">
+                        <h2>INFORME TÉCNICO</h2>
+                    </div>
+                    <div className="report-header__right">
+                        <div className="form-field form-field--compact">
+                            <label className="form-label">Fecha de Ingreso</label>
                             <input type="text" className="form-input" name="fecha" value={data.fecha} onChange={handleChange} />
                         </div>
-                        <div className="form-field">
+                        <div className="form-field form-field--compact">
                             <label className="form-label">Nº Informe</label>
                             <input type="text" className="form-input" name="numInforme" value={data.numInforme} onChange={handleChange} placeholder="Ej. PC-0038" />
                         </div>

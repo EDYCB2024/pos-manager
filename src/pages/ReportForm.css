@@ -1,14 +1,83 @@
 /* 
  * =====================================
- * PDF EXPORT STYLES (html2pdf captures this)
+ * Custom Report Form Styles (Reduced Size)
  * =====================================
- * This mode activates momentarily when the user clicks "Descargar PDF".
- * It overrides the modern App UI and enforces the VAT&C physical format.
  */
 
-.pdf-only-header {
-    display: none;
+.device-form.report-form-custom {
+    padding: 24px 32px;
+    gap: 20px;
+    max-width: 900px;
 }
+
+.report-form-custom .form-input {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.report-form-custom .form-label {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.report-form-custom .form-section__title {
+    margin-bottom: 12px;
+    padding-bottom: 4px;
+    font-size: 12px;
+}
+
+.report-header-unified {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+.report-logo-img {
+    height: 70px;
+    object-fit: contain;
+}
+
+.report-header__center h2 {
+    font-size: 20px;
+    margin: 0;
+    color: var(--text-primary);
+    text-align: center;
+    font-weight: 700;
+}
+
+.report-header__right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 220px;
+}
+
+.form-field--compact {
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+    gap: 10px;
+}
+
+.form-field--compact .form-label {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.form-field--compact .form-input {
+    width: 120px;
+    text-align: center;
+}
+
+/* 
+ * =====================================
+ * PDF EXPORT STYLES (html2pdf captures this)
+ * =====================================
+ */
 
 .device-form[data-pdf-mode="true"] {
     background: #fff;
@@ -22,26 +91,26 @@
     margin: 0 auto;
 }
 
-.device-form[data-pdf-mode="true"] .pdf-only-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Override unified header for PDF */
+.device-form[data-pdf-mode="true"] .report-header-unified {
     border-bottom: 2px solid #000;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
 }
 
-.device-form[data-pdf-mode="true"] .pdf-logo {
-    font-size: 28px;
-    font-weight: bold;
-    color: #E47935;
+.device-form[data-pdf-mode="true"] .report-header__center h2 {
+    color: #000 !important;
 }
 
-.device-form[data-pdf-mode="true"] .pdf-only-header h2 {
-    font-size: 24px;
-    margin: 0;
+.device-form[data-pdf-mode="true"] .form-field--compact .form-input {
+    border: none;
+    border-bottom: 1px solid #000;
+    background: transparent;
     color: #000;
 }
+
+.device-form[data-pdf-mode="true"] .form-field--compact .form-label {
+    color: #000;
+}
+
 
 .device-form[data-pdf-mode="true"] .form-section {
     background: transparent;
