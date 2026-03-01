@@ -1,31 +1,16 @@
-.report-container {
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.report-form-wrapper {
-    padding: 30px;
-    background: var(--surface);
-}
+/* 
+ * =====================================
+ * PDF EXPORT STYLES (html2pdf captures this)
+ * =====================================
+ * This mode activates momentarily when the user clicks "Descargar PDF".
+ * It overrides the modern App UI and enforces the VAT&C physical format.
+ */
 
 .pdf-only-header {
     display: none;
 }
 
-.form-grid--3col {
-    grid-template-columns: repeat(3, 1fr) !important;
-}
-
-/* 
- * =====================================
- * PDF EXPORT STYLES (html2pdf captures this)
- * =====================================
- * When exported to PDF, we want the form to abandon the "glass" look
- * and adopt the strict table-like presentation of the physical report.
- */
-
-.report-form-wrapper[data-pdf-mode="true"] {
+.device-form[data-pdf-mode="true"] {
     background: #fff;
     padding: 40px;
     border: 2px solid #555;
@@ -34,11 +19,10 @@
     color: #000;
     font-family: Arial, sans-serif;
     width: 800px;
-    /* Fixed width for A4 scale */
     margin: 0 auto;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .pdf-only-header {
+.device-form[data-pdf-mode="true"] .pdf-only-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -47,26 +31,26 @@
     margin-bottom: 20px;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .pdf-logo {
+.device-form[data-pdf-mode="true"] .pdf-logo {
     font-size: 28px;
     font-weight: bold;
     color: #E47935;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .pdf-only-header h2 {
+.device-form[data-pdf-mode="true"] .pdf-only-header h2 {
     font-size: 24px;
     margin: 0;
     color: #000;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .form-section {
+.device-form[data-pdf-mode="true"] .form-section {
     background: transparent;
     border: none;
     padding: 0;
     margin-bottom: 15px;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .form-section__title {
+.device-form[data-pdf-mode="true"] .form-section__title {
     background: #E47935;
     color: #fff;
     font-size: 13px;
@@ -76,26 +60,28 @@
     border: 1px solid #000;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .form-grid {
+.device-form[data-pdf-mode="true"] .form-grid {
     grid-template-columns: 1fr 1fr !important;
     gap: 10px;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .form-group {
+.device-form[data-pdf-mode="true"] .form-field {
     display: flex;
+    flex-direction: row;
     align-items: center;
     margin-bottom: 0px;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .form-group label {
-    width: 130px;
+.device-form[data-pdf-mode="true"] .form-label {
+    width: 140px;
     flex-shrink: 0;
     font-weight: bold;
     font-size: 12px;
     color: #000;
+    margin-bottom: 0;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .form-control {
+.device-form[data-pdf-mode="true"] .form-input {
     background: transparent;
     border: none;
     border-bottom: 1px solid #000;
@@ -104,18 +90,19 @@
     font-size: 12px;
     color: #000;
     height: auto;
+    flex: 1;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] select.form-control {
+.device-form[data-pdf-mode="true"] select.form-input {
     appearance: none;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .checkbox-group {
+.device-form[data-pdf-mode="true"] .report-checkboxes {
     flex-direction: row;
-    gap: 15px;
+    gap: 15px !important;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .checkbox-label {
+.device-form[data-pdf-mode="true"] .report-checkboxes label {
     font-size: 12px;
     color: #000;
     display: flex;
@@ -123,7 +110,7 @@
     gap: 5px;
 }
 
-.report-form-wrapper[data-pdf-mode="true"] .form-control--textarea {
+.device-form[data-pdf-mode="true"] .form-textarea {
     border: 1px solid #000;
     resize: none;
     min-height: 80px;
