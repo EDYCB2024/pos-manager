@@ -88,16 +88,22 @@
 
 .device-form[data-pdf-mode="true"] {
     background: #fff;
-    padding: 15px 25px;
-    border: 2px solid #555;
+    padding: 30px 40px;
+    /* Margins inside the document */
+    border: none;
     border-radius: 0;
     box-shadow: none;
     color: #000;
     font-family: Arial, sans-serif;
-    width: 800px;
+
+    /* Exact Letter dimensions at Web 96 DPI (8.5 x 11 inches) */
+    width: 816px;
+    height: 1056px;
     margin: 0 auto;
     box-sizing: border-box;
-    line-height: 1.1;
+    line-height: 1.15;
+    overflow: hidden;
+    /* Avoid any unintended page break */
 }
 
 /* Override unified header for PDF */

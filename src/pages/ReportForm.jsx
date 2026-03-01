@@ -39,11 +39,11 @@ export default function ReportForm() {
         setTimeout(() => {
             const element = reportRef.current;
             const opt = {
-                margin: [10, 10, 10, 10],
+                margin: 0,
                 filename: `Informe_Tecnico_${data.numInforme || 'S/N'}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
