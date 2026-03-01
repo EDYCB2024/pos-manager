@@ -222,7 +222,7 @@ export default function ReportForm() {
                         </div>
                         <div className="form-field">
                             <label className="form-label">Nivel de falla (Check)</label>
-                            <div className="checkbox-group report-checkboxes" style={{ display: 'flex', gap: '15px' }}>
+                            <div className="checkbox-group report-checkboxes report-checkboxes--col" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label><input type="checkbox" name="nivel_0" checked={data.nivel_0} onChange={handleChange} /> Nivel 0</label>
                                 <label><input type="checkbox" name="nivel_1" checked={data.nivel_1} onChange={handleChange} /> Nivel 1</label>
                                 <label><input type="checkbox" name="nivel_2" checked={data.nivel_2} onChange={handleChange} /> Nivel 2</label>

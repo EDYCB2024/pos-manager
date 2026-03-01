@@ -203,8 +203,13 @@
 }
 
 .device-form[data-pdf-mode="true"] .report-checkboxes {
-    flex-direction: row;
     gap: 15px !important;
+}
+
+.device-form[data-pdf-mode="true"] .report-checkboxes.report-checkboxes--col {
+    flex-direction: column;
+    gap: 5px !important;
+    align-items: flex-start;
 }
 
 .device-form[data-pdf-mode="true"] .report-checkboxes label {
