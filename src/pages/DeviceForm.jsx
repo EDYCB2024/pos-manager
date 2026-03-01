@@ -44,6 +44,7 @@ export default function DeviceForm() {
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(isEdit);
+    const [isReadOnly, setIsReadOnly] = useState(isEdit); // Start as read-only if viewing/editing
 
     useEffect(() => {
         if (!isEdit) return;
@@ -88,10 +89,15 @@ export default function DeviceForm() {
         <div className="device-form-page anim-fadeUp">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">{isEdit ? 'Detalle de Caso' : 'Nuevo Caso'}</h1>
+                    <h1 className="page-title">{isEdit ? (isReadOnly ? 'Consulta de Caso' : 'Editar Caso') : 'Nuevo Caso'}</h1>
                     <p className="page-sub">{isEdit ? `Serial: ${form.serial}` : 'Complete los datos del nuevo caso POS'}</p>
                 </div>
-                <button className="btn btn--ghost" onClick={() => navigate(-1)}>← Volver</button>
+                <div className="page-header__actions">
+                    <button className="btn btn--ghost" onClick={() => navigate(-1)}>← Volver</button>
+                    {isEdit && isReadOnly && (
+                        <button className="btn btn--primary" onClick={() => setIsReadOnly(false)}>✎ Editar</button>
+                    )}
+                </div>
             </div>
 
             {error && <div className="form-error">{error}</div>}
@@ -104,7 +110,15 @@ export default function DeviceForm() {
                     <div className="form-grid">
                         <div className="form-field form-field--wide">
                             <label className="form-label">Falla Notificada</label>
-                            <textarea className="form-input form-textarea" name="falla_notificada" value={form.falla_notificada} onChange={handleChange} rows={2} placeholder="Describe la falla reportada por el cliente..." />
+                            <textarea
+                                className="form-input form-textarea"
+                                name="falla_notificada"
+                                value={form.falla_notificada}
+                                onChange={handleChange}
+                                rows={2}
+                                placeholder="Describe la falla reportada por el cliente..."
+                                disabled={isReadOnly}
+                            />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Informe Técnico (Link/ID)</label>
@@ -114,6 +128,7 @@ export default function DeviceForm() {
                                 value={form.informe}
                                 onChange={handleChange}
                                 placeholder="Ej. VT.5151"
+                                disabled={isReadOnly}
                             />
                         </div>
                     </div>
@@ -125,7 +140,15 @@ export default function DeviceForm() {
                     <div className="form-grid">
                         <div className="form-field">
                             <label className="form-label">Fecha *</label>
-                            <input className="form-input" type="date" name="fecha" value={form.fecha} onChange={handleChange} required />
+                            <input
+                                className="form-input"
+                                type="date"
+                                name="fecha"
+                                value={form.fecha}
+                                onChange={handleChange}
+                                required
+                                disabled={isReadOnly}
+                            />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Serial *</label>
@@ -134,28 +157,28 @@ export default function DeviceForm() {
                                 name="serial"
                                 value={form.serial}
                                 onChange={handleChange}
-                                disabled={isEdit}
+                                disabled={isEdit} // Serial logic remains as is, but could be isReadOnly if allowed to edit serial
                                 placeholder="Ej. VX520-001234"
                                 required
                             />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Modelo</label>
-                            <select className="form-input" name="modelo" value={form.modelo} onChange={handleChange}>
+                            <select className="form-input" name="modelo" value={form.modelo} onChange={handleChange} disabled={isReadOnly}>
                                 {MODELOS.map(m => <option key={m} value={m}>{m}</option>)}
                             </select>
                         </div>
                         <div className="form-field">
                             <label className="form-label">Serial de Reemplazo</label>
-                            <input className="form-input" name="serial_reemplazo" value={form.serial_reemplazo} onChange={handleChange} placeholder="Ej. VX520-009999" />
+                            <input className="form-input" name="serial_reemplazo" value={form.serial_reemplazo} onChange={handleChange} placeholder="Ej. VX520-009999" disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Aliado</label>
-                            <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" />
+                            <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Garantía</label>
-                            <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange}>
+                            <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange} disabled={isReadOnly}>
                                 <option value="Sí">Sí</option>
                                 <option value="No">No</option>
                             </select>
@@ -169,25 +192,25 @@ export default function DeviceForm() {
                     <div className="form-grid">
                         <div className="form-field">
                             <label className="form-label">RIF</label>
-                            <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="Ej. J-12345678-9" />
+                            <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="Ej. J-12345678-9" disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Ingreso</label>
-                            <input className="form-input" name="ingreso" value={form.ingreso} onChange={handleChange} placeholder="Nro. de ingreso" />
+                            <input className="form-input" name="ingreso" value={form.ingreso} onChange={handleChange} placeholder="Nro. de ingreso" disabled={isReadOnly} />
                         </div>
                         <div className="form-field form-field--wide">
                             <label className="form-label">Razón Social *</label>
-                            <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Ej. Comercial El Éxito C.A." required />
+                            <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Ej. Comercial El Éxito C.A." required disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Procesadora</label>
-                            <select className="form-input" name="procesadora" value={form.procesadora} onChange={handleChange}>
+                            <select className="form-input" name="procesadora" value={form.procesadora} onChange={handleChange} disabled={isReadOnly}>
                                 {PROCESADORAS.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                         </div>
                         <div className="form-field">
                             <label className="form-label">Técnico Encargado</label>
-                            <select className="form-input" name="tecnico" value={form.tecnico} onChange={handleChange}>
+                            <select className="form-input" name="tecnico" value={form.tecnico} onChange={handleChange} disabled={isReadOnly}>
                                 {TECNICOS.map(t => <option key={t} value={t}>{t}</option>)}
                             </select>
                         </div>
@@ -200,33 +223,33 @@ export default function DeviceForm() {
                     <div className="form-grid">
                         <div className="form-field">
                             <label className="form-label">Estatus del Caso</label>
-                            <select className="form-input" name="estatus_caso" value={form.estatus_caso} onChange={handleChange}>
+                            <select className="form-input" name="estatus_caso" value={form.estatus_caso} onChange={handleChange} disabled={isReadOnly}>
                                 {ESTATUSES_CASO.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                         </div>
                         <div className="form-field">
                             <label className="form-label">Estatus de Reparación</label>
-                            <select className="form-input" name="estatus" value={form.estatus} onChange={handleChange}>
+                            <select className="form-input" name="estatus" value={form.estatus} onChange={handleChange} disabled={isReadOnly}>
                                 {ESTATUSES_REPARACION.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                         </div>
                         <div className="form-field">
                             <label className="form-label">Nivel</label>
-                            <input className="form-input" name="nivel" value={form.nivel} onChange={handleChange} placeholder="Nivel técnico" />
+                            <input className="form-input" name="nivel" value={form.nivel} onChange={handleChange} placeholder="Nivel técnico" disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Categoría</label>
-                            <select className="form-input" name="categoria" value={form.categoria} onChange={handleChange}>
+                            <select className="form-input" name="categoria" value={form.categoria} onChange={handleChange} disabled={isReadOnly}>
                                 {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
                         <div className="form-field">
                             <label className="form-label">Fecha Final</label>
-                            <input className="form-input" type="date" name="fecha_final" value={form.fecha_final} onChange={handleChange} />
+                            <input className="form-input" type="date" name="fecha_final" value={form.fecha_final} onChange={handleChange} disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Cotización</label>
-                            <input className="form-input" name="cotizacion" value={form.cotizacion} onChange={handleChange} placeholder="Ej. 50.00 o Pendiente" />
+                            <input className="form-input" name="cotizacion" value={form.cotizacion} onChange={handleChange} placeholder="Ej. 50.00 o Pendiente" disabled={isReadOnly} />
                         </div>
                     </div>
                 </div>
@@ -237,15 +260,15 @@ export default function DeviceForm() {
                     <div className="form-grid">
                         <div className="form-field">
                             <label className="form-label">Repuesto/Servicio 1</label>
-                            <input className="form-input" name="repuesto_1" value={form.repuesto_1} onChange={handleChange} placeholder="Descripción del repuesto 1" />
+                            <input className="form-input" name="repuesto_1" value={form.repuesto_1} onChange={handleChange} placeholder="Descripción del repuesto 1" disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Repuesto/Servicio 2</label>
-                            <input className="form-input" name="repuesto_2" value={form.repuesto_2} onChange={handleChange} placeholder="Descripción del repuesto 2" />
+                            <input className="form-input" name="repuesto_2" value={form.repuesto_2} onChange={handleChange} placeholder="Descripción del repuesto 2" disabled={isReadOnly} />
                         </div>
                         <div className="form-field">
                             <label className="form-label">Repuesto/Servicio 3</label>
-                            <input className="form-input" name="repuesto_3" value={form.repuesto_3} onChange={handleChange} placeholder="Descripción del repuesto 3" />
+                            <input className="form-input" name="repuesto_3" value={form.repuesto_3} onChange={handleChange} placeholder="Descripción del repuesto 3" disabled={isReadOnly} />
                         </div>
                     </div>
                 </div>
@@ -256,17 +279,29 @@ export default function DeviceForm() {
                     <div className="form-grid form-grid--single">
                         <div className="form-field">
                             <label className="form-label">Observaciones Generales</label>
-                            <textarea className="form-input form-textarea" name="informes" value={form.informes} onChange={handleChange} rows={4} placeholder="Describe el diagnóstico y trabajo realizado..." />
+                            <textarea
+                                className="form-input form-textarea"
+                                name="informes"
+                                value={form.informes}
+                                onChange={handleChange}
+                                rows={4}
+                                placeholder="Describe el diagnóstico y trabajo realizado..."
+                                disabled={isReadOnly}
+                            />
                         </div>
                     </div>
                 </div>
 
-                <div className="form-actions">
-                    <button type="button" className="btn btn--ghost" onClick={() => navigate(-1)}>Cancelar</button>
-                    <button type="submit" className="btn btn--primary" disabled={saving}>
-                        {saving ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Registrar caso'}
-                    </button>
-                </div>
+                {!isReadOnly && (
+                    <div className="form-actions anim-fadeIn">
+                        <button type="button" className="btn btn--ghost" onClick={() => (isEdit ? setIsReadOnly(true) : navigate(-1))}>
+                            {isEdit ? 'Cancelar edición' : 'Cancelar'}
+                        </button>
+                        <button type="submit" className="btn btn--primary" disabled={saving}>
+                            {saving ? 'Guardando...' : isEdit ? 'Guardar cambios' : 'Registrar caso'}
+                        </button>
+                    </div>
+                )}
             </form>
         </div>
     );
