@@ -6,16 +6,12 @@ import StatusBadge from '../components/StatusBadge';
 import './Dashboard.css';
 
 const CASO_COLORS = {
-    'Abierto': 'amber',
-    'En proceso': 'blue',
-    'Cerrado': 'green',
-    'Cancelado': 'red',
+    'Caso Abierto': 'blue',
+    'Caso Cerrado': 'green',
 };
 const CASO_ICONS = {
-    'Abierto': '📥',
-    'En proceso': '🔧',
-    'Cerrado': '✅',
-    'Cancelado': '❌',
+    'Caso Abierto': '📥',
+    'Caso Cerrado': '✅',
 };
 
 export default function Dashboard() {
