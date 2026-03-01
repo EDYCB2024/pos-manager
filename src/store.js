@@ -187,14 +187,6 @@ export async function deleteDevice(id) {
 }
 
 export async function getStats() {
-    // Para 35k registros es mejor no traer toda la data. 
-    // Hacemos una consulta rápida para el total y una para cada estatus.
-    const { count: total, error: errTotal } = await supabase
-        .from('casos_pos')
-        .select('*', { count: 'exact', head: true });
-
-    if (errTotal) throw new Error(errTotal.message);
-
     const byCaso = {};
     const byReparacion = {};
 
@@ -209,6 +201,9 @@ export async function getStats() {
             byReparacion[s] = count || 0;
         })
     ]);
+
+    // El total real es la suma de los estatus de caso actuales
+    const total = Object.values(byCaso).reduce((a, b) => a + b, 0);
 
     return { total, byCaso, byReparacion };
 }
