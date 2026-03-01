@@ -74,7 +74,7 @@ export async function getAllDevices() {
 /**
  * Obtiene dispositivos con paginación, búsqueda y filtros en el servidor.
  */
-export async function getDevicesPaged({ page = 1, pageSize = 50, search = '', filterCaso = '', filterRep = '' }) {
+export async function getDevicesPaged({ page = 1, pageSize = 50, search = '', filterCaso = '', filterRep = '', filterAliado = '' }) {
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
@@ -85,6 +85,7 @@ export async function getDevicesPaged({ page = 1, pageSize = 50, search = '', fi
     // Filtros en servidor
     if (filterCaso) query = query.eq('estatus_caso', filterCaso);
     if (filterRep) query = query.eq('estatus', filterRep);
+    if (filterAliado) query = query.eq('aliado', filterAliado);
 
     // Búsqueda en servidor (OR entre múltiples campos)
     if (search) {
@@ -206,4 +207,15 @@ export async function getStats() {
     const total = Object.values(byCaso).reduce((a, b) => a + b, 0);
 
     return { total, byCaso, byReparacion };
+}
+
+export async function getUniqueAliados() {
+    const { data, error } = await supabase
+        .from('casos_pos')
+        .select('aliado')
+        .not('aliado', 'is', null)
+        .order('aliado');
+    if (error) throw new Error(error.message);
+    const unique = [...new Set(data.map(d => d.aliado))];
+    return unique.filter(Boolean);
 }

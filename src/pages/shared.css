@@ -213,7 +213,7 @@
 /* ─── Search box ─────────────────────────────────────────── */
 .search-box {
     position: relative;
-    flex: 1;
+    flex: 0 1 300px; /* Reducir el tamaño de la caja de búsqueda */
     min-width: 200px;
 }
 

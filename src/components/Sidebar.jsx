@@ -50,6 +50,29 @@ export default function Sidebar() {
                     ))}
                 </nav>
 
+                <div className="sidebar__section">
+                    <h3 className="sidebar__section-title">Aliados</h3>
+                    <nav className="sidebar__sub-nav">
+                        {[
+                            'VATC', 'CREDICARD', 'PLATCO', 'PLATCO POS', 'BANCARIBE',
+                            'BANPLUS', 'POS COMERCIAL', 'TOKEN PAGOS', 'INSTAPAGO',
+                            'PAYTECH', 'BANCRECER', 'BANCO ACTIVO', 'DEL SUR'
+                        ].map(aliado => (
+                            <NavLink
+                                key={aliado}
+                                to={`/devices?aliado=${encodeURIComponent(aliado)}`}
+                                onClick={close}
+                                className={({ isActive }) =>
+                                    `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--active' : ''}`
+                                }
+                            >
+                                <span className="sidebar__link-icon">↳</span>
+                                <span>{aliado}</span>
+                            </NavLink>
+                        ))}
+                    </nav>
+                </div>
+
                 <div className="sidebar__footer">
                     <span>v1.0.0 · Frontend</span>
                 </div>

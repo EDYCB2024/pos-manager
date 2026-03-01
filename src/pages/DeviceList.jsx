@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getDevicesPaged, deleteDevice, ESTATUSES_CASO, ESTATUSES_REPARACION, getReportUrl } from '../store';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { getDevicesPaged, deleteDevice, ESTATUSES_CASO, ESTATUSES_REPARACION, getReportUrl, getUniqueAliados } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import './DeviceList.css';
 
@@ -9,8 +9,11 @@ export default function DeviceList() {
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
     const [filterCaso, setFilterCaso] = useState('');
     const [filterRep, setFilterRep] = useState('');
+    const [filterAliado, setFilterAliado] = useState(searchParams.get('aliado') || '');
+    const [aliados, setAliados] = useState([]);
     const [confirm, setConfirm] = useState(null); // { id, serial }
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -18,17 +21,40 @@ export default function DeviceList() {
 
     const load = () => {
         setLoading(true);
-        getDevicesPaged({ page, pageSize, search, filterCaso, filterRep }).then(({ data, count }) => {
+        getDevicesPaged({ page, pageSize, search, filterCaso, filterRep, filterAliado }).then(({ data, count }) => {
             setDevices(data);
             setTotal(count || 0);
             setLoading(false);
         }).catch(() => setLoading(false));
     };
 
+    useEffect(() => {
+        getUniqueAliados().then(setAliados).catch(console.error);
+    }, []);
+
+    // Sincronizar parámetro de la URL con el estado
+    useEffect(() => {
+        const urlAliado = searchParams.get('aliado') || '';
+        if (urlAliado !== filterAliado) {
+            setFilterAliado(urlAliado);
+        }
+    }, [searchParams]);
+
+    const handleAliadoChange = (e) => {
+        const val = e.target.value;
+        setFilterAliado(val);
+
+        // Actualizar URL
+        const params = new URLSearchParams(searchParams);
+        if (val) params.set('aliado', val);
+        else params.delete('aliado');
+        setSearchParams(params);
+    };
+
     // Recargar cuando cambie la página o los filtros
     useEffect(() => {
         load();
-    }, [page, filterCaso, filterRep]);
+    }, [page, filterCaso, filterRep, filterAliado]);
 
     // Recargar cuando cambie la búsqueda (con debounce)
     useEffect(() => {
@@ -84,6 +110,10 @@ export default function DeviceList() {
                 <select className="filter-select" value={filterRep} onChange={e => setFilterRep(e.target.value)}>
                     <option value="">Estatus reparación</option>
                     {ESTATUSES_REPARACION.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <select className="filter-select" value={filterAliado} onChange={handleAliadoChange}>
+                    <option value="">Filtrar por Aliado</option>
+                    {aliados.map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
             </div>
 
