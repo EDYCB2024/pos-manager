@@ -88,7 +88,7 @@
 
 /* Sections */
 .sidebar__section {
-    padding: 10px 12px;
+    padding: 0;
     display: flex;
     flex-direction: column;
 }
@@ -138,6 +138,12 @@
     font-size: 12px;
     width: 14px;
     opacity: 0.5;
+}
+
+.sidebar__link--sub-active {
+    color: var(--accent);
+    background: transparent;
+    border-color: transparent;
 }
 
 /* Footer */

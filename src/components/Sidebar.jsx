@@ -47,44 +47,43 @@ export default function Sidebar() {
                             <span>{item.label}</span>
                         </NavLink>
                     ))}
+                    <div className="sidebar__section">
+                        <div
+                            className={`sidebar__link sidebar__link--collapsible-header ${isAliadosOpen ? 'sidebar__link--active' : ''}`}
+                            onClick={() => setIsAliadosOpen(!isAliadosOpen)}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <span className="sidebar__link-icon">🤝</span>
+                                <span>Aliados</span>
+                            </div>
+                            <span className={`sidebar__chevron ${isAliadosOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
+                        </div>
+                        {isAliadosOpen && (
+                            <div className="sidebar__sub-nav">
+                                {[
+                                    'VAT&C', 'CREDICARD', 'PLATCO', 'PLATCO POS', 'BANCARIBE',
+                                    'BANPLUS', 'POSCOMERCIAL', 'TOKEN PAGOS', 'INSTAPAGO',
+                                    'PAYTECH', 'BANCRECER', 'BANCO ACTIVO', 'DEL SUR'
+                                ].map(aliado => (
+                                    <NavLink
+                                        key={aliado}
+                                        to={`/devices?aliado=${encodeURIComponent(aliado)}`}
+                                        onClick={close}
+                                        className={({ isActive }) =>
+                                            `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                        }
+                                    >
+                                        <span className="sidebar__link-icon">↳</span>
+                                        <span>{aliado}</span>
+                                    </NavLink>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </nav>
 
-                <div className="sidebar__section">
-                    <div
-                        className={`sidebar__link sidebar__link--collapsible-header ${isAliadosOpen ? 'sidebar__link--active' : ''}`}
-                        onClick={() => setIsAliadosOpen(!isAliadosOpen)}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <span className="sidebar__link-icon">🤝</span>
-                            <span>Aliados</span>
-                        </div>
-                        <span className={`sidebar__chevron ${isAliadosOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
-                    </div>
-                    {isAliadosOpen && (
-                        <nav className="sidebar__sub-nav">
-                            {[
-                                'VATC', 'CREDICARD', 'PLATCO', 'PLATCO POS', 'BANCARIBE',
-                                'BANPLUS', 'POS COMERCIAL', 'TOKEN PAGOS', 'INSTAPAGO',
-                                'PAYTECH', 'BANCRECER', 'BANCO ACTIVO', 'DEL SUR'
-                            ].map(aliado => (
-                                <NavLink
-                                    key={aliado}
-                                    to={`/devices?aliado=${encodeURIComponent(aliado)}`}
-                                    onClick={close}
-                                    className={({ isActive }) =>
-                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--active' : ''}`
-                                    }
-                                >
-                                    <span className="sidebar__link-icon">↳</span>
-                                    <span>{aliado}</span>
-                                </NavLink>
-                            ))}
-                        </nav>
-                    )}
-                </div>
-
                 <div className="sidebar__footer">
-                    <span>v1.0.0 · Frontend</span>
+                    <span>v1.0.0</span>
                 </div>
             </aside>
         </>
