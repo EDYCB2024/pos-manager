@@ -2,8 +2,8 @@ import { supabase } from './lib/supabase';
 
 // ─── Opciones de campos de selección ────────────────────────────
 export const ESTATUSES_CASO = [
-    'Caso Abierto',
-    'Caso Cerrado',
+    'CASO ABIERTO',
+    'CASO CERRADO',
 ];
 
 export const ESTATUSES_REPARACION = [
