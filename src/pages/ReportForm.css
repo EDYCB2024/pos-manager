@@ -73,6 +73,8 @@
 .form-field--compact .form-label {
     margin-bottom: 0;
     flex-shrink: 0;
+    width: 110px;
+    text-align: right;
 }
 
 .form-field--compact .form-input {
@@ -88,8 +90,8 @@
 
 .device-form[data-pdf-mode="true"] {
     background: #fff;
-    padding: 40px 50px;
-    /* Margins inside the document */
+    padding: 30px 65px;
+    /* Margins inside the document - increased horizontal to avoid bleeding */
     border: none;
     border-radius: 0;
     box-shadow: none;
@@ -135,6 +137,8 @@
 
 .device-form[data-pdf-mode="true"] .form-field--compact .form-label {
     color: #000;
+    width: 110px;
+    text-align: right;
 }
 
 
