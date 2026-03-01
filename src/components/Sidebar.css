@@ -103,6 +103,28 @@
     padding: 0 12px;
 }
 
+.sidebar__section-title--collapsible {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.sidebar__section-title--collapsible:hover {
+    color: var(--text-primary);
+}
+
+.sidebar__chevron {
+    font-size: 8px;
+    transition: transform 0.3s ease;
+    transform: rotate(-90deg);
+}
+
+.sidebar__chevron--open {
+    transform: rotate(0deg);
+}
+
 .sidebar__sub-nav {
     display: flex;
     flex-direction: column;

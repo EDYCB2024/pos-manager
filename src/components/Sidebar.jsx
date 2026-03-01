@@ -6,12 +6,12 @@ const navItems = [
     { to: '/', icon: '⊞', label: 'Dashboard' },
     { to: '/devices', icon: '☰', label: 'Equipos' },
     { to: '/search', icon: '⊕', label: 'Buscar Serial' },
-    { to: '/devices/new', icon: '+', label: 'Nuevo Equipo' },
 ];
 
 export default function Sidebar() {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
+    const [isAliadosOpen, setIsAliadosOpen] = useState(false);
 
     const toggle = () => setIsOpen(!isOpen);
     const close = () => setIsOpen(false);
@@ -51,26 +51,34 @@ export default function Sidebar() {
                 </nav>
 
                 <div className="sidebar__section">
-                    <h3 className="sidebar__section-title">Aliados</h3>
-                    <nav className="sidebar__sub-nav">
-                        {[
-                            'VATC', 'CREDICARD', 'PLATCO', 'PLATCO POS', 'BANCARIBE',
-                            'BANPLUS', 'POS COMERCIAL', 'TOKEN PAGOS', 'INSTAPAGO',
-                            'PAYTECH', 'BANCRECER', 'BANCO ACTIVO', 'DEL SUR'
-                        ].map(aliado => (
-                            <NavLink
-                                key={aliado}
-                                to={`/devices?aliado=${encodeURIComponent(aliado)}`}
-                                onClick={close}
-                                className={({ isActive }) =>
-                                    `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--active' : ''}`
-                                }
-                            >
-                                <span className="sidebar__link-icon">↳</span>
-                                <span>{aliado}</span>
-                            </NavLink>
-                        ))}
-                    </nav>
+                    <h3
+                        className="sidebar__section-title sidebar__section-title--collapsible"
+                        onClick={() => setIsAliadosOpen(!isAliadosOpen)}
+                    >
+                        <span>Aliados</span>
+                        <span className={`sidebar__chevron ${isAliadosOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
+                    </h3>
+                    {isAliadosOpen && (
+                        <nav className="sidebar__sub-nav">
+                            {[
+                                'VATC', 'CREDICARD', 'PLATCO', 'PLATCO POS', 'BANCARIBE',
+                                'BANPLUS', 'POS COMERCIAL', 'TOKEN PAGOS', 'INSTAPAGO',
+                                'PAYTECH', 'BANCRECER', 'BANCO ACTIVO', 'DEL SUR'
+                            ].map(aliado => (
+                                <NavLink
+                                    key={aliado}
+                                    to={`/devices?aliado=${encodeURIComponent(aliado)}`}
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--active' : ''}`
+                                    }
+                                >
+                                    <span className="sidebar__link-icon">↳</span>
+                                    <span>{aliado}</span>
+                                </NavLink>
+                            ))}
+                        </nav>
+                    )}
                 </div>
 
                 <div className="sidebar__footer">
