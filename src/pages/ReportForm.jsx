@@ -214,7 +214,7 @@ export default function ReportForm() {
                     <div className="form-grid">
                         <div className="form-field">
                             <label className="form-label">Condición (Check)</label>
-                            <div className="checkbox-group report-checkboxes" style={{ display: 'flex', gap: '15px' }}>
+                            <div className="checkbox-group report-checkboxes report-checkboxes--col" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label><input type="checkbox" name="cond_garantia" checked={data.cond_garantia} onChange={handleChange} /> Garantía</label>
                                 <label><input type="checkbox" name="cond_cotizacion" checked={data.cond_cotizacion} onChange={handleChange} /> Cotización</label>
                                 <label><input type="checkbox" name="cond_irreparable" checked={data.cond_irreparable} onChange={handleChange} /> Irreparable</label>
