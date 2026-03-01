@@ -5,7 +5,6 @@ import './Sidebar.css';
 const navItems = [
     { to: '/', icon: '⊞', label: 'Dashboard' },
     { to: '/devices', icon: '☰', label: 'Equipos' },
-    { to: '/search', icon: '⊕', label: 'Buscar Serial' },
 ];
 
 export default function Sidebar() {
@@ -51,13 +50,16 @@ export default function Sidebar() {
                 </nav>
 
                 <div className="sidebar__section">
-                    <h3
-                        className="sidebar__section-title sidebar__section-title--collapsible"
+                    <div
+                        className={`sidebar__link sidebar__link--collapsible-header ${isAliadosOpen ? 'sidebar__link--active' : ''}`}
                         onClick={() => setIsAliadosOpen(!isAliadosOpen)}
                     >
-                        <span>Aliados</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span className="sidebar__link-icon">🤝</span>
+                            <span>Aliados</span>
+                        </div>
                         <span className={`sidebar__chevron ${isAliadosOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
-                    </h3>
+                    </div>
                     {isAliadosOpen && (
                         <nav className="sidebar__sub-nav">
                             {[
