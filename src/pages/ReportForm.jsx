@@ -9,6 +9,7 @@ export default function ReportForm() {
 
     // Estado para los campos del formulario
     const [data, setData] = useState({
+        headerColor: '#175084', // Default blue from logo
         fecha: new Date().toLocaleDateString('es-ES'),
         numInforme: '',
 
@@ -58,7 +59,11 @@ export default function ReportForm() {
                     <h1 className="page-title">Crear Informe Técnico</h1>
                     <p className="page-sub">Llena los datos del informe a generar en PDF</p>
                 </div>
-                <div className="page-header__actions">
+                <div className="page-header__actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <div className="color-picker-wrapper" style={{ display: 'flex', alignItems: 'center' }}>
+                        <label className="form-label" style={{ marginRight: '8px', marginBottom: 0, fontSize: '13px' }}>Color Título:</label>
+                        <input type="color" name="headerColor" value={data.headerColor} onChange={handleChange} style={{ padding: 0, border: 'none', background: 'transparent', cursor: 'pointer', width: '24px', height: '24px' }} />
+                    </div>
                     <button className="btn btn--primary" onClick={handleDownloadPdf}>
                         📄 Descargar PDF
                     </button>
@@ -70,6 +75,7 @@ export default function ReportForm() {
                 data-pdf-mode={isGeneratingPdf}
                 ref={reportRef}
                 onSubmit={(e) => e.preventDefault()}
+                style={{ '--header-color': data.headerColor }}
             >
 
                 {/* ─── Cabecera del Documento ────────────────────── */}
