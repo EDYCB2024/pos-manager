@@ -80,6 +80,17 @@ export default function Sidebar() {
                             </div>
                         )}
                     </div>
+
+                    <NavLink
+                        to="/report/new"
+                        onClick={close}
+                        className={({ isActive }) =>
+                            `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
+                        }
+                    >
+                        <span className="sidebar__link-icon">📄</span>
+                        <span>Crear Informe</span>
+                    </NavLink>
                 </nav>
 
                 <div className="sidebar__footer">

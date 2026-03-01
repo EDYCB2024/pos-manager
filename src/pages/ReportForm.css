@@ -1,0 +1,285 @@
+.report-container {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.report-canvas-wrapper {
+    background: #fff;
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+}
+
+/* Base Canvas for PDF (Matches A4 proportion roughly before scaling) */
+.report-canvas {
+    width: 800px;
+    min-width: 800px;
+    background: #fff;
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+.report-border {
+    border: 2px solid #555;
+    padding: 20px;
+}
+
+/* General Inputs within the Report */
+.report-canvas input[type="text"],
+export .report-canvas textarea {
+    border: 1px solid #000;
+    background: transparent;
+    padding: 4px;
+    font-size: 11px;
+    color: #000;
+    width: 100%;
+}
+
+.report-canvas input[type="text"]:focus,
+.report-canvas textarea:focus {
+    outline: none;
+    background: #fdfdfd;
+}
+
+/* Header Section */
+.rep-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.rep-logo {
+    width: 150px;
+    text-align: center;
+}
+
+.rep-title h1 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+    color: #000;
+}
+
+.rep-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 180px;
+}
+
+.rep-meta label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.rep-meta input {
+    width: 110px !important;
+    text-align: center;
+}
+
+/* Sections */
+.rep-section {
+    margin-top: 10px;
+}
+
+.rep-section-title {
+    background: #E47935;
+    /* Orange color from the VATC logo */
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    padding: 4px 0;
+    margin: 0 0 10px 0;
+}
+
+/* 2-Column Grid for Info Cliente */
+.rep-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 40px;
+    row-gap: 8px;
+}
+
+.rep-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rep-row span {
+    font-weight: bold;
+    width: 140px;
+}
+
+/* Recepción de Equipo Tables */
+.rep-tables {
+    align-items: flex-start;
+}
+
+.rep-table-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.rep-table-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.rep-sino {
+    display: flex;
+    gap: 15px;
+    width: 60px;
+    justify-content: center;
+}
+
+.rep-table-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0px;
+}
+
+.rep-checks {
+    display: flex;
+}
+
+.rep-checks input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 30px;
+    height: 20px;
+    border: 1px solid #000;
+    margin: 0;
+    background: #fcebdc;
+    /* Light orange tint */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.rep-checks input[type="radio"]:checked::after {
+    content: "X";
+    font-weight: bold;
+    color: #000;
+    font-size: 14px;
+}
+
+/* Evaluación Técnica */
+.rep-eval-block {
+    display: flex;
+    margin-bottom: 8px;
+    align-items: stretch;
+}
+
+.rep-eval-label {
+    font-weight: bold;
+    width: 160px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.rep-eval-block--tall .rep-eval-label {
+    align-items: flex-start;
+    padding-top: 5px;
+}
+
+.rep-eval-input {
+    flex: 1;
+}
+
+.rep-eval-textarea {
+    flex: 1;
+    min-height: 120px;
+    resize: none;
+    text-align: center;
+    padding-top: 50px !important;
+    /* To center text vertically roughly */
+}
+
+/* Footer Conditions */
+.rep-eval-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.rep-condicion,
+.rep-nivel,
+.rep-llaves {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rep-cond-checks,
+.rep-nivel-checks,
+.rep-llaves-checks {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rep-cond-checks label,
+.rep-nivel-checks label,
+.rep-llaves-checks label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: normal;
+    gap: 10px;
+}
+
+/* Custom Checkboxes for Footer */
+.rep-eval-footer input[type="checkbox"],
+.rep-eval-footer input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 16px;
+    border: 1px solid #000;
+    margin: 0;
+    background: #fcebdc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.rep-eval-footer input[type="checkbox"]:checked::after,
+.rep-eval-footer input[type="radio"]:checked::after {
+    content: "X";
+    font-weight: bold;
+    color: #000;
+    font-size: 12px;
+}
+
+.rep-llaves-checks {
+    flex-direction: column;
+}
+
+/* Final Footer */
+.rep-footer {
+    margin-top: 30px;
+    font-weight: bold;
+}
+
+.rep-footer input {
+    border: none !important;
+    border-bottom: 1px solid #000 !important;
+    width: 200px !important;
+}
