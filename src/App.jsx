@@ -7,6 +7,7 @@ import DeviceForm from './pages/DeviceForm';
 import DeviceSearch from './pages/DeviceSearch';
 import ReportForm from './pages/ReportForm';
 import RecursosPos from './pages/RecursosPos';
+import Inventory from './pages/Inventory';
 import './App.css';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/search" element={<DeviceSearch />} />
               <Route path="/report/new" element={<ReportForm />} />
               <Route path="/recursos-pos" element={<RecursosPos />} />
+              <Route path="/partes" element={<Inventory />} />
               <Route path="*" element={<Dashboard />} />
             </Routes>
           </div>

@@ -89,140 +89,79 @@
  */
 
 .device-form[data-pdf-mode="true"] {
-    background: #fff;
-    padding: 30px 65px;
-    /* Margins inside the document - increased horizontal to avoid bleeding */
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    color: #000;
-    font-family: Arial, sans-serif;
-
     /* Exact Letter dimensions at Web 96 DPI (8.5 x 11 inches) */
     width: 816px;
     height: 1056px;
     margin: 0 auto;
     box-sizing: border-box;
-    line-height: 1.2;
-    overflow: hidden;
-    /* Avoid any unintended page break */
+    padding: 50px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
 
-    /* Distribute sections evenly over the page */
+    /* Simulate glass for PDF */
+    background: var(--bg-card);
+    box-shadow: var(--shadow-card);
+    color: var(--text-primary);
+
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 20px;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
 }
 
-/* Override unified header for PDF */
+/* Ensure the background of the body is preserved in the PDF capture if needed */
+/* html2pdf usually captures just the element, so we make sure the element has its own background */
+
 .device-form[data-pdf-mode="true"] .report-header-unified {
-    border-bottom: 2px solid #000;
-    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 20px;
     margin-bottom: 5px;
 }
 
-.device-form[data-pdf-mode="true"] .report-logo-img {
-    height: 60px;
-}
-
-.device-form[data-pdf-mode="true"] .report-header__center h2 {
-    color: #000 !important;
-}
-
-.device-form[data-pdf-mode="true"] .form-field--compact .form-input {
-    border: none;
-    border-bottom: 1px solid #000;
-    background: transparent;
-    color: #000;
-}
-
-.device-form[data-pdf-mode="true"] .form-field--compact .form-label {
-    color: #000;
-    width: 110px;
-    text-align: right;
-}
-
-
 .device-form[data-pdf-mode="true"] .form-section {
-    background: transparent;
-    border: none;
-    padding: 0;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: var(--radius-sm);
     margin-bottom: 0;
-    flex: 1;
-    /* Allow sections to evenly stretch */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 .device-form[data-pdf-mode="true"] .form-section__title {
-    background: var(--header-color, #E47935);
-    color: #fff;
-    font-size: 13px;
-    padding: 4px;
-    text-align: center;
-    margin-bottom: 8px;
-    border: 1px solid #000;
-    font-weight: bold;
-}
-
-.device-form[data-pdf-mode="true"] .form-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px 15px;
-}
-
-.device-form[data-pdf-mode="true"] .form-field {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 0px;
-}
-
-.device-form[data-pdf-mode="true"] .form-label {
-    width: 150px;
-    flex-shrink: 0;
-    font-weight: bold;
-    font-size: 12px;
-    color: #000;
-    margin-bottom: 0;
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
 }
 
 .device-form[data-pdf-mode="true"] .form-input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #000;
-    border-radius: 0;
-    padding: 2px 5px;
-    font-size: 12px;
-    color: #000;
-    height: auto;
-    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
 }
 
-.device-form[data-pdf-mode="true"] select.form-input {
-    appearance: none;
+
+.device-form[data-pdf-mode="true"] h3.form-section__title {
+    color: var(--accent);
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
+    background: var(--accent-dim);
 }
 
-.device-form[data-pdf-mode="true"] .report-checkboxes {
-    gap: 15px !important;
-}
-
-.device-form[data-pdf-mode="true"] .report-checkboxes.report-checkboxes--col {
-    flex-direction: column;
-    gap: 5px !important;
-    align-items: flex-start;
-}
-
+/* Fix for checkboxes in PDF */
 .device-form[data-pdf-mode="true"] .report-checkboxes label {
-    font-size: 12px;
-    color: #000;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    color: var(--text-primary);
 }
 
-.device-form[data-pdf-mode="true"] .form-textarea {
-    border: 1px solid #000;
-    resize: none;
-    min-height: 45px;
-    padding: 4px 6px;
+/* Hide some elements in PDF if necessary, though the user wants it to look like the web */
+.device-form[data-pdf-mode="true"] .form-input::placeholder {
+    color: var(--text-muted);
 }

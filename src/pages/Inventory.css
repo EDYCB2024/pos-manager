@@ -1,0 +1,52 @@
+.inventory-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.stock-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.stock-badge--ok {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.stock-badge--low {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    animation: pulse 2s infinite;
+}
+
+.status-badge--success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge--danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.inventory-page .search-box {
+    margin-bottom: 0px;
+}

@@ -49,6 +49,16 @@ export default function Sidebar({ theme, onToggleTheme }) {
                         {isEquiposOpen && (
                             <div className="sidebar__sub-nav">
                                 <NavLink
+                                    to="/devices/new"
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                    }
+                                >
+                                    <span className="sidebar__link-icon">➕</span>
+                                    <span>Nuevo Caso</span>
+                                </NavLink>
+                                <NavLink
                                     to="/devices"
                                     onClick={close}
                                     className={({ isActive }) =>

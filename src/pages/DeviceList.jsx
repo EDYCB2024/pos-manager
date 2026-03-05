@@ -83,9 +83,6 @@ export default function DeviceList() {
                         {totalPages > 1 && ` (Página ${page} de ${totalPages})`}
                     </p>
                 </div>
-                <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
-                    + Nuevo Caso
-                </button>
             </div>
 
             {/* Filters */}
