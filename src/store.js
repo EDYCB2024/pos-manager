@@ -1,4 +1,71 @@
 import { supabase } from './lib/supabase';
+import { utils, writeFile } from 'xlsx';
+
+/**
+ * Exporta todos los dispositivos a un archivo Excel.
+ */
+export async function exportDevicesExcel() {
+    try {
+        const data = await getAllDevices();
+
+        // Formatear datos para Excel
+        const formattedData = data.map(item => ({
+            'ID': item.id,
+            'Fecha': item.fecha,
+            'Aliado': item.aliado || '',
+            'Modelo': item.modelo || '',
+            'Razón Social': item.razon_social,
+            'Serial': item.serial,
+            'RIF': item.rif || '',
+            'Ingreso': item.ingreso || '',
+            'Serial Reemplazo': item.serial_reemplazo || '',
+            'Falla Notificada': item.falla_notificada || '',
+            'Categoría': item.categoria || '',
+            'Estatus Caso': item.estatus_caso,
+            'Estatus Reparación': item.estatus,
+            'Nivel': item.nivel || '',
+            'Garantía': item.garantia || '',
+            'Acepta Plan': item.acepta_plan || '',
+            'Técnico': item.tecnico || '',
+            'Procesadora': item.procesadora || '',
+            'Cotización': item.cotizacion || '',
+            'Fecha Final': item.fecha_final || ''
+        }));
+
+        const ws = utils.json_to_sheet(formattedData);
+        const wb = utils.book_new();
+        utils.book_append_sheet(wb, ws, "Casos POS");
+
+        const fileName = `Reporte_General_POS_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+        // Intentar usar el File System Access API para forzar el "Guardar como"
+        if ('showSaveFilePicker' in window) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: fileName,
+                    types: [{
+                        description: 'Excel file',
+                        accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
+                    }],
+                });
+                const writable = await handle.createWritable();
+                const buffer = utils.write(wb, { type: 'array', bookType: 'xlsx' });
+                await writable.write(buffer);
+                await writable.close();
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return; // El usuario canceló
+                console.error("Error con showSaveFilePicker, reintentando descarga normal:", err);
+            }
+        }
+
+        // Si el API no está disponible o falla, usar la descarga normal (según config del navegador)
+        writeFile(wb, fileName);
+    } catch (error) {
+        console.error("Error al exportar Excel:", error);
+        throw error;
+    }
+}
 
 // ─── Opciones de campos de selección ────────────────────────────
 export const ESTATUSES_CASO = [

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { exportDevicesExcel } from '../store';
 import './Sidebar.css';
 
 const navItems = [
@@ -150,6 +151,14 @@ export default function Sidebar({ theme, onToggleTheme }) {
                                     <span className="sidebar__link-icon">🛠️</span>
                                     <span>Recursos Pos</span>
                                 </NavLink>
+                                <div
+                                    className="sidebar__link sidebar__link--sub"
+                                    onClick={() => { exportDevicesExcel(); close(); }}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <span className="sidebar__link-icon">📊</span>
+                                    <span>Exportar Excel</span>
+                                </div>
                             </div>
                         )}
                     </div>
