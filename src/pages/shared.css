@@ -47,8 +47,8 @@
 }
 
 .btn--primary:hover {
-    background: #33deff;
-    box-shadow: 0 0 16px rgba(0, 212, 255, 0.4);
+    background: var(--accent-dark);
+    box-shadow: 0 0 16px var(--accent-dim);
     transform: translateY(-1px);
 }
 
@@ -59,7 +59,8 @@
 }
 
 .btn--secondary:hover {
-    background: rgba(0, 212, 255, 0.25);
+    background: var(--accent-dim);
+    opacity: 0.8;
 }
 
 .btn--ghost {
@@ -143,7 +144,7 @@
 }
 
 .serial-code--link:hover {
-    background: rgba(0, 212, 255, 0.25);
+    opacity: 0.8;
 }
 
 .serial-hero {
@@ -198,7 +199,7 @@
 }
 
 .action-btn--edit:hover {
-    background: rgba(0, 212, 255, 0.28);
+    opacity: 0.8;
 }
 
 .action-btn--delete {
@@ -213,7 +214,8 @@
 /* ─── Search box ─────────────────────────────────────────── */
 .search-box {
     position: relative;
-    flex: 0 1 300px; /* Reducir el tamaño de la caja de búsqueda */
+    flex: 0 1 300px;
+    /* Reducir el tamaño de la caja de búsqueda */
     min-width: 200px;
 }
 

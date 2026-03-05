@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS public.casos_pos (
     repuesto_3          TEXT,
     procesadora         TEXT,
     tecnico             TEXT,
+    acepta_plan         TEXT,
     created_at          TIMESTAMPTZ DEFAULT NOW(),
     updated_at          TIMESTAMPTZ DEFAULT NOW()
 );

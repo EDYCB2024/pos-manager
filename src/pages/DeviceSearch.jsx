@@ -112,6 +112,7 @@ export default function DeviceSearch() {
                         </div>
                         {field('Nivel', d.nivel)}
                         {field('Garantía', d.garantia || 'No')}
+                        {field('Acepta Plan', d.acepta_plan || 'No')}
                         {field('Fecha', d.fecha)}
                         {field('Fecha Final', d.fecha_final)}
                         {field('Serial Reemplazo', d.serial_reemplazo)}

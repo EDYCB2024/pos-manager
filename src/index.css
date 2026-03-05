@@ -33,6 +33,37 @@
   --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.12);
 
   --transition: all 0.2s ease;
+  --calendar-invert: invert(0.7);
+}
+
+/* ─── Light Theme Tokens ─────────────────────────────────── */
+[data-theme='light'] {
+  --bg-primary: #fcfdfe;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --border: #e2e8f0;
+  --border-glow: rgba(228, 121, 53, 0.3);
+
+  --accent: #E47935;
+  /* Orange Company Color */
+  --accent-dim: rgba(228, 121, 53, 0.1);
+  --accent-dark: #cc662b;
+
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* Status colors - adjusted for light mode */
+  --status-ingresado: #f59e0b;
+  --status-revision: #3b82f6;
+  --status-listo: #10b981;
+  --status-entregado: #8b5cf6;
+  --status-sin-reparacion: #ef4444;
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 15px rgba(228, 121, 53, 0.1);
+  --calendar-invert: invert(0);
 }
 
 /* ─── Reset ──────────────────────────────────────────────── */
@@ -76,11 +107,12 @@ button {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
 }
 
 .glass:hover {
   border-color: var(--border-glow);
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-glow), var(--shadow-card);
 }
 
 /* Page Header & Layout */
@@ -224,13 +256,13 @@ button {
 
 .btn--primary {
   background: var(--accent);
-  color: var(--bg-primary);
+  color: #fff;
 }
 
 .btn--primary:hover {
-  background: #fff;
+  background: var(--accent-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 8px 24px var(--accent-dim);
 }
 
 .btn--secondary {
@@ -288,10 +320,10 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2d38;
+  background: var(--border);
   border-radius: 3px;
 }

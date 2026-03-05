@@ -7,7 +7,7 @@ const navItems = [
     { to: '/devices', icon: '☰', label: 'Equipos' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ theme, onToggleTheme }) {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [isAliadosOpen, setIsAliadosOpen] = useState(false);
@@ -94,6 +94,9 @@ export default function Sidebar() {
                 </nav>
 
                 <div className="sidebar__footer">
+                    <button className="theme-toggle" onClick={onToggleTheme} title="Cambiar tema">
+                        {theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+                    </button>
                     <span>v1.0.0</span>
                 </div>
             </aside>

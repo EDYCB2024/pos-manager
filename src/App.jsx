@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import DeviceList from './pages/DeviceList';
@@ -8,10 +9,23 @@ import ReportForm from './pages/ReportForm';
 import './App.css';
 
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   return (
     <BrowserRouter>
       <div className="app-shell">
-        <Sidebar />
+        <Sidebar theme={theme} onToggleTheme={toggleTheme} />
         <main className="app-main">
           <div className="app-content">
             <Routes>

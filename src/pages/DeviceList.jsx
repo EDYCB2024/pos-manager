@@ -139,6 +139,7 @@ export default function DeviceList() {
                                     <th>Razón Social</th>
                                     <th>Estatus Caso</th>
                                     <th>Estatus Rep.</th>
+                                    <th>Acepta Plan</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -160,6 +161,7 @@ export default function DeviceList() {
                                         <td data-label="Razon">{d.razon_social}</td>
                                         <td data-label="Caso"><StatusBadge status={d.estatus_caso} type="caso" /></td>
                                         <td data-label="Reparación"><StatusBadge status={d.estatus} type="reparacion" /></td>
+                                        <td data-label="Plan">{d.acepta_plan || 'No'}</td>
                                         <td>
                                             <div className="action-btns">
                                                 <button

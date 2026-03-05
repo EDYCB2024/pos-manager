@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
     addDevice, updateDevice, getDeviceById,
     ESTATUSES_CASO, ESTATUSES_REPARACION, CATEGORIAS, MODELOS,
-    PROCESADORAS, TECNICOS
+    PROCESADORAS, TECNICOS, OPCIONES_SI_NO
 } from '../store';
 import './DeviceForm.css';
 
@@ -25,7 +25,7 @@ const EMPTY = {
     estatus_caso: ESTATUSES_CASO[0],
     estatus: ESTATUSES_REPARACION[0],
     nivel: '',
-    garantia: 'No',
+    garantia: '',
     informe: '',
     cotizacion: '',
     repuesto_1: '',
@@ -33,6 +33,7 @@ const EMPTY = {
     repuesto_3: '',
     procesadora: PROCESADORAS[0],
     tecnico: TECNICOS[0],
+    acepta_plan: '',
 };
 
 export default function DeviceForm() {
@@ -179,8 +180,16 @@ export default function DeviceForm() {
                         <div className="form-field">
                             <label className="form-label">Garantía</label>
                             <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange} disabled={isReadOnly}>
+                                <option value="">— Seleccione —</option>
                                 <option value="Sí">Sí</option>
                                 <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div className="form-field">
+                            <label className="form-label">Acepta plan</label>
+                            <select className="form-input" name="acepta_plan" value={form.acepta_plan} onChange={handleChange} disabled={isReadOnly}>
+                                <option value="">— Seleccione —</option>
+                                {OPCIONES_SI_NO.map(o => <option key={o} value={o}>{o}</option>)}
                             </select>
                         </div>
                     </div>

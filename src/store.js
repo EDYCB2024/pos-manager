@@ -53,6 +53,8 @@ export const TECNICOS = [
     'Otro',
 ];
 
+export const OPCIONES_SI_NO = ['Sí', 'No'];
+
 export function getReportUrl(code) {
     if (!code) return null;
     const url = import.meta.env.VITE_SUPABASE_URL;
@@ -62,13 +64,30 @@ export function getReportUrl(code) {
 // ─── CRUD usando Supabase ─────────────────────────────────────────
 
 export async function getAllDevices() {
-    const { data, error } = await supabase
-        .from('casos_pos')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1000); // Límite de seguridad para listas recientes
-    if (error) throw new Error(error.message);
-    return data;
+    let allData = [];
+    let from = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+        const { data, error } = await supabase
+            .from('casos_pos')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .range(from, from + pageSize - 1);
+
+        if (error) throw new Error(error.message);
+
+        allData = [...allData, ...data];
+
+        if (data.length < pageSize) {
+            hasMore = false;
+        } else {
+            from += pageSize;
+        }
+    }
+
+    return allData;
 }
 
 /**
@@ -145,6 +164,7 @@ export async function addDevice(device) {
         repuesto_3: device.repuesto_3,
         procesadora: device.procesadora,
         tecnico: device.tecnico,
+        acepta_plan: device.acepta_plan,
     };
     const { data, error } = await supabase.from('casos_pos').insert([payload]).select().single();
     if (error) throw new Error(error.message);
@@ -176,6 +196,7 @@ export async function updateDevice(id, updates) {
         repuesto_3: updates.repuesto_3,
         procesadora: updates.procesadora,
         tecnico: updates.tecnico,
+        acepta_plan: updates.acepta_plan,
     };
     const { data, error } = await supabase.from('casos_pos').update(payload).eq('id', id).select().single();
     if (error) throw new Error(error.message);
