@@ -3,7 +3,6 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 const navItems = [
-    { to: '/', icon: '⊞', label: 'Dashboard' },
     { to: '/devices', icon: '☰', label: 'Equipos' },
 ];
 
@@ -11,6 +10,9 @@ export default function Sidebar({ theme, onToggleTheme }) {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [isAliadosOpen, setIsAliadosOpen] = useState(false);
+    const [isDataCenterOpen, setIsDataCenterOpen] = useState(false);
+    const [isEquiposOpen, setIsEquiposOpen] = useState(true);
+    const [isPartesOpen, setIsPartesOpen] = useState(false);
 
     const toggle = () => setIsOpen(!isOpen);
     const close = () => setIsOpen(false);
@@ -33,20 +35,42 @@ export default function Sidebar({ theme, onToggleTheme }) {
                 </div>
 
                 <nav className="sidebar__nav">
-                    {navItems.map(item => (
-                        <NavLink
-                            key={item.to}
-                            to={item.to}
-                            end={item.to === '/'}
-                            onClick={close}
-                            className={({ isActive }) =>
-                                `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
-                            }
+                    <div className="sidebar__section">
+                        <div
+                            className={`sidebar__link sidebar__link--collapsible-header ${isEquiposOpen ? 'sidebar__link--active' : ''}`}
+                            onClick={() => setIsEquiposOpen(!isEquiposOpen)}
                         >
-                            <span className="sidebar__link-icon">{item.icon}</span>
-                            <span>{item.label}</span>
-                        </NavLink>
-                    ))}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <span className="sidebar__link-icon">☰</span>
+                                <span>Equipos</span>
+                            </div>
+                            <span className={`sidebar__chevron ${isEquiposOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
+                        </div>
+                        {isEquiposOpen && (
+                            <div className="sidebar__sub-nav">
+                                <NavLink
+                                    to="/devices"
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                    }
+                                >
+                                    <span className="sidebar__link-icon">📱</span>
+                                    <span>Lista de Equipos</span>
+                                </NavLink>
+                                <NavLink
+                                    to="/report/new"
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                    }
+                                >
+                                    <span className="sidebar__link-icon">📄</span>
+                                    <span>Crear Informe</span>
+                                </NavLink>
+                            </div>
+                        )}
+                    </div>
                     <div className="sidebar__section">
                         <div
                             className={`sidebar__link sidebar__link--collapsible-header ${isAliadosOpen ? 'sidebar__link--active' : ''}`}
@@ -81,16 +105,71 @@ export default function Sidebar({ theme, onToggleTheme }) {
                         )}
                     </div>
 
-                    <NavLink
-                        to="/report/new"
-                        onClick={close}
-                        className={({ isActive }) =>
-                            `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
-                        }
-                    >
-                        <span className="sidebar__link-icon">📄</span>
-                        <span>Crear Informe</span>
-                    </NavLink>
+
+                    <div className="sidebar__section">
+                        <div
+                            className={`sidebar__link sidebar__link--collapsible-header ${isDataCenterOpen ? 'sidebar__link--active' : ''}`}
+                            onClick={() => setIsDataCenterOpen(!isDataCenterOpen)}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <span className="sidebar__link-icon">📊</span>
+                                <span>Data Center</span>
+                            </div>
+                            <span className={`sidebar__chevron ${isDataCenterOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
+                        </div>
+                        {isDataCenterOpen && (
+                            <div className="sidebar__sub-nav">
+                                <NavLink
+                                    to="/"
+                                    end
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                    }
+                                >
+                                    <span className="sidebar__link-icon">📈</span>
+                                    <span>Dashboard</span>
+                                </NavLink>
+                                <NavLink
+                                    to="/recursos-pos"
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                    }
+                                >
+                                    <span className="sidebar__link-icon">🛠️</span>
+                                    <span>Recursos Pos</span>
+                                </NavLink>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="sidebar__section">
+                        <div
+                            className={`sidebar__link sidebar__link--collapsible-header ${isPartesOpen ? 'sidebar__link--active' : ''}`}
+                            onClick={() => setIsPartesOpen(!isPartesOpen)}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <span className="sidebar__link-icon">⚙️</span>
+                                <span>Partes y Piezas</span>
+                            </div>
+                            <span className={`sidebar__chevron ${isPartesOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
+                        </div>
+                        {isPartesOpen && (
+                            <div className="sidebar__sub-nav">
+                                <NavLink
+                                    to="/partes"
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                    }
+                                >
+                                    <span className="sidebar__link-icon">📦</span>
+                                    <span>Inventario</span>
+                                </NavLink>
+                            </div>
+                        )}
+                    </div>
                 </nav>
 
                 <div className="sidebar__footer">
