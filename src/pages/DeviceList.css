@@ -11,6 +11,75 @@
 .table-wrap {
     overflow-x: auto;
     margin-bottom: 20px;
+    padding-bottom: 8px;
+    /* Espacio para el scrollbar */
+}
+
+/* Resaltado de encabezados */
+.data-table th {
+    background: rgba(255, 255, 255, 0.02);
+    /* Fondo sutil para separar encabezados */
+    color: var(--text-primary);
+    /* Color más brillante para mayor contraste */
+    font-weight: 800;
+    /* Más negrita */
+    font-size: 12px;
+    /* Ligeramente más grande */
+    letter-spacing: 0.08em;
+    border-bottom: 2px solid var(--border-glow);
+    /* Línea inferior más definida */
+}
+
+/* Forzar que la tabla no sea menor a un ancho mínimo para activar el scroll */
+.data-table {
+    min-width: 1200px;
+}
+
+/* Personalización del scrollbar horizontal */
+.table-wrap::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+    background: var(--accent-dim);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* Opcional: Si quieres mantener el diseño de tabla en móviles en vez de tarjetas */
+@media (max-width: 992px) {
+
+    .responsive-table,
+    .responsive-table tbody,
+    .responsive-table tr,
+    .responsive-table td {
+        display: table-cell !important;
+        width: auto !important;
+    }
+
+    .responsive-table tr {
+        display: table-row !important;
+        background: transparent !important;
+        border: none !important;
+    }
+
+    .responsive-table thead {
+        display: table-header-group !important;
+    }
+
+    .responsive-table td::before {
+        display: none !important;
+    }
 }
 
 .pagination {

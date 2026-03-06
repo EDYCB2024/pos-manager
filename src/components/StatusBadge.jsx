@@ -3,20 +3,24 @@ import './StatusBadge.css';
 const CASO_CONFIG = {
     'CASO ABIERTO': { color: 'ingresado', dot: true },
     'CASO CERRADO': { color: 'listo', dot: false },
+    'PENDIENTE POR PAGO': { color: 'sin-reparacion', dot: true },
 };
 
 const REP_CONFIG = {
-    'Pendiente': { color: 'ingresado', dot: true },
-    'En diagnóstico': { color: 'revision', dot: true },
-    'En reparación': { color: 'revision', dot: true },
-    'Reparado': { color: 'listo', dot: false },
-    'Sin reparación': { color: 'sin-reparacion', dot: false },
-    'Entregado': { color: 'entregado', dot: false },
+    'PENDIENTE': { color: 'ingresado', dot: true },
+    'PENDIENTE POR PAGO': { color: 'sin-reparacion', dot: true },
+    'EN DIAGNÓSTICO': { color: 'revision', dot: true },
+    'EN REPARACIÓN': { color: 'revision', dot: true },
+    'REPARADO': { color: 'listo', dot: false },
+    'SIN REPARACIÓN': { color: 'sin-reparacion', dot: false },
+    'ENTREGADO': { color: 'listo', dot: false },
 };
 
 export default function StatusBadge({ status, type = 'caso' }) {
     const map = type === 'reparacion' ? REP_CONFIG : CASO_CONFIG;
-    const cfg = map[status] || { color: 'ingresado', dot: false };
+    const normalizedStatus = status ? status.trim().toUpperCase() : '';
+    const cfg = map[normalizedStatus] || { color: 'ingresado', dot: false };
+
     return (
         <span className={`status-badge status-badge--${cfg.color}`}>
             {cfg.dot && <span className="status-badge__dot" />}

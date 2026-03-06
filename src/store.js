@@ -4,9 +4,27 @@ import { utils, writeFile } from 'xlsx';
 /**
  * Exporta todos los dispositivos a un archivo Excel.
  */
-export async function exportDevicesExcel() {
+/**
+ * Exporta dispositivos a un archivo Excel con filtros opcionales.
+ */
+export async function exportDevicesExcel(filters = {}) {
     try {
-        const data = await getAllDevices();
+        const { year, aliado, modelo } = filters;
+
+        let query = supabase.from('casos_pos').select('*').order('created_at', { ascending: false });
+
+        if (year) {
+            query = query.gte('fecha', `${year}-01-01`).lte('fecha', `${year}-12-31`);
+        }
+        if (aliado && aliado !== 'Todos') {
+            query = query.eq('aliado', aliado);
+        }
+        if (modelo && modelo !== 'Todos') {
+            query = query.eq('modelo', modelo);
+        }
+
+        const { data, error } = await query;
+        if (error) throw new Error(error.message);
 
         // Formatear datos para Excel
         const formattedData = data.map(item => ({
@@ -29,6 +47,7 @@ export async function exportDevicesExcel() {
             'Técnico': item.tecnico || '',
             'Procesadora': item.procesadora || '',
             'Cotización': item.cotizacion || '',
+            'Nro de guia': item.nro_guia || '',
             'Fecha Final': item.fecha_final || ''
         }));
 
@@ -36,30 +55,12 @@ export async function exportDevicesExcel() {
         const wb = utils.book_new();
         utils.book_append_sheet(wb, ws, "Casos POS");
 
-        const fileName = `Reporte_General_POS_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        let filterSuffix = "";
+        if (year) filterSuffix += `_${year}`;
+        if (aliado && aliado !== 'Todos') filterSuffix += `_${aliado}`;
 
-        // Intentar usar el File System Access API para forzar el "Guardar como"
-        if ('showSaveFilePicker' in window) {
-            try {
-                const handle = await window.showSaveFilePicker({
-                    suggestedName: fileName,
-                    types: [{
-                        description: 'Excel file',
-                        accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
-                    }],
-                });
-                const writable = await handle.createWritable();
-                const buffer = utils.write(wb, { type: 'array', bookType: 'xlsx' });
-                await writable.write(buffer);
-                await writable.close();
-                return;
-            } catch (err) {
-                if (err.name === 'AbortError') return; // El usuario canceló
-                console.error("Error con showSaveFilePicker, reintentando descarga normal:", err);
-            }
-        }
+        const fileName = `Reporte_POS${filterSuffix}_${new Date().toISOString().slice(0, 10)}.xlsx`;
 
-        // Si el API no está disponible o falla, usar la descarga normal (según config del navegador)
         writeFile(wb, fileName);
     } catch (error) {
         console.error("Error al exportar Excel:", error);
@@ -75,6 +76,7 @@ export const ESTATUSES_CASO = [
 
 export const ESTATUSES_REPARACION = [
     'Pendiente',
+    'Pendiente por pago',
     'En diagnóstico',
     'En reparación',
     'Reparado',
@@ -232,8 +234,43 @@ export async function addDevice(device) {
         procesadora: device.procesadora,
         tecnico: device.tecnico,
         acepta_plan: device.acepta_plan,
+        nro_guia: device.nro_guia,
     };
     const { data, error } = await supabase.from('casos_pos').insert([payload]).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export async function addDevicesBulk(devices) {
+    const payloads = devices.map(device => ({
+        fecha: device.fecha || new Date().toISOString().slice(0, 10),
+        aliado: device.aliado,
+        modelo: device.modelo,
+        razon_social: device.razon_social,
+        serial: device.serial,
+        informes: device.informes,
+        rif: device.rif,
+        ingreso: device.ingreso,
+        serial_reemplazo: device.serial_reemplazo,
+        falla_notificada: device.falla_notificada,
+        categoria: device.categoria,
+        fecha_final: device.fecha_final,
+        estatus_caso: device.estatus_caso,
+        estatus: device.estatus,
+        nivel: device.nivel,
+        garantia: device.garantia,
+        informe: device.informe,
+        cotizacion: device.cotizacion,
+        repuesto_1: device.repuesto_1,
+        repuesto_2: device.repuesto_2,
+        repuesto_3: device.repuesto_3,
+        procesadora: device.procesadora,
+        tecnico: device.tecnico,
+        acepta_plan: device.acepta_plan,
+        nro_guia: device.nro_guia,
+    }));
+
+    const { data, error } = await supabase.from('casos_pos').insert(payloads).select();
     if (error) throw new Error(error.message);
     return data;
 }
@@ -264,6 +301,7 @@ export async function updateDevice(id, updates) {
         procesadora: updates.procesadora,
         tecnico: updates.tecnico,
         acepta_plan: updates.acepta_plan,
+        nro_guia: updates.nro_guia,
     };
     const { data, error } = await supabase.from('casos_pos').update(payload).eq('id', id).select().single();
     if (error) throw new Error(error.message);

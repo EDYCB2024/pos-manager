@@ -17,7 +17,7 @@ export default function DeviceList() {
     const [confirm, setConfirm] = useState(null); // { id, serial }
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const pageSize = 50;
+    const pageSize = 10;
 
     const load = () => {
         setLoading(true);
@@ -73,6 +73,13 @@ export default function DeviceList() {
 
     const totalPages = Math.ceil(total / pageSize);
 
+    const formatDate = (dateString) => {
+        if (!dateString) return '—';
+        const [year, month, day] = dateString.split('-');
+        if (!year || !month || !day) return dateString;
+        return `${day}-${month}-${year.slice(-2)}`;
+    };
+
     return (
         <div className="device-list anim-fadeUp">
             <div className="page-header">
@@ -112,6 +119,9 @@ export default function DeviceList() {
                     <option value="">Filtrar por Aliado</option>
                     {aliados.map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
+                <button className="btn btn--primary" onClick={() => { setPage(1); load(); }}>
+                    🔍 Buscar
+                </button>
             </div>
 
             {/* Table */}
@@ -129,10 +139,9 @@ export default function DeviceList() {
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
+                                    <th>Modelo</th>
                                     <th>Serial</th>
                                     <th>Aliado</th>
-                                    <th>Modelo</th>
-                                    <th>RIF</th>
                                     <th>Razón Social</th>
                                     <th>Estatus Caso</th>
                                     <th>Estatus Rep.</th>
@@ -143,7 +152,8 @@ export default function DeviceList() {
                             <tbody>
                                 {devices.map(d => (
                                     <tr key={d.id} className="data-table__row">
-                                        <td data-label="Fecha">{d.fecha || '—'}</td>
+                                        <td data-label="Fecha">{formatDate(d.fecha)}</td>
+                                        <td data-label="Modelo">{d.modelo || '—'}</td>
                                         <td data-label="Serial">
                                             <code
                                                 className="serial-code serial-code--link"
@@ -153,9 +163,7 @@ export default function DeviceList() {
                                             </code>
                                         </td>
                                         <td data-label="Aliado">{d.aliado || '—'}</td>
-                                        <td data-label="Modelo">{d.modelo || '—'}</td>
-                                        <td data-label="RIF">{d.rif || '—'}</td>
-                                        <td data-label="Razon">{d.razon_social}</td>
+                                        <td data-label="Razón Social">{d.razon_social}</td>
                                         <td data-label="Caso"><StatusBadge status={d.estatus_caso} type="caso" /></td>
                                         <td data-label="Reparación"><StatusBadge status={d.estatus} type="reparacion" /></td>
                                         <td data-label="Plan">{d.acepta_plan || 'No'}</td>
