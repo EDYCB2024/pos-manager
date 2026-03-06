@@ -8,7 +8,26 @@ import DeviceSearch from './pages/DeviceSearch';
 import ReportForm from './pages/ReportForm';
 import RecursosPos from './pages/RecursosPos';
 import Inventory from './pages/Inventory';
+import Settings from './pages/Settings';
+import Login from './pages/Login';
+import Welcome from './pages/Welcome';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import { Outlet } from 'react-router-dom';
 import './App.css';
+
+function ProtectedLayout({ theme, toggleTheme }) {
+  return (
+    <div className="app-shell">
+      <Sidebar theme={theme} onToggleTheme={toggleTheme} />
+      <main className="app-main">
+        <div className="app-content">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
+}
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -25,13 +44,17 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
-      <div className="app-shell">
-        <Sidebar theme={theme} onToggleTheme={toggleTheme} />
-        <main className="app-main">
-          <div className="app-content">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Ruta Pública (Autenticación) */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Aplicación Protegida */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<ProtectedLayout theme={theme} toggleTheme={toggleTheme} />}>
+              <Route path="/" element={<Welcome />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/devices" element={<DeviceList />} />
               <Route path="/devices/new" element={<DeviceForm />} />
               <Route path="/devices/:id" element={<DeviceForm />} />
@@ -40,11 +63,12 @@ export default function App() {
               <Route path="/report/new" element={<ReportForm />} />
               <Route path="/recursos-pos" element={<RecursosPos />} />
               <Route path="/partes" element={<Inventory />} />
-              <Route path="*" element={<Dashboard />} />
-            </Routes>
-          </div>
-        </main>
-      </div>
-    </BrowserRouter>
+              <Route path="/settings" element={<Settings theme={theme} onToggleTheme={toggleTheme} />} />
+              <Route path="*" element={<Welcome />} />
+            </Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

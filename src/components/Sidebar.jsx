@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { exportDevicesExcel } from '../store';
+import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
 
 const navItems = [
@@ -14,6 +15,7 @@ export default function Sidebar({ theme, onToggleTheme }) {
     const [isDataCenterOpen, setIsDataCenterOpen] = useState(false);
     const [isEquiposOpen, setIsEquiposOpen] = useState(true);
     const [isPartesOpen, setIsPartesOpen] = useState(false);
+    const { user, logout } = useAuth();
 
     const toggle = () => setIsOpen(!isOpen);
     const close = () => setIsOpen(false);
@@ -138,6 +140,16 @@ export default function Sidebar({ theme, onToggleTheme }) {
                                         `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
                                     }
                                 >
+                                    <span className="sidebar__link-icon">🏠</span>
+                                    <span>Inicio</span>
+                                </NavLink>
+                                <NavLink
+                                    to="/dashboard"
+                                    onClick={close}
+                                    className={({ isActive }) =>
+                                        `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                    }
+                                >
                                     <span className="sidebar__link-icon">📈</span>
                                     <span>Dashboard</span>
                                 </NavLink>
@@ -192,10 +204,29 @@ export default function Sidebar({ theme, onToggleTheme }) {
                 </nav>
 
                 <div className="sidebar__footer">
-                    <button className="theme-toggle" onClick={onToggleTheme} title="Cambiar tema">
-                        {theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+                    {user && (
+                        <div style={{ marginBottom: '12px', padding: '8px', background: 'var(--bg-card)', borderRadius: '8px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)' }}>👤 {user.name}</div>
+                            <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{user.email} • MODO: {user.role.toUpperCase()}</div>
+                        </div>
+                    )}
+                    <NavLink
+                        to="/settings"
+                        onClick={close}
+                        className="theme-toggle"
+                        style={{ textDecoration: 'none' }}
+                        title="Ajustes"
+                    >
+                        ⚙️ Ajustes
+                    </NavLink>
+                    <button
+                        className="theme-toggle"
+                        onClick={() => { logout(); close(); }}
+                        style={{ background: 'var(--bg-card)', color: '#ef4444', borderColor: '#ef4444', marginTop: '8px' }}
+                    >
+                        🚪 Cerrar Sesión
                     </button>
-                    <span>v1.0.0</span>
+                    <span style={{ marginTop: '8px', display: 'block' }}>v1.0.0</span>
                 </div>
             </aside>
         </>

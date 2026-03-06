@@ -34,11 +34,6 @@ export default function Dashboard() {
                     <h1 className="page-title">Dashboard</h1>
                     <p className="page-sub">Resumen general de casos POS</p>
                 </div>
-                <div className="page-header__actions">
-                    <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
-                        + Nuevo Caso
-                    </button>
-                </div>
             </div>
 
             {/* KPI Cards */}
