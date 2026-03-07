@@ -11,8 +11,10 @@ import Inventory from './pages/Inventory';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Welcome from './pages/Welcome';
+import AtcInbox from './pages/AtcInbox';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
 import { Outlet } from 'react-router-dom';
 import './App.css';
 
@@ -21,6 +23,7 @@ function ProtectedLayout({ theme, toggleTheme }) {
     <div className="app-shell">
       <Sidebar theme={theme} onToggleTheme={toggleTheme} />
       <main className="app-main">
+        <Navbar />
         <div className="app-content">
           <Outlet />
         </div>
@@ -64,6 +67,7 @@ export default function App() {
               <Route path="/recursos-pos" element={<RecursosPos />} />
               <Route path="/partes" element={<Inventory />} />
               <Route path="/settings" element={<Settings theme={theme} onToggleTheme={toggleTheme} />} />
+              <Route path="/atc/inbox" element={<AtcInbox />} />
               <Route path="*" element={<Welcome />} />
             </Route>
           </Route>

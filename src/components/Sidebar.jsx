@@ -253,25 +253,10 @@ export default function Sidebar({ theme, onToggleTheme }) {
                 </nav>
 
                 <div className="sidebar__footer">
-                    {user && (
-                        <div style={{ marginBottom: '12px', padding: '8px', background: 'var(--bg-card)', borderRadius: '8px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)' }}>👤 {user.name}</div>
-                            <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{user.email} • MODO: {user.role.toUpperCase()}</div>
-                        </div>
-                    )}
-                    <NavLink
-                        to="/settings"
-                        onClick={close}
-                        className="theme-toggle"
-                        style={{ textDecoration: 'none' }}
-                        title="Ajustes"
-                    >
-                        ⚙️ Ajustes
-                    </NavLink>
                     <button
                         className="theme-toggle"
                         onClick={() => { logout(); close(); }}
-                        style={{ background: 'var(--bg-card)', color: '#ef4444', borderColor: '#ef4444', marginTop: '8px' }}
+                        style={{ background: 'var(--bg-card)', color: '#ef4444', borderColor: '#ef4444' }}
                     >
                         🚪 Cerrar Sesión
                     </button>
