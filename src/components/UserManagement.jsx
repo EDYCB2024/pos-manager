@@ -128,7 +128,10 @@ export default function UserManagement() {
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal glass anim-fadeUp">
-                        <h2 className="modal__title">Crear Nuevo Usuario</h2>
+                        <h2 className="modal__title">Invitar Nuevo Usuario</h2>
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                            Se enviará un correo de invitación para que el usuario configure su contraseña.
+                        </p>
                         <form onSubmit={handleCreateUser} className="user-form">
                             <div className="form-group">
                                 <label>Nombre Completo</label>
@@ -149,15 +152,6 @@ export default function UserManagement() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Contraseña Temporal</label>
-                                <input
-                                    type="password"
-                                    required
-                                    value={formData.password}
-                                    onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group">
                                 <label>Rol</label>
                                 <select
                                     value={formData.role}
@@ -175,12 +169,13 @@ export default function UserManagement() {
 
                             <div className="modal__actions">
                                 <button type="button" className="btn btn--ghost" onClick={() => setShowModal(false)}>Cancelar</button>
-                                <button type="submit" className="btn btn--primary">Crear Usuario</button>
+                                <button type="submit" className="btn btn--primary">Enviar Invitación</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
         </div>
     );
 }

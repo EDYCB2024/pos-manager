@@ -10,6 +10,7 @@ import RecursosPos from './pages/RecursosPos';
 import Inventory from './pages/Inventory';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import Activate from './pages/Activate';
 import Welcome from './pages/Welcome';
 import AtcInbox from './pages/AtcInbox';
 import { AuthProvider } from './context/AuthContext';
@@ -50,10 +51,12 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Ruta Pública (Autenticación) */}
+          {/* Rutas Públicas */}
           <Route path="/login" element={<Login />} />
+          <Route path="/activate" element={<Activate />} />
 
           {/* Aplicación Protegida */}
+
           <Route element={<ProtectedRoute />}>
             <Route element={<ProtectedLayout theme={theme} toggleTheme={toggleTheme} />}>
               <Route path="/" element={<Welcome />} />

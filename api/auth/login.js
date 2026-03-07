@@ -1,11 +1,9 @@
 import { supabase } from '../_lib/supabase.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { comparePassword } from '../_lib/hash.js';
+import { signToken } from '../_lib/jwt.js';
 import cookie from 'cookie';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_super_secreta_en_produccion';
-
-// Un in-memory simple rate limit (Vercel lo reiniciará frecuentemente pero previene ráfagas rápidas)
+// In-memory rate limit
 const loginAttempts = new Map();
 
 export default async function handler(req, res) {
@@ -16,7 +14,6 @@ export default async function handler(req, res) {
     const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
     const now = Date.now();
 
-    // Simple Rate limit validation
     const attemptsInfo = loginAttempts.get(ip) || { count: 0, time: now };
     if (now - attemptsInfo.time > 15 * 60 * 1000) {
         attemptsInfo.count = 0;
@@ -37,7 +34,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Buscar el usuario en Supabase (evitamos pasar datos sensibles por GET)
         const { data: user, error } = await supabase
             .from('users')
             .select('id, name, email, password_hash, role, active')
@@ -49,27 +45,26 @@ export default async function handler(req, res) {
         }
 
         if (!user.active) {
-            return res.status(403).json({ error: 'Usuario inactivo' });
+            return res.status(403).json({ error: 'Usuario inactivo. Revisa tu correo para activar la cuenta.' });
         }
 
-        // Verificar la contraseña con bcrypt
-        const isMatch = await bcrypt.compare(password, user.password_hash);
-
+        const isMatch = await comparePassword(password, user.password_hash);
         if (!isMatch) {
             return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
         }
 
-        // Limpiar el rate limit en caso de éxito
+        // Success: clear rate limit
         loginAttempts.delete(ip);
 
-        // Generar JWT
-        const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role, name: user.name },
-            JWT_SECRET,
-            { expiresIn: '8h' }
-        );
+        // JWT
+        const token = signToken({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            name: user.name
+        });
 
-        // Configurar la cookie
+        // Set Cookie
         res.setHeader('Set-Cookie', cookie.serialize('auth_token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -86,3 +81,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Error del servidor' });
     }
 }
+

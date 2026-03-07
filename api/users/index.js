@@ -1,39 +1,34 @@
-import { supabase } from '../_lib/supabase.js';
-import { verifySession, isAdmin } from '../_lib/auth.js';
+import { authMiddleware, roleMiddleware } from '../_lib/middleware.js';
+import { inviteUser, getUsers } from '../_lib/userService.js';
 
-export default async function handler(req, res) {
-    const session = verifySession(req);
-    if (!session || !isAdmin(session)) {
-        return res.status(403).json({ error: 'Acceso denegado' });
-    }
-
+async function handler(req, res) {
     if (req.method === 'GET') {
-        const { data, error } = await supabase
-            .from('users')
-            .select('id, name, email, role, active, created_at')
-            .order('created_at', { ascending: false });
-
-        if (error) return res.status(500).json({ error: error.message });
-        return res.status(200).json(data);
+        try {
+            const users = await getUsers();
+            return res.status(200).json(users);
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
     }
 
     if (req.method === 'POST') {
-        const { name, email, role, password } = req.body;
+        const { name, email, role } = req.body;
 
-        // Hashing password with bcrypt (assuming we handle this in a helper)
-        // For simplicity and to match current setup, let's use a dummy hash or import bcrypt
-        // But the prompt said "use bcrypt for password hashing"
-        const { default: bcrypt } = await import('bcryptjs');
-        const password_hash = await bcrypt.hash(password || '123456', 10);
+        if (!name || !email || !role) {
+            return res.status(400).json({ error: 'Nombre, email y rol son requeridos' });
+        }
 
-        const { data, error } = await supabase
-            .from('users')
-            .insert([{ name, email, role, password_hash }])
-            .select();
-
-        if (error) return res.status(500).json({ error: error.message });
-        return res.status(201).json(data[0]);
+        try {
+            const user = await inviteUser({ name, email, role });
+            return res.status(201).json(user);
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
     }
 
     return res.status(405).json({ error: 'Method Not Allowed' });
 }
+
+// Only admin can access user management
+export default authMiddleware(roleMiddleware(['admin'], handler));
+

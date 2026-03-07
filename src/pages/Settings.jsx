@@ -150,26 +150,61 @@ export default function Settings({ theme, onToggleTheme }) {
                         <section className="settings-section">
                             <h2>Seguridad de la Cuenta</h2>
                             <div className="settings-card">
-                                <div className="setting-item">
-                                    <div className="setting-info">
-                                        <h3>Contraseña</h3>
-                                        <p>Se recomienda cambiarla periódicamente.</p>
+                                <form onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    const oldPassword = e.target.oldPassword.value;
+                                    const newPassword = e.target.newPassword.value;
+                                    const confirmPassword = e.target.confirmPassword.value;
+
+                                    if (newPassword !== confirmPassword) {
+                                        alert('Las contraseñas no coinciden');
+                                        return;
+                                    }
+
+                                    try {
+                                        const res = await fetch('/api/auth/change-password', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ oldPassword, newPassword })
+                                        });
+                                        const data = await res.json();
+                                        if (res.ok) {
+                                            alert('Contraseña actualizada con éxito');
+                                            e.target.reset();
+                                        } else {
+                                            alert(data.error || 'Error al cambiar la contraseña');
+                                        }
+                                    } catch (err) {
+                                        alert('Error de conexión');
+                                    }
+                                }} className="settings-form">
+                                    <div className="form-group">
+                                        <label htmlFor="oldPassword">Contraseña Actual</label>
+                                        <input type="password" id="oldPassword" required />
                                     </div>
-                                    <button className="action-btn-outline" onClick={() => alert('Función de cambio de clave próximamente.')}>
-                                        Cambiar Clave
-                                    </button>
-                                </div>
+                                    <div className="form-group">
+                                        <label htmlFor="newPassword">Nueva Contraseña</label>
+                                        <input type="password" id="newPassword" required />
+                                        <small style={{ color: 'var(--text-muted)' }}>Mínimo 10 caracteres, una mayúscula, un número y un símbolo.</small>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="confirmPassword">Confirmar Nueva Contraseña</label>
+                                        <input type="password" id="confirmPassword" required />
+                                    </div>
+                                    <button type="submit" className="save-btn">Actualizar Contraseña</button>
+                                </form>
                                 <div className="setting-item" style={{ marginTop: '20px', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
                                     <div className="setting-info">
                                         <h3>Sesiones Activas</h3>
                                         <p>Cierra sesión en todos los dispositivos.</p>
                                     </div>
-                                    <button className="danger-btn-text">Cerrar otras sesiones</button>
+                                    <button className="danger-btn-text" onClick={() => alert('Próximamente')}>Cerrar otras sesiones</button>
                                 </div>
                             </div>
                         </section>
                     </div>
                 )}
+
 
                 {activeTab === 'users' && (user?.role === 'admin' || user?.role === 'supervisor') && (
                     <div className="settings-tab-pane animate-fade-in">
