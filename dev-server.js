@@ -9,6 +9,7 @@ import changePasswordHandler from './api/auth/change-password.js';
 import usersHandler from './api/users/index.js';
 import updateUsersHandler from './api/users/update.js';
 import deleteUserHandler from './api/users/delete.js';
+import aiChatHandler from './api/ai/chat.js';
 import { config } from 'dotenv';
 config();
 
@@ -99,6 +100,15 @@ app.all('/api/auth/change-password', async (req, res) => {
             req.headers.cookie = Object.entries(req.cookies).map(([k, v]) => `${k}=${v}`).join('; ');
         }
         await changePasswordHandler(req, res);
+    } catch (err) {
+        console.error(err);
+        if (!res.headersSent) res.status(500).json({ error: 'Internal Error' });
+    }
+});
+
+app.all('/api/ai/chat', async (req, res) => {
+    try {
+        await aiChatHandler(req, res);
     } catch (err) {
         console.error(err);
         if (!res.headersSent) res.status(500).json({ error: 'Internal Error' });

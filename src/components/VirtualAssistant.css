@@ -6,16 +6,30 @@
 }
 
 .assistant-trigger {
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
     border-radius: 50% !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
     position: relative;
     cursor: pointer;
-    border: 1px solid var(--border-glow) !important;
+    border: 2px solid var(--accent) !important;
+    padding: 0;
+    overflow: visible;
+}
+
+.assistant-avatar-wrapper {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.assistant-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .assistant-trigger:hover {
@@ -66,24 +80,46 @@
     align-items: center;
 }
 
-.assistant-header h3 {
-    font-size: 16px;
-    margin-bottom: 2px;
+.assistant-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.status-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
+.header-avatar-wrapper {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--accent);
+}
+
+.header-avatar-wrapper .assistant-avatar-img {
+    border-radius: 50%;
+}
+
+.header-avatar-wrapper .status-dot {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    width: 10px;
+    height: 10px;
     background: #10b981;
     border-radius: 50%;
-    margin-right: 8px;
+    border: 2px solid var(--bg-secondary);
     box-shadow: 0 0 10px #10b981;
+}
+
+.assistant-header h3 {
+    font-size: 16px;
+    margin-bottom: 0;
 }
 
 .assistant-header small {
     color: var(--text-secondary);
     font-size: 11px;
+    display: block;
 }
 
 .close-btn {

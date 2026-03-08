@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import auraAvatar from '../assets/aura-avatar.png';
 import './VirtualAssistant.css';
 
 export default function VirtualAssistant() {
@@ -15,37 +16,39 @@ export default function VirtualAssistant() {
         }
     }, [messages]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
 
         const userMsg = { role: 'user', content: input };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
 
-        // Simulación de respuesta basada en las reglas
-        setTimeout(() => {
-            let response = '';
-            const query = input.toLowerCase();
+        try {
+            const response = await fetch('http://127.0.0.1:3001/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: input, history: messages })
+            });
 
-            if (query.includes('delete') || query.includes('drop') || query.includes('truncate')) {
-                response = 'Lo siento, sigo una política NO DESTRUCTIVA. No puedo ejecutar comandos DELETE, DROP o TRUNCATE. Los borrados deben ser lógicos (soft delete).';
-            } else if (query.includes('secret') || query.includes('api key') || query.includes('.env')) {
-                response = 'Tengo prohibido acceder a secretos, archivos .env o llaves de API por seguridad.';
-            } else if (query.includes('sql') || query.includes('base de datos')) {
-                response = 'No ejecuto SQL directamente. Aquí tienes una sugerencia de migración:\n\n```sql\nALTER TABLE products ADD COLUMN last_check timestamptz;\n```';
+            const data = await response.json();
+            if (data.content) {
+                setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
             } else {
-                response = 'Entendido. Estoy analizando tu petición para mejorar el sistema POS Manager de forma segura.';
+                setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, tuve un problema al procesar tu solicitud.' }]);
             }
-
-            setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-        }, 800);
+        } catch (error) {
+            console.error('Chat Error:', error);
+            setMessages(prev => [...prev, { role: 'assistant', content: 'Error de conexión con mis sistemas centrales.' }]);
+        }
     };
 
     return (
         <div className={`virtual-assistant ${isOpen ? 'is-open' : ''}`}>
             {/* Trigger Button */}
             <button className="assistant-trigger glass" onClick={() => setIsOpen(!isOpen)}>
-                <span className="assistant-icon">🤖</span>
+                <div className="assistant-avatar-wrapper">
+                    <img src={auraAvatar} alt="Aura" className="assistant-avatar-img" />
+                </div>
                 <span className="assistant-badge">Aura</span>
             </button>
 
@@ -53,9 +56,14 @@ export default function VirtualAssistant() {
             <div className="assistant-window glass">
                 <div className="assistant-header">
                     <div className="assistant-header-info">
-                        <h3>Aura</h3>
-                        <span className="status-dot"></span>
-                        <small>Asistente de Ingeniería</small>
+                        <div className="header-avatar-wrapper">
+                            <img src={auraAvatar} alt="Aura" className="assistant-avatar-img" />
+                            <span className="status-dot"></span>
+                        </div>
+                        <div>
+                            <h3>Aura</h3>
+                            <small>Asistente de Ingeniería</small>
+                        </div>
                     </div>
                     <button className="close-btn" onClick={() => setIsOpen(false)}>×</button>
                 </div>
