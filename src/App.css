@@ -1,20 +1,58 @@
 .app-shell {
   display: flex;
   min-height: 100vh;
+  background: var(--bg-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ambient Background Glows */
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: fixed;
+  width: 40vw;
+  height: 40vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 0;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.app-shell::before {
+  top: -10vw;
+  right: -5vw;
+  background: var(--accent);
+}
+
+.app-shell::after {
+  bottom: -10vw;
+  left: -5vw;
+  background: #a855f7;
+  /* Subtle purple glow */
+}
+
+[data-theme='light'] .app-shell::before,
+[data-theme='light'] .app-shell::after {
+  opacity: 0.05;
 }
 
 .app-main {
   flex: 1;
   margin-left: var(--sidebar-w);
   min-height: 100vh;
-  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 .app-content {
-  padding: 32px 36px;
-  max-width: 1280px;
+  flex: 1;
+  padding: 40px;
+  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
 }
 

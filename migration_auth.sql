@@ -1,5 +1,8 @@
 -- Migration: Auth & User Management
 
+-- Make password_hash nullable (required for invitation flow)
+ALTER TABLE public.users ALTER COLUMN password_hash DROP NOT NULL;
+
 -- Ensure users table has the correct structure
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

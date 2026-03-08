@@ -40,15 +40,36 @@ export default function Login() {
 
     return (
         <div className="login-wrapper">
+            <div className="login-glow-1"></div>
+            <div className="login-glow-2"></div>
+
             <div className="login-card">
                 <div className="login-header">
-                    <span className="login-icon">◈</span>
+                    <div className="login-icon-wrap">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="2" stroke="currentColor" fill="rgba(0, 212, 255, 0.1)" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                            <path d="M7 21h10"></path>
+                            <path d="M12 17v4"></path>
+                            <path d="M20 21h2"></path>
+                            <path d="M2 21h2"></path>
+                        </svg>
+                    </div>
                     <h1 className="login-title">POS Manager</h1>
-                    <p className="login-sub">Inicia sesión en tu cuenta</p>
+                    <p className="login-sub">Acceso administrativo al sistema</p>
                 </div>
 
                 <form className="login-form" onSubmit={handleSubmit}>
-                    {errorMsg && <div className="login-error">{errorMsg}</div>}
+                    {errorMsg && (
+                        <div className="login-error">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            {errorMsg}
+                        </div>
+                    )}
 
                     <div className="login-field">
                         <label htmlFor="email">Correo Electrónico</label>
@@ -56,7 +77,7 @@ export default function Login() {
                             type="email"
                             id="email"
                             autoComplete="email"
-                            placeholder="admin@posmanager.com"
+                            placeholder="usuario@ejemplo.com"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             required
@@ -77,7 +98,7 @@ export default function Login() {
                     </div>
 
                     <button type="submit" className="login-btn" disabled={isSubmitting}>
-                        {isSubmitting ? 'Verificando...' : 'Iniciar Sesión'}
+                        {isSubmitting ? 'Autenticando...' : 'Iniciar Sesión'}
                     </button>
                 </form>
             </div>

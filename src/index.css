@@ -1,21 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ─── Design Tokens ──────────────────────────────────────── */
 :root {
   --bg-primary: #0b0d12;
   --bg-secondary: #111318;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-card-hover: rgba(255, 255, 255, 0.07);
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --bg-card-hover: rgba(255, 255, 255, 0.06);
   --border: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(0, 212, 255, 0.35);
+  --border-glow: rgba(0, 212, 255, 0.25);
 
   --accent: #00d4ff;
-  --accent-dim: rgba(0, 212, 255, 0.15);
+  --accent-dim: rgba(0, 212, 255, 0.12);
   --accent-dark: #0099bb;
+  --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #0099bb 100%);
 
-  --text-primary: #e8eaf0;
-  --text-secondary: #8b90a0;
-  --text-muted: #555a6a;
+  --text-primary: #f0f2f5;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 
   /* Status colors */
   --status-ingresado: #f59e0b;
@@ -24,46 +25,45 @@
   --status-entregado: #8b5cf6;
   --status-sin-reparacion: #ef4444;
 
-  --sidebar-w: 240px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --sidebar-w: 260px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
 
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.12);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 24px rgba(0, 212, 255, 0.15);
 
-  --transition: all 0.2s ease;
-  --calendar-invert: invert(0.7);
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --calendar-invert: invert(0.8);
+
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 /* ─── Light Theme Tokens ─────────────────────────────────── */
 [data-theme='light'] {
-  --bg-primary: #fcfdfe;
+  --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card-hover: #f1f5f9;
   --border: #e2e8f0;
-  --border-glow: rgba(228, 121, 53, 0.3);
+  --border-glow: rgba(228, 121, 53, 0.25);
 
   --accent: #E47935;
-  /* Orange Company Color */
-  --accent-dim: rgba(228, 121, 53, 0.1);
+  --accent-dim: rgba(228, 121, 53, 0.08);
   --accent-dark: #cc662b;
+  --accent-gradient: linear-gradient(135deg, #E47935 0%, #cc662b 100%);
 
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #94a3b8;
 
-  /* Status colors - adjusted for light mode */
-  --status-ingresado: #f59e0b;
-  --status-revision: #3b82f6;
-  --status-listo: #10b981;
-  --status-entregado: #8b5cf6;
-  --status-sin-reparacion: #ef4444;
-
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 15px rgba(228, 121, 53, 0.1);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 20px rgba(228, 121, 53, 0.08);
   --calendar-invert: invert(0);
+
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.06);
 }
 
 /* ─── Reset ──────────────────────────────────────────────── */
@@ -80,17 +80,26 @@ html {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+.page-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  transition: var(--transition);
 }
 
 button {
@@ -98,21 +107,49 @@ button {
   border: none;
   background: none;
   font-family: inherit;
+  transition: var(--transition);
 }
 
 /* ─── Utilities ──────────────────────────────────────────── */
 .glass {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
+  transition: var(--transition);
 }
 
 .glass:hover {
   border-color: var(--border-glow);
   box-shadow: var(--shadow-glow), var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 200%;
+  }
 }
 
 /* Page Header & Layout */

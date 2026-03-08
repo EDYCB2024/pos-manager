@@ -1,4 +1,8 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+// Ensure env variables are loaded
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -9,6 +13,11 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS,
     },
 });
+
+// Verify connection configuration
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('⚠️ Advertencia: Credenciales de correo (EMAIL_USER/EMAIL_PASS) no encontradas en el entorno.');
+}
 
 export async function sendActivationEmail(email, name, token) {
     const activationLink = `${process.env.APP_URL || 'https://tuapp.com'}/activate?token=${token}`;

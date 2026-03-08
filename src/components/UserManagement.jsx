@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../pages/Users.css';
 import '../pages/shared.css';
+
 
 export default function UserManagement() {
     const { user } = useAuth();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({ name: '', email: '', role: 'visor', password: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', role: 'visor' });
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -42,7 +43,7 @@ export default function UserManagement() {
                 throw new Error(data.error || 'Error al crear usuario');
             }
             setShowModal(false);
-            setFormData({ name: '', email: '', role: 'visor', password: '' });
+            setFormData({ name: '', email: '', role: 'visor' });
             fetchUsers();
         } catch (err) {
             setError(err.message);
@@ -62,9 +63,20 @@ export default function UserManagement() {
         }
     };
 
-    if (user?.role !== 'admin' && user?.role !== 'supervisor') {
-        return null;
-    }
+    const handleDeleteUser = async (id, name) => {
+        const confirmed = window.confirm(`¿Seguro que deseas eliminar al usuario "${name}"? Esta acción no se puede deshacer.`);
+        if (!confirmed) return;
+        try {
+            const res = await fetch(`/api/users/delete?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error al eliminar usuario');
+            fetchUsers();
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    if (user?.role !== 'admin' && user?.role !== 'supervisor') return null;
 
     return (
         <div className="users-container anim-fadeUp" style={{ padding: 0 }}>
@@ -81,6 +93,11 @@ export default function UserManagement() {
             <div className="glass table-container">
                 {loading ? (
                     <div className="loading-spinner">Cargando...</div>
+                ) : users.length === 0 ? (
+                    <div className="empty-state">
+                        <span className="empty-state__icon">👥</span>
+                        <p>No hay usuarios registrados.</p>
+                    </div>
                 ) : (
                     <table className="data-table">
                         <thead>
@@ -89,7 +106,7 @@ export default function UserManagement() {
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
+                                <th style={{ textAlign: 'right' }}>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,23 +115,54 @@ export default function UserManagement() {
                                     <td><strong>{u.name}</strong></td>
                                     <td>{u.email}</td>
                                     <td>
-                                        <span className={`role-badge role-${u.role}`}>
-                                            {u.role}
-                                        </span>
+                                        <span className={`role-badge role-${u.role}`}>{u.role}</span>
                                     </td>
                                     <td>
                                         <span className={`status-badge ${u.active ? 'status-listo' : 'status-sin-reparacion'}`}>
                                             {u.active ? 'Activo' : 'Inactivo'}
                                         </span>
                                     </td>
-                                    <td>
-                                        <div className="action-btns">
+                                    <td style={{ textAlign: 'right' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
                                             <button
-                                                className={`action-btn ${u.active ? 'action-btn--delete' : 'action-btn--edit'}`}
+                                                className={`btn-icon ${u.active ? '' : 'btn-icon--warning'}`}
                                                 onClick={() => toggleUserStatus(u.id, u.active)}
-                                                title={u.active ? 'Desactivar' : 'Activar'}
+                                                title={u.active ? "Desactivar Usuario" : "Activar Usuario"}
+                                                disabled={user.id === u.id}
+                                                style={{
+                                                    opacity: user.id === u.id ? 0.5 : 1,
+                                                    cursor: user.id === u.id ? 'not-allowed' : 'pointer',
+                                                    color: u.active ? 'var(--text-secondary)' : '#fbbf24'
+                                                }}
                                             >
-                                                {u.active ? '🚫' : '✅'}
+                                                {u.active ? (
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                                    </svg>
+                                                ) : (
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                        <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                                                    </svg>
+                                                )}
+                                            </button>
+                                            <button
+                                                className="btn-icon btn-icon--danger"
+                                                onClick={() => handleDeleteUser(u.id, u.name)}
+                                                title="Eliminar Usuario"
+                                                disabled={user.id === u.id}
+                                                style={{
+                                                    opacity: user.id === u.id ? 0.5 : 1,
+                                                    cursor: user.id === u.id ? 'not-allowed' : 'pointer'
+                                                }}
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                </svg>
                                             </button>
                                         </div>
                                     </td>
@@ -157,6 +205,7 @@ export default function UserManagement() {
                                     value={formData.role}
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
                                     className="filter-select"
+                                    style={{ width: '100%' }}
                                 >
                                     <option value="admin">Administrador</option>
                                     <option value="supervisor">Supervisor</option>
@@ -175,7 +224,6 @@ export default function UserManagement() {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }
