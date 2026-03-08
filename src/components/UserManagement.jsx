@@ -9,6 +9,10 @@ export default function UserManagement() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isDeleteMode, setIsDeleteMode] = useState(false);
+    const [selectedUsers, setSelectedUsers] = useState([]); // Array of IDs
+    const [editingValues, setEditingValues] = useState({}); // { userId: { name: '...' } }
     const [formData, setFormData] = useState({ name: '', email: '', role: 'visor' });
     const [error, setError] = useState('');
 
@@ -63,6 +67,27 @@ export default function UserManagement() {
         }
     };
 
+    const handleUpdateRole = async (id, newRole, newName) => {
+        try {
+            const res = await fetch(`/api/users/update?id=${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    role: newRole,
+                    name: newName || users.find(u => u.id === id)?.name
+                })
+            });
+            if (res.ok) fetchUsers();
+            else {
+                const data = await res.json();
+                alert(data.error || 'Error al actualizar el usuario');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error de conexión');
+        }
+    };
+
     const handleDeleteUser = async (id, name) => {
         const confirmed = window.confirm(`¿Seguro que deseas eliminar al usuario "${name}"? Esta acción no se puede deshacer.`);
         if (!confirmed) return;
@@ -76,21 +101,94 @@ export default function UserManagement() {
         }
     };
 
+    const handleBulkDelete = async () => {
+        if (selectedUsers.length === 0) {
+            alert('Selecciona al menos un usuario para eliminar.');
+            return;
+        }
+
+        const confirmed = window.confirm(`¿Seguro que deseas eliminar a los ${selectedUsers.length} usuarios seleccionados? Esta acción es permanente.`);
+        if (!confirmed) return;
+
+        setLoading(true);
+        try {
+            for (const id of selectedUsers) {
+                await fetch(`/api/users/delete?id=${id}`, { method: 'DELETE' });
+            }
+            setSelectedUsers([]);
+            setIsDeleteMode(false);
+            fetchUsers();
+        } catch (err) {
+            alert('Error durante la eliminación masiva.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleSelection = (id) => {
+        if (id === user.id) return; // Prevent selecting self
+        setSelectedUsers(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
     if (user?.role !== 'admin' && user?.role !== 'supervisor') return null;
 
     return (
         <div className="users-container anim-fadeUp" style={{ padding: 0 }}>
-            <header className="page-header" style={{ marginBottom: '20px' }}>
+            <header className="page-header" style={{
+                marginBottom: '24px',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '16px'
+            }}>
                 <div>
-                    <h2 style={{ fontSize: '1.25rem', marginBottom: '4px', textTransform: 'none' }}>Gestión de Usuarios</h2>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '4px', textTransform: 'none', color: 'var(--text-primary)' }}>Gestión de Usuarios</h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Administra los accesos y roles del sistema.</p>
                 </div>
-                <button className="btn btn--primary" onClick={() => setShowModal(true)}>
-                    <span>➕ Nuevo Usuario</span>
-                </button>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <button
+                        className={`btn ${isEditMode ? 'btn--primary' : 'btn--secondary'}`}
+                        onClick={() => {
+                            setIsEditMode(!isEditMode);
+                            setIsDeleteMode(false);
+                        }}
+                        style={{ padding: '10px 20px' }}
+                    >
+                        <span>{isEditMode ? '✅ Guardar' : '📝 Editar'}</span>
+                    </button>
+                    <button
+                        className={`btn ${isDeleteMode ? 'btn--danger' : 'btn--secondary'}`}
+                        onClick={() => {
+                            if (isDeleteMode && selectedUsers.length > 0) {
+                                handleBulkDelete();
+                            } else {
+                                setIsDeleteMode(!isDeleteMode);
+                                setIsEditMode(false);
+                                if (!isDeleteMode) setSelectedUsers([]);
+                            }
+                        }}
+                        style={{ padding: '10px 20px' }}
+                    >
+                        <span>
+                            {isDeleteMode
+                                ? (selectedUsers.length > 0 ? `🔥 Confirmar (${selectedUsers.length})` : '🚫 Cancelar')
+                                : '🗑️ Eliminar'}
+                        </span>
+                    </button>
+                    <button
+                        className="btn btn--primary"
+                        onClick={() => setShowModal(true)}
+                        style={{ padding: '10px 20px' }}
+                    >
+                        <span>➕ Nuevo</span>
+                    </button>
+                </div>
             </header>
 
-            <div className="glass table-container">
+            <div className="table-container">
                 {loading ? (
                     <div className="loading-spinner">Cargando...</div>
                 ) : users.length === 0 ? (
@@ -102,6 +200,7 @@ export default function UserManagement() {
                     <table className="data-table">
                         <thead>
                             <tr>
+                                {isDeleteMode && <th style={{ width: '40px' }}>Select</th>}
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
@@ -111,11 +210,56 @@ export default function UserManagement() {
                         </thead>
                         <tbody>
                             {users.map(u => (
-                                <tr key={u.id} className="data-table__row">
-                                    <td><strong>{u.name}</strong></td>
+                                <tr key={u.id} className={`data-table__row ${selectedUsers.includes(u.id) ? 'row-selected' : ''}`}>
+                                    {isDeleteMode && (
+                                        <td style={{ width: '40px', textAlign: 'center' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedUsers.includes(u.id)}
+                                                onChange={() => toggleSelection(u.id)}
+                                                disabled={u.id === user.id}
+                                                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                            />
+                                        </td>
+                                    )}
+                                    <td>
+                                        {isEditMode ? (
+                                            <input
+                                                type="text"
+                                                className="search-box__input"
+                                                style={{ padding: '6px 10px', width: 'auto' }}
+                                                value={editingValues[u.id]?.name ?? u.name}
+                                                onChange={(e) => setEditingValues({
+                                                    ...editingValues,
+                                                    [u.id]: { ...editingValues[u.id], name: e.target.value }
+                                                })}
+                                                onBlur={() => {
+                                                    const newName = editingValues[u.id]?.name;
+                                                    if (newName && newName !== u.name) {
+                                                        handleUpdateRole(u.id, u.role, newName);
+                                                    }
+                                                }}
+                                            />
+                                        ) : (
+                                            <strong>{u.name}</strong>
+                                        )}
+                                    </td>
                                     <td>{u.email}</td>
                                     <td>
-                                        <span className={`role-badge role-${u.role}`}>{u.role}</span>
+                                        <select
+                                            value={u.role}
+                                            onChange={(e) => handleUpdateRole(u.id, e.target.value)}
+                                            className={`role-badge role-${u.role}`}
+                                            disabled={user.id === u.id}
+                                            style={{
+                                                cursor: user.id === u.id ? 'not-allowed' : 'pointer'
+                                            }}
+                                        >
+                                            <option value="admin">Admin</option>
+                                            <option value="supervisor">Supervisor</option>
+                                            <option value="tecnico">Técnico</option>
+                                            <option value="visor">Visor</option>
+                                        </select>
                                     </td>
                                     <td>
                                         <span className={`status-badge ${u.active ? 'status-listo' : 'status-sin-reparacion'}`}>
@@ -148,13 +292,16 @@ export default function UserManagement() {
                                                 )}
                                             </button>
                                             <button
-                                                className="btn-icon btn-icon--danger"
+                                                className={`btn-icon btn-icon--danger ${isDeleteMode ? 'shimmer' : ''}`}
                                                 onClick={() => handleDeleteUser(u.id, u.name)}
                                                 title="Eliminar Usuario"
                                                 disabled={user.id === u.id}
                                                 style={{
                                                     opacity: user.id === u.id ? 0.5 : 1,
-                                                    cursor: user.id === u.id ? 'not-allowed' : 'pointer'
+                                                    cursor: user.id === u.id ? 'not-allowed' : 'pointer',
+                                                    transform: isDeleteMode ? 'scale(1.1)' : 'scale(1)',
+                                                    boxShadow: isDeleteMode ? '0 0 10px rgba(239, 68, 68, 0.3)' : 'none',
+                                                    borderColor: isDeleteMode ? '#f87171' : 'rgba(239, 68, 68, 0.1)'
                                                 }}
                                             >
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

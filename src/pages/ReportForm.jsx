@@ -8,6 +8,9 @@ export default function ReportForm() {
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     const [isPreview, setIsPreview] = useState(false);
 
+    const [activeStep, setActiveStep] = useState(0);
+    const steps = ['Cliente', 'Equipo', 'Evaluación', 'Condiciones'];
+
     // Estado para los campos del formulario
     const [data, setData] = useState({
         fecha: new Date().toLocaleDateString('es-ES'),
@@ -96,152 +99,185 @@ export default function ReportForm() {
                     </div>
                 </div>
 
-                {/* ─── Información del Cliente ─────────────────────── */}
-                <div className="form-section">
-                    <h3 className="form-section__title">Información del Cliente</h3>
-                    <div className="form-grid">
-                        <div className="form-field form-field--wide">
-                            <label className="form-label">Razón Social</label>
-                            <input type="text" className="form-input" name="razonSocial" value={data.razonSocial} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">RIF</label>
-                            <input type="text" className="form-input" name="rif" value={data.rif} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Marca</label>
-                            <input type="text" className="form-input" name="marca" value={data.marca} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Modelo</label>
-                            <input type="text" className="form-input" name="modelo" value={data.modelo} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Serial del Equipo</label>
-                            <input type="text" className="form-input" name="serial" value={data.serial} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Procesadora</label>
-                            <input type="text" className="form-input" name="procesadora" value={data.procesadora} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Operadora</label>
-                            <input type="text" className="form-input" name="operadora" value={data.operadora} onChange={handleChange} />
-                        </div>
-                        <div className="form-field form-field--wide">
-                            <label className="form-label">Incidencia Reportada</label>
-                            <input type="text" className="form-input" name="incidencia" value={data.incidencia} onChange={handleChange} />
-                        </div>
+                {/* ─── Stepper Visual indicator ───────────────────── */}
+                {!isGeneratingPdf && !isPreview && (
+                    <div className="stepper-indicator">
+                        {steps.map((step, idx) => (
+                            <div key={idx} className={`step-item ${idx <= activeStep ? 'active' : ''} ${idx < activeStep ? 'completed' : ''}`} onClick={() => idx < activeStep && setActiveStep(idx)}>
+                                <div className="step-number">{idx + 1}</div>
+                                <span className="step-label">{step}</span>
+                            </div>
+                        ))}
                     </div>
-                </div>
+                )}
 
-                {/* ─── Recepción de Equipo ─────────────────────── */}
-                <div className="form-section">
-                    <h3 className="form-section__title">Recepción de Equipo (Accesorios)</h3>
-                    <div className="form-grid">
-                        <div className="form-field">
-                            <label className="form-label">Caja</label>
-                            <select className="form-input" name="acc_caja" value={data.acc_caja} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Cargador</label>
-                            <select className="form-input" name="acc_cargador" value={data.acc_cargador} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Batería</label>
-                            <select className="form-input" name="acc_bateria" value={data.acc_bateria} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Sim Card</label>
-                            <select className="form-input" name="acc_sim" value={data.acc_sim} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Etiqueta de Garantía</label>
-                            <select className="form-input" name="acc_etiqueta" value={data.acc_etiqueta} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Forro</label>
-                            <select className="form-input" name="add_forro" value={data.add_forro} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Declaración Cont.</label>
-                            <select className="form-input" name="add_declaracion" value={data.add_declaracion} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Rollo Térmico</label>
-                            <select className="form-input" name="add_rollo" value={data.add_rollo} onChange={handleChange}>
-                                <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ─── Evaluación Técnica ─────────────────────── */}
-                <div className="form-section">
-                    <h3 className="form-section__title">Evaluación Técnica</h3>
-                    <div className="form-grid form-grid--single">
-                        <div className="form-field">
-                            <label className="form-label">Diagnóstico Técnico</label>
-                            <input type="text" className="form-input" name="diagnostico" value={data.diagnostico} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Servicio a realizar</label>
-                            <input type="text" className="form-input" name="servicio" value={data.servicio} onChange={handleChange} />
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Evidencias / Observaciones</label>
-                            <textarea className="form-input form-textarea" name="evidencias" value={data.evidencias} onChange={handleChange} rows={3}></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="form-section">
-                    <h3 className="form-section__title">Condición del Equipo</h3>
-                    <div className="form-grid">
-                        <div className="form-field">
-                            <label className="form-label">Condición (Check)</label>
-                            <div className="checkbox-group report-checkboxes report-checkboxes--col" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label><input type="checkbox" name="cond_garantia" checked={data.cond_garantia} onChange={handleChange} /> Garantía</label>
-                                <label><input type="checkbox" name="cond_cotizacion" checked={data.cond_cotizacion} onChange={handleChange} /> Cotización</label>
-                                <label><input type="checkbox" name="cond_irreparable" checked={data.cond_irreparable} onChange={handleChange} /> Irreparable</label>
+                {/* ─── Información del Cliente (Step 0) ─────────────────────── */}
+                {(activeStep === 0 || isGeneratingPdf || isPreview) && (
+                    <div className="form-section anim-fadeUp">
+                        <h3 className="form-section__title">Información del Cliente</h3>
+                        <div className="form-grid">
+                            <div className="form-field form-field--wide">
+                                <label className="form-label">Razón Social</label>
+                                <input type="text" className="form-input" name="razonSocial" value={data.razonSocial} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">RIF</label>
+                                <input type="text" className="form-input" name="rif" value={data.rif} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Marca</label>
+                                <input type="text" className="form-input" name="marca" value={data.marca} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Modelo</label>
+                                <input type="text" className="form-input" name="modelo" value={data.modelo} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Serial del Equipo</label>
+                                <input type="text" className="form-input" name="serial" value={data.serial} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Procesadora</label>
+                                <input type="text" className="form-input" name="procesadora" value={data.procesadora} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Operadora</label>
+                                <input type="text" className="form-input" name="operadora" value={data.operadora} onChange={handleChange} />
+                            </div>
+                            <div className="form-field form-field--wide">
+                                <label className="form-label">Incidencia Reportada</label>
+                                <input type="text" className="form-input" name="incidencia" value={data.incidencia} onChange={handleChange} />
                             </div>
                         </div>
-                        <div className="form-field">
-                            <label className="form-label">Nivel de falla (Check)</label>
-                            <div className="checkbox-group report-checkboxes report-checkboxes--col" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label><input type="checkbox" name="nivel_0" checked={data.nivel_0} onChange={handleChange} /> Nivel 0</label>
-                                <label><input type="checkbox" name="nivel_1" checked={data.nivel_1} onChange={handleChange} /> Nivel 1</label>
-                                <label><input type="checkbox" name="nivel_2" checked={data.nivel_2} onChange={handleChange} /> Nivel 2</label>
+                    </div>
+                )}
+
+                {/* ─── Recepción de Equipo (Step 1) ─────────────────────── */}
+                {(activeStep === 1 || isGeneratingPdf || isPreview) && (
+                    <div className="form-section anim-fadeUp">
+                        <h3 className="form-section__title">Recepción de Equipo (Accesorios)</h3>
+                        <div className="form-grid">
+                            <div className="form-field">
+                                <label className="form-label">Caja</label>
+                                <select className="form-input" name="acc_caja" value={data.acc_caja} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Cargador</label>
+                                <select className="form-input" name="acc_cargador" value={data.acc_cargador} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Batería</label>
+                                <select className="form-input" name="acc_bateria" value={data.acc_bateria} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Sim Card</label>
+                                <select className="form-input" name="acc_sim" value={data.acc_sim} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Etiqueta de Garantía</label>
+                                <select className="form-input" name="acc_etiqueta" value={data.acc_etiqueta} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Forro</label>
+                                <select className="form-input" name="add_forro" value={data.add_forro} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Declaración Cont.</label>
+                                <select className="form-input" name="add_declaracion" value={data.add_declaracion} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Rollo Térmico</label>
+                                <select className="form-input" name="add_rollo" value={data.add_rollo} onChange={handleChange}>
+                                    <option value="">Seleccione</option><option value="si">SI</option><option value="no">NO</option>
+                                </select>
                             </div>
                         </div>
-                        <div className="form-field">
-                            <label className="form-label">Requiere Carga de Llaves</label>
-                            <select className="form-input" name="llaves_req" value={data.llaves_req} onChange={handleChange}>
-                                <option value="">Seleccione</option>
-                                <option value="si">SI</option>
-                                <option value="no">NO</option>
-                            </select>
-                        </div>
-                        <div className="form-field">
-                            <label className="form-label">Técnico encargado</label>
-                            <input type="text" className="form-input" name="tecnico" value={data.tecnico} onChange={handleChange} />
+                    </div>
+                )}
+
+                {/* ─── Evaluación Técnica (Step 2) ─────────────────────── */}
+                {(activeStep === 2 || isGeneratingPdf || isPreview) && (
+                    <div className="form-section anim-fadeUp">
+                        <h3 className="form-section__title">Evaluación Técnica</h3>
+                        <div className="form-grid form-grid--single">
+                            <div className="form-field">
+                                <label className="form-label">Diagnóstico Técnico</label>
+                                <input type="text" className="form-input" name="diagnostico" value={data.diagnostico} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Servicio a realizar</label>
+                                <input type="text" className="form-input" name="servicio" value={data.servicio} onChange={handleChange} />
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Evidencias / Observaciones</label>
+                                <textarea className="form-input form-textarea" name="evidencias" value={data.evidencias} onChange={handleChange} rows={3}></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
+
+                {/* ─── Condición del Equipo (Step 3) ─────────────────────── */}
+                {(activeStep === 3 || isGeneratingPdf || isPreview) && (
+                    <div className="form-section anim-fadeUp">
+                        <h3 className="form-section__title">Condición del Equipo</h3>
+                        <div className="form-grid">
+                            <div className="form-field">
+                                <label className="form-label">Condición (Check)</label>
+                                <div className="checkbox-group report-checkboxes report-checkboxes--col" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label><input type="checkbox" name="cond_garantia" checked={data.cond_garantia} onChange={handleChange} /> Garantía</label>
+                                    <label><input type="checkbox" name="cond_cotizacion" checked={data.cond_cotizacion} onChange={handleChange} /> Cotización</label>
+                                    <label><input type="checkbox" name="cond_irreparable" checked={data.cond_irreparable} onChange={handleChange} /> Irreparable</label>
+                                </div>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Nivel de falla (Check)</label>
+                                <div className="checkbox-group report-checkboxes report-checkboxes--col" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label><input type="checkbox" name="nivel_0" checked={data.nivel_0} onChange={handleChange} /> Nivel 0</label>
+                                    <label><input type="checkbox" name="nivel_1" checked={data.nivel_1} onChange={handleChange} /> Nivel 1</label>
+                                    <label><input type="checkbox" name="nivel_2" checked={data.nivel_2} onChange={handleChange} /> Nivel 2</label>
+                                </div>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Requiere Carga de Llaves</label>
+                                <select className="form-input" name="llaves_req" value={data.llaves_req} onChange={handleChange}>
+                                    <option value="">Seleccione</option>
+                                    <option value="si">SI</option>
+                                    <option value="no">NO</option>
+                                </select>
+                            </div>
+                            <div className="form-field">
+                                <label className="form-label">Técnico encargado</label>
+                                <input type="text" className="form-input" name="tecnico" value={data.tecnico} onChange={handleChange} />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ─── Navigation Buttons ────────────────────────── */}
+                {!isGeneratingPdf && !isPreview && (
+                    <div className="stepper-actions">
+                        <button type="button" className={`btn btn--secondary ${activeStep === 0 ? 'disabled' : ''}`} onClick={() => activeStep > 0 && setActiveStep(v => v - 1)} disabled={activeStep === 0}>
+                            Anterior
+                        </button>
+                        <button type="button" className="btn btn--primary" onClick={() => activeStep < steps.length - 1 ? setActiveStep(v => v + 1) : handleDownloadPdf()}>
+                            {activeStep < steps.length - 1 ? 'Siguiente' : '📄 Generar PDF'}
+                        </button>
+                    </div>
+                )}
 
             </form>
         </div>

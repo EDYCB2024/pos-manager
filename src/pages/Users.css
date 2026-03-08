@@ -5,7 +5,50 @@
 .table-container {
     margin-top: 24px;
     padding: 0px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    -webkit-overflow-scrolling: touch;
+    /* Clean background and border from design system */
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+/* Disable jump on hover for the table container */
+.table-container:hover {
+    transform: none;
+    border-color: var(--glass-border);
+}
+
+/* Custom horizontal scrollbar */
+.table-container::-webkit-scrollbar {
+    height: 10px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dim);
+}
+
+.data-table {
+    min-width: 800px;
+    /* Force scrollbar on narrow containers */
+    white-space: nowrap;
 }
 
 .role-badge {
@@ -40,6 +83,26 @@
     border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
+select.role-badge {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 24px;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+select.role-badge:focus {
+    box-shadow: 0 0 0 2px var(--accent-dim);
+    border-color: var(--accent);
+}
+
+select.role-badge option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
 .user-form {
     display: flex;
     flex-direction: column;
@@ -53,6 +116,10 @@
     background: rgba(239, 68, 68, 0.1);
     padding: 8px;
     border-radius: 6px;
+}
+
+.row-selected td {
+    background: rgba(239, 68, 68, 0.05) !important;
 }
 
 .loading-spinner {

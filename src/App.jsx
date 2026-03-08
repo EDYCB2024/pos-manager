@@ -16,6 +16,7 @@ import AtcInbox from './pages/AtcInbox';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
+import VirtualAssistant from './components/VirtualAssistant';
 import { Outlet } from 'react-router-dom';
 import './App.css';
 
@@ -28,6 +29,7 @@ function ProtectedLayout({ theme, toggleTheme }) {
         <div className="app-content">
           <Outlet />
         </div>
+        <VirtualAssistant />
       </main>
     </div>
   );

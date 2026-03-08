@@ -50,19 +50,25 @@ export default function Dashboard() {
         return () => clearInterval(timer);
     }, []);
 
-    const getGreeting = () => {
+    const getGreetingInfo = () => {
         const hour = currentTime.getHours();
-        if (hour < 12) return 'Buenos días';
-        if (hour < 18) return 'Buenas tardes';
-        return 'Buenas noches';
+        if (hour < 12) return { text: 'Buenos días', icon: '☀️' };
+        if (hour < 18) return { text: 'Buenas tardes', icon: '⛅' };
+        return { text: 'Buenas noches', icon: '🌙' };
     };
+
+    const greeting = getGreetingInfo();
 
     return (
         <div className="dashboard anim-fadeUp">
-            <div className="dashboard-welcome">
+            <div className="dynamic-bg"></div>
+            
+            <div className="dashboard-welcome glass">
                 <div className="welcome-content">
                     <span className="welcome-tag">Panel de Control</span>
-                    <h1 className="welcome-title">{getGreeting()}, Administrador</h1>
+                    <h1 className="welcome-title">
+                        {greeting.icon} {greeting.text}, Administrador
+                    </h1>
                     <p className="welcome-text">Aquí tienes el resumen de operaciones para hoy.</p>
                 </div>
             </div>
