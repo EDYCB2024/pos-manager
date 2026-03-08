@@ -2,32 +2,72 @@
 
 .device-list__filters {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1 1 320px;
+    max-width: 450px;
+    min-width: 200px;
 }
 
 .table-wrap {
     overflow-x: auto;
     margin-bottom: 20px;
     padding-bottom: 8px;
-    /* Espacio para el scrollbar */
+    max-height: 65vh;
+    border-radius: var(--radius-md);
+}
+
+.loader-ring {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--accent-dim);
+    border-top: 3px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.data-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
 }
 
 /* Resaltado de encabezados */
 .data-table th {
-    background: rgba(255, 255, 255, 0.02);
-    /* Fondo sutil para separar encabezados */
+    background: rgba(255, 255, 255, 0.03);
     color: var(--text-primary);
-    /* Color más brillante para mayor contraste */
     font-weight: 800;
-    /* Más negrita */
-    font-size: 12px;
-    /* Ligeramente más grande */
-    letter-spacing: 0.08em;
-    border-bottom: 2px solid var(--border-glow);
-    /* Línea inferior más definida */
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 16px;
+    border-bottom: 2px solid var(--accent-dim);
 }
 
 /* Forzar que la tabla no sea menor a un ancho mínimo para activar el scroll */
@@ -84,14 +124,60 @@
 
 .pagination {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
     gap: 15px;
-    margin-top: 20px;
-    padding: 10px;
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
 }
 
 .pagination__info {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+
+.pagination__info strong {
+    color: var(--text-primary);
+}
+
+.data-table td {
+    padding: 20px 16px;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.data-table td[data-label="Serial"] {
+    min-width: 140px;
+}
+
+.data-table td[data-label="Razón Social"] {
+    max-width: 280px;
+    min-width: 200px;
+}
+
+.data-table td[data-label="Fecha"] {
+    min-width: 100px;
+}
+
+@media (max-width: 768px) {
+    .device-list__filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        max-width: 100%;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }

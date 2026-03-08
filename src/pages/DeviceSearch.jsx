@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDeviceBySerial, getReportUrl } from '../store';
 import StatusBadge from '../components/StatusBadge';
+import CaseDetails from '../components/CaseDetails';
 import './DeviceSearch.css';
 
 export default function DeviceSearch() {
     const [query, setQuery] = useState('');
     const [result, setResult] = useState(undefined); // undefined=not searched, null=not found
     const [searching, setSearching] = useState(false);
+    const [viewingDevice, setViewingDevice] = useState(null);
     const navigate = useNavigate();
 
     async function handleSearch(e) {
@@ -73,7 +75,7 @@ export default function DeviceSearch() {
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <button
                                     className="btn btn--secondary btn--sm"
-                                    onClick={() => navigate(`/devices/${d.id}`)}
+                                    onClick={() => setViewingDevice(d)}
                                 >
                                     Ver Detalle
                                 </button>
@@ -143,6 +145,20 @@ export default function DeviceSearch() {
                     )}
                 </div>
             ))}
+            {/* Case Details Modal */}
+            {viewingDevice && (
+                <div className="modal-overlay" onClick={() => setViewingDevice(null)}>
+                    <div className="modal modal--wide glass anim-fadeUp" onClick={e => e.stopPropagation()}>
+                        <div className="modal__header">
+                            <h3 className="modal__title">Detalles del Caso</h3>
+                            <button className="modal__close" onClick={() => setViewingDevice(null)}>✕</button>
+                        </div>
+                        <div className="modal__body" style={{ maxHeight: '80vh', overflowY: 'auto', padding: '0' }}>
+                            <CaseDetails form={viewingDevice} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

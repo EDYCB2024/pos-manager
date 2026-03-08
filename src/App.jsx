@@ -13,10 +13,11 @@ import Login from './pages/Login';
 import Activate from './pages/Activate';
 import Welcome from './pages/Welcome';
 import AtcInbox from './pages/AtcInbox';
+import QuotationForm from './pages/QuotationForm';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
-import VirtualAssistant from './components/VirtualAssistant';
+import CR7Bot from './components/CR7Bot';
 import { Outlet } from 'react-router-dom';
 import './App.css';
 
@@ -29,7 +30,7 @@ function ProtectedLayout({ theme, toggleTheme }) {
         <div className="app-content">
           <Outlet />
         </div>
-        <VirtualAssistant />
+        <CR7Bot />
       </main>
     </div>
   );
@@ -70,6 +71,7 @@ export default function App() {
               <Route path="/search" element={<DeviceSearch />} />
               <Route path="/report/new" element={<ReportForm />} />
               <Route path="/recursos-pos" element={<RecursosPos />} />
+              <Route path="/quotation/new" element={<QuotationForm />} />
               <Route path="/partes" element={<Inventory />} />
               <Route path="/settings" element={<Settings theme={theme} onToggleTheme={toggleTheme} />} />
               <Route path="/atc/inbox" element={<AtcInbox />} />

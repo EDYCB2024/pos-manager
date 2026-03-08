@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
     addDevice, updateDevice, getDeviceById,
     ESTATUSES_CASO, ESTATUSES_REPARACION, CATEGORIAS, MODELOS,
@@ -7,6 +7,7 @@ import {
 } from '../store';
 import MassiveUpload from '../components/MassiveUpload';
 import StatusBadge from '../components/StatusBadge';
+import CaseDetails from '../components/CaseDetails';
 import './DeviceForm.css';
 
 const today = new Date().toISOString().slice(0, 10);
@@ -15,6 +16,7 @@ const EMPTY = {
     fecha: today,
     aliado: '',
     modelo: MODELOS[0],
+    marca: 'Newland',
     razon_social: '',
     serial: '',
     informes: '',
@@ -41,15 +43,36 @@ const EMPTY = {
 
 export default function DeviceForm() {
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
     const isEdit = Boolean(id);
     const navigate = useNavigate();
 
     const [uploadMode, setUploadMode] = useState('individual'); // 'individual' or 'massive'
-    const [form, setForm] = useState(EMPTY);
+    const [form, setForm] = useState(() => {
+        const aliadoParam = searchParams.get('aliado');
+        const serialParam = searchParams.get('serial');
+        return {
+            ...EMPTY,
+            ...(aliadoParam && { aliado: aliadoParam }),
+            ...(serialParam && { serial: serialParam })
+        };
+    });
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(isEdit);
     const [isReadOnly, setIsReadOnly] = useState(isEdit);
+
+    useEffect(() => {
+        const aliadoParam = searchParams.get('aliado');
+        const serialParam = searchParams.get('serial');
+        if (!isEdit) {
+            setForm(prev => ({
+                ...prev,
+                ...(aliadoParam && { aliado: aliadoParam }),
+                ...(serialParam && { serial: serialParam })
+            }));
+        }
+    }, [searchParams, isEdit]);
 
     useEffect(() => {
         if (!isEdit) return;
@@ -129,66 +152,95 @@ export default function DeviceForm() {
 
             {uploadMode === 'individual' ? (
                 isReadOnly ? (
-                    <CaseDetailsView form={form} />
+                    <CaseDetails form={form} />
                 ) : (
-                    <form className="device-form glass" onSubmit={handleSubmit}>
+                    <form className="device-form glass anim-fadeUp" onSubmit={handleSubmit}>
                         {/* ─── Falla e Informes ────────────────────── */}
                         <div className="form-section">
-                            <h3 className="form-section__title">Falla e Información Técnica</h3>
-                            <div className="form-grid">
-                                <div className="form-field form-field--wide">
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+                                Falla Notificada
+                            </h3>
+                            <div className="form-grid form-grid--single">
+                                <div className="form-field">
                                     <label className="form-label">Falla Notificada</label>
                                     <textarea
                                         className="form-input form-textarea"
                                         name="falla_notificada"
                                         value={form.falla_notificada}
                                         onChange={handleChange}
-                                        rows={2}
-                                        placeholder="Describe la falla reportada por el cliente..."
-                                        disabled={isReadOnly}
-                                    />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Informe Técnico (Link/ID)</label>
-                                    <input
-                                        className="form-input"
-                                        name="informe"
-                                        value={form.informe}
-                                        onChange={handleChange}
-                                        placeholder="Ej. VT.5151"
+                                        rows={3}
+                                        placeholder="Escribe la falla que reporta el cliente..."
                                         disabled={isReadOnly}
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* ─── Identificación del Equipo ─────────────── */}
+                        {/* ─── Información Inicial ─────────────────── */}
                         <div className="form-section">
-                            <h3 className="form-section__title">Identificación del Equipo</h3>
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                                Identificación y Aliado
+                            </h3>
                             <div className="form-grid">
                                 <div className="form-field">
-                                    <label className="form-label">Fecha *</label>
-                                    <input
-                                        className="form-input"
-                                        type="date"
-                                        name="fecha"
-                                        value={form.fecha}
-                                        onChange={handleChange}
-                                        required
-                                        disabled={isReadOnly}
-                                    />
+                                    <label className="form-label">Fecha de Ingreso</label>
+                                    <input className="form-input" type="date" name="fecha" value={form.fecha} onChange={handleChange} disabled={isReadOnly} />
                                 </div>
                                 <div className="form-field">
-                                    <label className="form-label">Serial *</label>
-                                    <input
-                                        className="form-input"
-                                        name="serial"
-                                        value={form.serial}
-                                        onChange={handleChange}
-                                        disabled={isEdit}
-                                        placeholder="Ej. VX520-001234"
-                                        required
-                                    />
+                                    <label className="form-label">Serial del Equipo</label>
+                                    <input className="form-input" name="serial" value={form.serial} onChange={handleChange} placeholder="Serial único del POS" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Aliado / Punto de Venta</label>
+                                    <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Nro de Guía</label>
+                                    <input className="form-input" name="nro_guia" value={form.nro_guia} onChange={handleChange} placeholder="Si aplica..." disabled={isReadOnly} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ─── Datos del Cliente ─────────────────────── */}
+                        <div className="form-section">
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                                Datos del Cliente
+                            </h3>
+                            <div className="form-grid">
+                                <div className="form-field">
+                                    <label className="form-label">Razón Social</label>
+                                    <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Nombre del comercio" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">RIF</label>
+                                    <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="J-12345678-0" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Nro de Ingreso</label>
+                                    <input className="form-input" name="ingreso" value={form.ingreso} onChange={handleChange} placeholder="Control interno" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Procesadora</label>
+                                    <select className="form-input" name="procesadora" value={form.procesadora} onChange={handleChange} disabled={isReadOnly}>
+                                        {PROCESADORAS.map(p => <option key={p} value={p}>{p}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ─── Especificaciones del Equipo ─────────────── */}
+                        <div className="form-section">
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+                                Especificaciones del Equipo
+                            </h3>
+                            <div className="form-grid">
+                                <div className="form-field">
+                                    <label className="form-label">Marca</label>
+                                    <input className="form-input" name="marca" value={form.marca} onChange={handleChange} disabled={isReadOnly} />
                                 </div>
                                 <div className="form-field">
                                     <label className="form-label">Modelo</label>
@@ -198,65 +250,39 @@ export default function DeviceForm() {
                                 </div>
                                 <div className="form-field">
                                     <label className="form-label">Serial de Reemplazo</label>
-                                    <input className="form-input" name="serial_reemplazo" value={form.serial_reemplazo} onChange={handleChange} placeholder="Ej. VX520-009999" disabled={isReadOnly} />
+                                    <input className="form-input" name="serial_reemplazo" value={form.serial_reemplazo} onChange={handleChange} placeholder="Si aplica..." disabled={isReadOnly} />
                                 </div>
                                 <div className="form-field">
-                                    <label className="form-label">Aliado</label>
-                                    <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Garantía</label>
-                                    <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange} disabled={isReadOnly}>
-                                        <option value="">— Seleccione —</option>
+                                    <label className="form-label">Acepta Plan</label>
+                                    <select className="form-input" name="acepta_plan" value={form.acepta_plan} onChange={handleChange} disabled={isReadOnly}>
+                                        <option value="">Seleccione</option>
                                         <option value="Sí">Sí</option>
                                         <option value="No">No</option>
                                     </select>
                                 </div>
                                 <div className="form-field">
-                                    <label className="form-label">Acepta plan</label>
-                                    <select className="form-input" name="acepta_plan" value={form.acepta_plan} onChange={handleChange} disabled={isReadOnly}>
-                                        <option value="">— Seleccione —</option>
+                                    <label className="form-label">Garantía</label>
+                                    <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange} disabled={isReadOnly}>
+                                        <option value="">Seleccione</option>
                                         {OPCIONES_SI_NO.map(o => <option key={o} value={o}>{o}</option>)}
                                     </select>
                                 </div>
                                 <div className="form-field">
-                                    <label className="form-label">Nro de guía</label>
-                                    <input
-                                        className="form-input"
-                                        name="nro_guia"
-                                        value={form.nro_guia}
-                                        onChange={handleChange}
-                                        placeholder="Ej. 12345678"
-                                        disabled={isReadOnly}
-                                    />
+                                    <label className="form-label">Informe Técnico (Nro)</label>
+                                    <input className="form-input" name="informe" value={form.informe} onChange={handleChange} placeholder="Nro de informe" disabled={isReadOnly} />
                                 </div>
                             </div>
                         </div>
 
-                        {/* ─── Datos del Cliente ─────────────────────── */}
+                        {/* ─── Técnico ─────────────────────────────── */}
                         <div className="form-section">
-                            <h3 className="form-section__title">Datos del Cliente</h3>
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                Técnico Responsable
+                            </h3>
                             <div className="form-grid">
                                 <div className="form-field">
-                                    <label className="form-label">RIF</label>
-                                    <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="Ej. J-12345678-9" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Ingreso</label>
-                                    <input className="form-input" name="ingreso" value={form.ingreso} onChange={handleChange} placeholder="Nro. de ingreso" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field form-field--wide">
-                                    <label className="form-label">Razón Social *</label>
-                                    <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Ej. Comercial El Éxito C.A." required disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Procesadora</label>
-                                    <select className="form-input" name="procesadora" value={form.procesadora} onChange={handleChange} disabled={isReadOnly}>
-                                        {PROCESADORAS.map(p => <option key={p} value={p}>{p}</option>)}
-                                    </select>
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Técnico Encargado</label>
+                                    <label className="form-label">Técnico encargado</label>
                                     <select className="form-input" name="tecnico" value={form.tecnico} onChange={handleChange} disabled={isReadOnly}>
                                         {TECNICOS.map(t => <option key={t} value={t}>{t}</option>)}
                                     </select>
@@ -264,9 +290,12 @@ export default function DeviceForm() {
                             </div>
                         </div>
 
-                        {/* ─── Estatus y Clasificación ─────────────── */}
+                        {/* ─── Estatus y Clasificación ───────────────────── */}
                         <div className="form-section">
-                            <h3 className="form-section__title">Estatus y Clasificación</h3>
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10h10V2z" /><path d="M22 12H12v10h10V12z" /><path d="M22 2h-10v10h10V2z" /><path d="M12 12H2v10h10V12z" /></svg>
+                                Estatus y Clasificación
+                            </h3>
                             <div className="form-grid">
                                 <div className="form-field">
                                     <label className="form-label">Estatus del Caso</label>
@@ -302,25 +331,10 @@ export default function DeviceForm() {
                         </div>
 
                         <div className="form-section">
-                            <h3 className="form-section__title">Repuestos y Servicios</h3>
-                            <div className="form-grid">
-                                <div className="form-field">
-                                    <label className="form-label">Repuesto/Servicio 1</label>
-                                    <input className="form-input" name="repuesto_1" value={form.repuesto_1} onChange={handleChange} placeholder="Descripción del repuesto 1" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Repuesto/Servicio 2</label>
-                                    <input className="form-input" name="repuesto_2" value={form.repuesto_2} onChange={handleChange} placeholder="Descripción del repuesto 2" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Repuesto/Servicio 3</label>
-                                    <input className="form-input" name="repuesto_3" value={form.repuesto_3} onChange={handleChange} placeholder="Descripción del repuesto 3" disabled={isReadOnly} />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="form-section">
-                            <h3 className="form-section__title">Observaciones</h3>
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8.5" /><path d="M15 21V15h6" /><path d="M21 3h-6v6h6V3z" /></svg>
+                                Observaciones
+                            </h3>
                             <div className="form-grid form-grid--single">
                                 <div className="form-field">
                                     <label className="form-label">Observaciones Generales</label>
@@ -352,113 +366,6 @@ export default function DeviceForm() {
             ) : (
                 <MassiveUpload onComplete={() => navigate('/devices')} />
             )}
-        </div>
-    );
-}
-
-function CaseDetailsView({ form }) {
-    const formatDate = (dateString) => {
-        if (!dateString) return '—';
-        const [year, month, day] = dateString.split('-');
-        if (!year || !month || !day) return dateString;
-        return `${day}-${month}-${year.slice(-2)}`;
-    };
-
-    return (
-        <div className="case-details glass anim-fadeIn">
-            {/* ─── Cabecera de Estado ────────────────── */}
-            <div className="case-details__header">
-                <div className="detail-status-group">
-                    <div className="detail-status">
-                        <span className="detail-status__label">Estatus del Caso</span>
-                        <StatusBadge status={form.estatus_caso} type="caso" />
-                    </div>
-                    <div className="detail-status">
-                        <span className="detail-status__label">Estatus Reparación</span>
-                        <StatusBadge status={form.estatus} type="reparacion" />
-                    </div>
-                </div>
-                {form.fecha_final && (
-                    <div className="detail-date-final">
-                        <span className="detail-date-final__label">Finalizado el</span>
-                        <span className="detail-date-final__value">{formatDate(form.fecha_final)}</span>
-                    </div>
-                )}
-            </div>
-
-            <div className="case-details__grid">
-                {/* ─── Sección: Identificación ──────────── */}
-                <div className="detail-section">
-                    <h4 className="detail-section__title">📦 Información del Equipo</h4>
-                    <div className="detail-items">
-                        <DetailItem label="Serial" value={form.serial} isCode />
-                        <DetailItem label="Modelo" value={form.modelo} />
-                        <DetailItem label="Fecha Ingreso" value={formatDate(form.fecha)} />
-                        <DetailItem label="Aliado" value={form.aliado} />
-                        <DetailItem label="Nro de Guía" value={form.nro_guia} />
-                        <DetailItem label="Serial Reemplazo" value={form.serial_reemplazo} />
-                        <DetailItem label="Garantía" value={form.garantia} />
-                        <DetailItem label="Acepta Plan" value={form.acepta_plan} />
-                    </div>
-                </div>
-
-                {/* ─── Sección: Cliente ────────────────── */}
-                <div className="detail-section">
-                    <h4 className="detail-section__title">👤 Datos del Cliente</h4>
-                    <div className="detail-items">
-                        <DetailItem label="Razón Social" value={form.razon_social} isBold />
-                        <DetailItem label="RIF" value={form.rif} isCode />
-                        <DetailItem label="Nro de Ingreso" value={form.ingreso} />
-                        <DetailItem label="Procesadora" value={form.procesadora} />
-                    </div>
-                </div>
-
-                {/* ─── Sección: Técnico y Costos ────────── */}
-                <div className="detail-section">
-                    <h4 className="detail-section__title">🔧 Gestión y Costos</h4>
-                    <div className="detail-items">
-                        <DetailItem label="Técnico" value={form.tecnico} />
-                        <DetailItem label="Nivel" value={form.nivel} />
-                        <DetailItem label="Categoría" value={form.categoria} />
-                        <DetailItem label="Cotización" value={form.cotizacion ? `$${form.cotizacion}` : '—'} />
-                        <DetailItem label="Informe Técnico" value={form.informe} isCode />
-                    </div>
-                </div>
-
-                {/* ─── Sección: Repuestos ──────────────── */}
-                {(form.repuesto_1 || form.repuesto_2 || form.repuesto_3) && (
-                    <div className="detail-section">
-                        <h4 className="detail-section__title">🛠️ Repuestos y Servicios</h4>
-                        <ul className="detail-list">
-                            {form.repuesto_1 && <li>{form.repuesto_1}</li>}
-                            {form.repuesto_2 && <li>{form.repuesto_2}</li>}
-                            {form.repuesto_3 && <li>{form.repuesto_3}</li>}
-                        </ul>
-                    </div>
-                )}
-
-                {/* ─── Sección: Falla y Obs ─────────────── */}
-                <div className="detail-section detail-section--wide">
-                    <h4 className="detail-section__title">⚠️ Falla Notificada</h4>
-                    <p className="detail-description">{form.falla_notificada || 'Sin falla descrita.'}</p>
-                </div>
-
-                <div className="detail-section detail-section--wide">
-                    <h4 className="detail-section__title">📝 Observaciones / Diagnóstico</h4>
-                    <p className="detail-description detail-description--alt">{form.informes || 'Sin observaciones registradas.'}</p>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function DetailItem({ label, value, isCode, isBold, isStatus }) {
-    return (
-        <div className="detail-item">
-            <span className="detail-item__label">{label}</span>
-            <span className={`detail-item__value ${isCode ? 'code' : ''} ${isBold ? 'bold' : ''}`}>
-                {value || '—'}
-            </span>
         </div>
     );
 }

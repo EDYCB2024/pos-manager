@@ -75,12 +75,10 @@ export const ESTATUSES_CASO = [
 ];
 
 export const ESTATUSES_REPARACION = [
-    'Pendiente',
     'Pendiente por pago',
     'En diagnóstico',
     'En reparación',
-    'Reparado',
-    'Sin reparación',
+    'Irreparable',
     'Entregado',
 ];
 
@@ -110,17 +108,16 @@ export const MODELOS = [
 export const PROCESADORAS = [
     'Platco',
     'Credicard',
-    'Banesco',
-    'Pueblo',
-    'Otro',
 ];
 
 export const TECNICOS = [
-    'Técnico 1',
-    'Técnico 2',
-    'Técnico 3',
-    'Otro',
+    'Eduardo Castillo',
+    'Andelis Nuñez',
+    'Jenfil Gonzalez',
+    'Eduardo Mendieta',
 ];
+
+export const OPERADORAS = ['Digitel', 'Movistar'];
 
 export const OPCIONES_SI_NO = ['Sí', 'No'];
 
