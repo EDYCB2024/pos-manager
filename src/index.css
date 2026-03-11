@@ -3,9 +3,11 @@
 /* ─── Design Tokens ──────────────────────────────────────── */
 :root {
   --bg-primary: #0b0d12;
+  --bg-primary-rgb: 11, 13, 18;
   --bg-secondary: #111318;
+  --bg-secondary-rgb: 17, 19, 24;
   --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-card-hover: rgba(255, 255, 255, 0.06);
+  --bg-card-rgb: 255, 255, 255;
   --border: rgba(255, 255, 255, 0.08);
   --border-glow: rgba(0, 212, 255, 0.25);
 
@@ -26,6 +28,7 @@
   --status-sin-reparacion: #ef4444;
 
   --sidebar-w: 280px;
+  --navbar-h: 70px;
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;
@@ -45,9 +48,11 @@
 /* ─── Light Theme Tokens ─────────────────────────────────── */
 [data-theme='light'] {
   --bg-primary: #f8fafc;
+  --bg-primary-rgb: 248, 250, 252;
   --bg-secondary: #ffffff;
+  --bg-secondary-rgb: 255, 255, 255;
   --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-hover: #f1f5f9;
+  --bg-card-rgb: 255, 255, 255;
   --border: #e2e8f0;
   --border-glow: rgba(228, 121, 53, 0.25);
 
@@ -378,8 +383,13 @@ button {
 }
 
 @keyframes bg-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ─── Status Badges ──────────────────────────────────────── */

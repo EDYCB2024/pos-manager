@@ -1,16 +1,25 @@
 .navbar {
-    height: 70px;
-    padding: 0 24px;
+    height: var(--navbar-h, 70px);
+    padding: 0 32px;
+    /* Increased for breathing room */
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 90;
+    /* Lower than sidebar but higher than content */
     border-bottom: 1px solid var(--border);
-    background: rgba(var(--bg-card-rgb), 0.8) !important;
-    backdrop-filter: blur(12px);
+    background: rgba(var(--bg-primary-rgb, 11, 13, 18), 0.7) !important;
+    backdrop-filter: blur(20px);
     width: 100%;
+    overflow: visible !important;
+    border-radius: 0 !important;
+    /* Unite with sidebar */
+    box-shadow: none !important;
+    /* Unite with sidebar */
+    transform: none !important;
+    /* No floating hover */
 }
 
 .navbar__left {

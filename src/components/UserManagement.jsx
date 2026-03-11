@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../pages/Users.css';
 import '../pages/shared.css';
-
 
 export default function UserManagement() {
     const { user } = useAuth();
@@ -135,27 +134,19 @@ export default function UserManagement() {
     if (user?.role !== 'admin' && user?.role !== 'supervisor') return null;
 
     return (
-        <div className="users-container anim-fadeUp" style={{ padding: 0 }}>
-            <header className="page-header" style={{
-                marginBottom: '24px',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '16px'
-            }}>
+        <div className="users-container anim-fadeUp">
+            <header className="page-header" style={{ alignItems: 'center' }}>
                 <div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '4px', textTransform: 'none', color: 'var(--text-primary)' }}>Gestión de Usuarios</h2>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Administra los accesos y roles del sistema.</p>
+                    <h2 className="page-title">Gestión de Usuarios</h2>
+                    <p className="page-sub">Administra los accesos y roles del sistema.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div className="page-header__actions">
                     <button
                         className={`btn ${isEditMode ? 'btn--primary' : 'btn--secondary'}`}
                         onClick={() => {
                             setIsEditMode(!isEditMode);
                             setIsDeleteMode(false);
                         }}
-                        style={{ padding: '10px 20px' }}
                     >
                         <span>{isEditMode ? '✅ Guardar' : '📝 Editar'}</span>
                     </button>
@@ -170,7 +161,6 @@ export default function UserManagement() {
                                 if (!isDeleteMode) setSelectedUsers([]);
                             }
                         }}
-                        style={{ padding: '10px 20px' }}
                     >
                         <span>
                             {isDeleteMode
@@ -181,7 +171,6 @@ export default function UserManagement() {
                     <button
                         className="btn btn--primary"
                         onClick={() => setShowModal(true)}
-                        style={{ padding: '10px 20px' }}
                     >
                         <span>➕ Nuevo</span>
                     </button>
@@ -200,7 +189,7 @@ export default function UserManagement() {
                     <table className="data-table">
                         <thead>
                             <tr>
-                                {isDeleteMode && <th style={{ width: '40px' }}>Select</th>}
+                                {isDeleteMode && <th style={{ width: '40px', minWidth: '40px' }}>Select</th>}
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
@@ -212,7 +201,7 @@ export default function UserManagement() {
                             {users.map(u => (
                                 <tr key={u.id} className={`data-table__row ${selectedUsers.includes(u.id) ? 'row-selected' : ''}`}>
                                     {isDeleteMode && (
-                                        <td style={{ width: '40px', textAlign: 'center' }}>
+                                        <td style={{ textAlign: 'center' }}>
                                             <input
                                                 type="checkbox"
                                                 checked={selectedUsers.includes(u.id)}
@@ -227,7 +216,7 @@ export default function UserManagement() {
                                             <input
                                                 type="text"
                                                 className="search-box__input"
-                                                style={{ padding: '6px 10px', width: 'auto' }}
+                                                style={{ padding: '6px 10px', width: '100%', minWidth: '150px' }}
                                                 value={editingValues[u.id]?.name ?? u.name}
                                                 onChange={(e) => setEditingValues({
                                                     ...editingValues,
@@ -251,9 +240,7 @@ export default function UserManagement() {
                                             onChange={(e) => handleUpdateRole(u.id, e.target.value)}
                                             className={`role-badge role-${u.role}`}
                                             disabled={user.id === u.id}
-                                            style={{
-                                                cursor: user.id === u.id ? 'not-allowed' : 'pointer'
-                                            }}
+                                            style={{ cursor: user.id === u.id ? 'not-allowed' : 'pointer' }}
                                         >
                                             <option value="admin">Admin</option>
                                             <option value="supervisor">Supervisor</option>
@@ -267,7 +254,7 @@ export default function UserManagement() {
                                         </span>
                                     </td>
                                     <td style={{ textAlign: 'right' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                                        <div className="action-btns" style={{ justifyContent: 'flex-end' }}>
                                             <button
                                                 className={`btn-icon ${u.active ? '' : 'btn-icon--warning'}`}
                                                 onClick={() => toggleUserStatus(u.id, u.active)}
@@ -323,31 +310,34 @@ export default function UserManagement() {
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal glass anim-fadeUp">
-                        <h2 className="modal__title">Invitar Nuevo Usuario</h2>
-                        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                            Se enviará un correo de invitación para que el usuario configure su contraseña.
-                        </p>
+                        <header style={{ marginBottom: '20px' }}>
+                            <h2 className="modal__title">Invitar Nuevo Usuario</h2>
+                            <p className="page-sub">Se enviará un correo de invitación para que el usuario configure su contraseña.</p>
+                        </header>
+
                         <form onSubmit={handleCreateUser} className="user-form">
                             <div className="form-group">
-                                <label>Nombre Completo</label>
+                                <label style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Nombre Completo</label>
                                 <input
                                     type="text"
+                                    className="search-box__input"
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Correo Electrónico</label>
+                                <label style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Correo Electrónico</label>
                                 <input
                                     type="email"
+                                    className="search-box__input"
                                     required
                                     value={formData.email}
                                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Rol</label>
+                                <label style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Rol</label>
                                 <select
                                     value={formData.role}
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
@@ -374,3 +364,4 @@ export default function UserManagement() {
         </div>
     );
 }
+

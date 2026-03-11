@@ -155,13 +155,104 @@ export default function DeviceForm() {
                     <CaseDetails form={form} />
                 ) : (
                     <form className="device-form glass anim-fadeUp" onSubmit={handleSubmit}>
-                        {/* ─── Falla e Informes ────────────────────── */}
+                        {/* ─── Datos del Cliente y Equipo ─────────────────────── */}
+                        <div className="form-section">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                                <h3 className="form-section__title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><rect x="14" y="2" width="8" height="12" rx="1" /></svg>
+                                    Cliente y Especificaciones del Equipo
+                                </h3>
+                                <div className="form-field" style={{ width: '130px' }}>
+                                    <label className="form-label" style={{ fontSize: '10px', textAlign: 'right', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '800' }}>Nro de Informe</label>
+                                    <input
+                                        className="form-input"
+                                        name="informe"
+                                        value={form.informe}
+                                        onChange={handleChange}
+                                        placeholder="Ej: 0001"
+                                        disabled={isReadOnly}
+                                        style={{ background: 'rgba(255, 255, 255, 0.03)', fontWeight: 'bold', color: 'var(--accent)', textAlign: 'right', borderColor: 'var(--accent-dim)' }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-grid">
+                                <div className="form-field">
+                                    <label className="form-label">Razón Social</label>
+                                    <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Nombre del comercio" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">RIF</label>
+                                    <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="J-12345678-0" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Procesadora</label>
+                                    <select className="form-input" name="procesadora" value={form.procesadora} onChange={handleChange} disabled={isReadOnly}>
+                                        {PROCESADORAS.map(p => <option key={p} value={p}>{p}</option>)}
+                                    </select>
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Nro de Ingreso</label>
+                                    <input className="form-input" name="ingreso" value={form.ingreso} onChange={handleChange} placeholder="Control interno" disabled={isReadOnly} />
+                                </div>
+
+                                <div className="form-field">
+                                    <label className="form-label">Serial del Equipo</label>
+                                    <input className="form-input" name="serial" value={form.serial} onChange={handleChange} placeholder="Serial único del POS" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Modelo</label>
+                                    <select className="form-input" name="modelo" value={form.modelo} onChange={handleChange} disabled={isReadOnly}>
+                                        {MODELOS.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </select>
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Marca</label>
+                                    <input className="form-input" name="marca" value={form.marca} onChange={handleChange} disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Serial de Reemplazo</label>
+                                    <input className="form-input" name="serial_reemplazo" value={form.serial_reemplazo} onChange={handleChange} placeholder="Si aplica..." disabled={isReadOnly} />
+                                </div>
+
+                                <div className="form-field">
+                                    <label className="form-label">Garantía</label>
+                                    <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange} disabled={isReadOnly}>
+                                        <option value="">Seleccione</option>
+                                        {OPCIONES_SI_NO.map(o => <option key={o} value={o}>{o}</option>)}
+                                    </select>
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Acepta Plan</label>
+                                    <select className="form-input" name="acepta_plan" value={form.acepta_plan} onChange={handleChange} disabled={isReadOnly}>
+                                        <option value="">Seleccione</option>
+                                        <option value="Sí">Sí</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ─── Registro y Falla ────────────────────── */}
                         <div className="form-section">
                             <h3 className="form-section__title">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
-                                Falla Notificada
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /></svg>
+                                Registro de Ingreso y Falla
                             </h3>
-                            <div className="form-grid form-grid--single">
+                            <div className="form-grid">
+                                <div className="form-field">
+                                    <label className="form-label">Fecha de Ingreso</label>
+                                    <input className="form-input" type="date" name="fecha" value={form.fecha} onChange={handleChange} disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Aliado / Punto de Venta</label>
+                                    <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Nro de Guía</label>
+                                    <input className="form-input" name="nro_guia" value={form.nro_guia} onChange={handleChange} placeholder="Si aplica..." disabled={isReadOnly} />
+                                </div>
+                            </div>
+                            <div className="form-grid form-grid--single" style={{ marginTop: '16px' }}>
                                 <div className="form-field">
                                     <label className="form-label">Falla Notificada</label>
                                     <textarea
@@ -173,103 +264,6 @@ export default function DeviceForm() {
                                         placeholder="Escribe la falla que reporta el cliente..."
                                         disabled={isReadOnly}
                                     />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* ─── Información Inicial ─────────────────── */}
-                        <div className="form-section">
-                            <h3 className="form-section__title">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                                Identificación y Aliado
-                            </h3>
-                            <div className="form-grid">
-                                <div className="form-field">
-                                    <label className="form-label">Fecha de Ingreso</label>
-                                    <input className="form-input" type="date" name="fecha" value={form.fecha} onChange={handleChange} disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Serial del Equipo</label>
-                                    <input className="form-input" name="serial" value={form.serial} onChange={handleChange} placeholder="Serial único del POS" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Aliado / Punto de Venta</label>
-                                    <input className="form-input" name="aliado" value={form.aliado} onChange={handleChange} placeholder="Nombre del aliado" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Nro de Guía</label>
-                                    <input className="form-input" name="nro_guia" value={form.nro_guia} onChange={handleChange} placeholder="Si aplica..." disabled={isReadOnly} />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* ─── Datos del Cliente ─────────────────────── */}
-                        <div className="form-section">
-                            <h3 className="form-section__title">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-                                Datos del Cliente
-                            </h3>
-                            <div className="form-grid">
-                                <div className="form-field">
-                                    <label className="form-label">Razón Social</label>
-                                    <input className="form-input" name="razon_social" value={form.razon_social} onChange={handleChange} placeholder="Nombre del comercio" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">RIF</label>
-                                    <input className="form-input" name="rif" value={form.rif} onChange={handleChange} placeholder="J-12345678-0" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Nro de Ingreso</label>
-                                    <input className="form-input" name="ingreso" value={form.ingreso} onChange={handleChange} placeholder="Control interno" disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Procesadora</label>
-                                    <select className="form-input" name="procesadora" value={form.procesadora} onChange={handleChange} disabled={isReadOnly}>
-                                        {PROCESADORAS.map(p => <option key={p} value={p}>{p}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* ─── Especificaciones del Equipo ─────────────── */}
-                        <div className="form-section">
-                            <h3 className="form-section__title">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
-                                Especificaciones del Equipo
-                            </h3>
-                            <div className="form-grid">
-                                <div className="form-field">
-                                    <label className="form-label">Marca</label>
-                                    <input className="form-input" name="marca" value={form.marca} onChange={handleChange} disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Modelo</label>
-                                    <select className="form-input" name="modelo" value={form.modelo} onChange={handleChange} disabled={isReadOnly}>
-                                        {MODELOS.map(m => <option key={m} value={m}>{m}</option>)}
-                                    </select>
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Serial de Reemplazo</label>
-                                    <input className="form-input" name="serial_reemplazo" value={form.serial_reemplazo} onChange={handleChange} placeholder="Si aplica..." disabled={isReadOnly} />
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Acepta Plan</label>
-                                    <select className="form-input" name="acepta_plan" value={form.acepta_plan} onChange={handleChange} disabled={isReadOnly}>
-                                        <option value="">Seleccione</option>
-                                        <option value="Sí">Sí</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Garantía</label>
-                                    <select className="form-input" name="garantia" value={form.garantia} onChange={handleChange} disabled={isReadOnly}>
-                                        <option value="">Seleccione</option>
-                                        {OPCIONES_SI_NO.map(o => <option key={o} value={o}>{o}</option>)}
-                                    </select>
-                                </div>
-                                <div className="form-field">
-                                    <label className="form-label">Informe Técnico (Nro)</label>
-                                    <input className="form-input" name="informe" value={form.informe} onChange={handleChange} placeholder="Nro de informe" disabled={isReadOnly} />
                                 </div>
                             </div>
                         </div>

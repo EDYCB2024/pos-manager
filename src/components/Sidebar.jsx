@@ -9,7 +9,7 @@ const navItems = [
     { to: '/devices', icon: '☰', label: 'Equipos' },
 ];
 
-export default function Sidebar({ theme, onToggleTheme }) {
+export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleCollapse }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +18,7 @@ export default function Sidebar({ theme, onToggleTheme }) {
     const [isAccionesOpen, setIsAccionesOpen] = useState(true);
     const [isPartesOpen, setIsPartesOpen] = useState(false);
     const [isAtcOpen, setIsAtcOpen] = useState(false);
+    const [isDespachoOpen, setIsDespachoOpen] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
     const [exportFilters, setExportFilters] = useState({ year: '', aliado: 'Todos', modelo: 'Todos' });
     const [uniqueAliados, setUniqueAliados] = useState([]);
@@ -52,7 +53,7 @@ export default function Sidebar({ theme, onToggleTheme }) {
 
             {isOpen && <div className="sidebar-overlay" onClick={close}></div>}
 
-            <aside className={`sidebar ${isOpen ? 'sidebar--open' : ''}`}>
+            <aside className={`sidebar ${isOpen ? 'sidebar--open' : ''} ${isCollapsed ? 'sidebar--collapsed' : ''}`}>
                 <div className="sidebar__brand" onClick={() => { navigate('/'); close(); }}>
                     <div className="sidebar__brand-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -80,6 +81,19 @@ export default function Sidebar({ theme, onToggleTheme }) {
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
                         </span>
                         <span>Lista de Equipos</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/tracking"
+                        onClick={close}
+                        className={({ isActive }) =>
+                            `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
+                        }
+                    >
+                        <span className="sidebar__link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><path d="M11 8v3l2 2"></path></svg>
+                        </span>
+                        <span>Tracking de Equipos</span>
                     </NavLink>
 
                     <div className="sidebar__section">
@@ -208,6 +222,75 @@ export default function Sidebar({ theme, onToggleTheme }) {
                                 )}
                             </div>
 
+
+
+                            <div className="sidebar__section">
+                                <div
+                                    className={`sidebar__link sidebar__link--collapsible-header ${isAtcOpen ? 'sidebar__link--active' : ''}`}
+                                    onClick={() => setIsAtcOpen(!isAtcOpen)}
+                                >
+
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <span className="sidebar__link-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                        </span>
+                                        <span>Gestión ATC</span>
+                                    </div>
+                                    <span className={`sidebar__chevron ${isAtcOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
+                                </div>
+                                {isAtcOpen && (
+                                    <div className="sidebar__sub-nav">
+                                        <NavLink
+                                            to="/atc/inbox"
+                                            onClick={close}
+                                            className={({ isActive }) =>
+                                                `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                            }
+                                        >
+                                            <span className="sidebar__link-icon">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+                                            </span>
+                                            <span>Bandeja ATC</span>
+                                        </NavLink>
+                                        <NavLink
+                                            to="/atc/history"
+                                            onClick={close}
+                                            className={({ isActive }) =>
+                                                `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                            }
+                                        >
+                                            <span className="sidebar__link-icon">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path></svg>
+                                            </span>
+                                            <span>Histórico ATC</span>
+                                        </NavLink>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="sidebar__section">
+                                <div
+                                    className={`sidebar__link sidebar__link--collapsible-header ${isDespachoOpen ? 'sidebar__link--active' : ''}`}
+                                    onClick={() => setIsDespachoOpen(!isDespachoOpen)}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <span className="sidebar__link-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 16h6"></path><path d="M12 22a2 2 0 0 1-2-2v-4l-6-6V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6l-6 6v4a2 2 0 0 1-2 2z"></path></svg>
+                                        </span>
+                                        <span>Despacho</span>
+                                    </div>
+                                    <span style={{ fontSize: '10px', background: 'var(--accent-dim)', color: 'var(--accent)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>OBRA</span>
+                                </div>
+                                {isDespachoOpen && (
+                                    <div className="sidebar__sub-nav">
+                                        <div className="sidebar__link sidebar__link--sub" style={{ opacity: 0.5, cursor: 'default' }}>
+                                            <span className="sidebar__link-icon">•</span>
+                                            <span>En construction...</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="sidebar__section">
                                 <div
                                     className={`sidebar__link sidebar__link--collapsible-header ${isDataCenterOpen ? 'sidebar__link--active' : ''}`}
@@ -260,67 +343,15 @@ export default function Sidebar({ theme, onToggleTheme }) {
                                     </div>
                                 )}
                             </div>
-
-                            <div className="sidebar__section">
-                                <div
-                                    className={`sidebar__link sidebar__link--collapsible-header ${isAtcOpen ? 'sidebar__link--active' : ''}`}
-                                    onClick={() => setIsAtcOpen(!isAtcOpen)}
-                                >
-
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span className="sidebar__link-icon">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                                        </span>
-                                        <span>Gestión ATC</span>
-                                    </div>
-                                    <span className={`sidebar__chevron ${isAtcOpen ? 'sidebar__chevron--open' : ''}`}>▼</span>
-                                </div>
-                                {isAtcOpen && (
-                                    <div className="sidebar__sub-nav">
-                                        <NavLink
-                                            to="/atc/inbox"
-                                            onClick={close}
-                                            className={({ isActive }) =>
-                                                `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
-                                            }
-                                        >
-                                            <span className="sidebar__link-icon">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
-                                            </span>
-                                            <span>Bandeja ATC</span>
-                                        </NavLink>
-                                        <NavLink
-                                            to="/atc/history"
-                                            onClick={close}
-                                            className={({ isActive }) =>
-                                                `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
-                                            }
-                                        >
-                                            <span className="sidebar__link-icon">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path></svg>
-                                            </span>
-                                            <span>Histórico ATC</span>
-                                        </NavLink>
-                                    </div>
-                                )}
-                            </div>
                         </>
                     )}
 
-
                 </nav>
-
-
                 <div className="sidebar__footer">
-                    <button
-                        className="theme-toggle"
-                        onClick={() => { logout(); close(); }}
-                        style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--border-glow)' }}
-                    >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        Cerrar Sesión
+                    <button className="theme-toggle" onClick={toggleCollapse} title={isCollapsed ? "Expandir" : "Ocultar"}>
+                        {isCollapsed ? '▶' : '◀ Ocultar menú'}
                     </button>
-                    <span style={{ marginTop: '8px', display: 'block' }}>v1.1.0</span>
+                    {/* Logout button was here? We can place it below if needed, but it seems there was none. */}
                 </div>
             </aside>
 

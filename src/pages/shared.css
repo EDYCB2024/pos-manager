@@ -37,7 +37,6 @@
     border-radius: var(--radius-sm);
     font-size: 14px;
     font-weight: 600;
-    transition: var(--transition);
     white-space: nowrap;
 }
 
@@ -52,7 +51,6 @@
 
 .btn--primary:hover {
     box-shadow: 0 8px 20px var(--accent-dim);
-    transform: translateY(-2px);
     filter: brightness(1.1);
 }
 
@@ -99,40 +97,57 @@
 }
 
 /* ─── Data Table ─────────────────────────────────────────── */
+/* ─── Data Table SaaS Standard ────────────────────────────── */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--glass-bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 24px;
+}
+
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
+    table-layout: fixed;
+    /* Professional standard for SaaS dashboards */
+    min-width: 1100px;
+    /* Target width for all columns to fit without squishing */
 }
 
 .data-table th {
-    padding: 16px;
+    padding: 14px 16px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-muted);
-    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 2px solid var(--border);
     white-space: nowrap;
 }
 
 .data-table td {
-    padding: 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--glass-border);
     color: var(--text-secondary);
     vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .data-table__row {
-    transition: var(--transition);
     cursor: pointer;
 }
 
 .data-table__row:hover td {
     background: var(--bg-card-hover);
     color: var(--text-primary);
-    border-bottom-color: var(--border-glow);
 }
 
 .data-table__row:last-child td {
@@ -163,6 +178,8 @@
     color: var(--accent);
     letter-spacing: 0.04em;
 }
+
+/* Removed brittle hacks */
 
 /* Garantia badge */
 .garantia-badge {
@@ -201,7 +218,6 @@
     align-items: center;
     justify-content: center;
     font-size: 14px;
-    transition: var(--transition);
 }
 
 .action-btn--edit {
@@ -233,7 +249,6 @@
     border: 1px solid var(--border);
     color: var(--text-secondary);
     cursor: pointer;
-    transition: var(--transition);
 }
 
 .btn-icon:hover {
@@ -279,7 +294,6 @@
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     font-size: 14px;
-    transition: var(--transition);
 }
 
 .search-box__input:focus {
@@ -306,7 +320,6 @@
     font-size: 14px;
     min-width: 180px;
     cursor: pointer;
-    transition: var(--transition);
 }
 
 .filter-select:focus {
@@ -337,12 +350,12 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 999;
-    backdrop-filter: blur(8px);
+    z-index: 2000;
+    backdrop-filter: none;
     padding: 20px;
     animation: fadeIn 0.3s ease;
 }

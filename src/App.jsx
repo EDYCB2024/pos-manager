@@ -14,6 +14,7 @@ import Activate from './pages/Activate';
 import Welcome from './pages/Welcome';
 import AtcInbox from './pages/AtcInbox';
 import QuotationForm from './pages/QuotationForm';
+import Tracking from './pages/Tracking';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -22,9 +23,21 @@ import { Outlet } from 'react-router-dom';
 import './App.css';
 
 function ProtectedLayout({ theme, toggleTheme }) {
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem('sidebarCollapsed') === 'true';
+  });
+
+  const toggleCollapse = () => {
+    setIsCollapsed(prev => {
+      const newState = !prev;
+      localStorage.setItem('sidebarCollapsed', newState);
+      return newState;
+    });
+  };
+
   return (
-    <div className="app-shell">
-      <Sidebar theme={theme} onToggleTheme={toggleTheme} />
+    <div className={`app-shell ${isCollapsed ? 'app-shell--collapsed' : ''}`}>
+      <Sidebar theme={theme} onToggleTheme={toggleTheme} isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
       <main className="app-main">
         <Navbar />
         <div className="app-content">
@@ -69,6 +82,7 @@ export default function App() {
               <Route path="/devices/:id" element={<DeviceForm />} />
               <Route path="/devices/:id/edit" element={<DeviceForm />} />
               <Route path="/search" element={<DeviceSearch />} />
+              <Route path="/tracking" element={<Tracking />} />
               <Route path="/report/new" element={<ReportForm />} />
               <Route path="/recursos-pos" element={<RecursosPos />} />
               <Route path="/quotation/new" element={<QuotationForm />} />

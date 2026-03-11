@@ -1,182 +1,163 @@
-@import './shared.css';
-
-.device-list__filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+/* ─── Device List Professional SaaS Layout ───────────────── */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--glass-bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-card);
     margin-bottom: 24px;
 }
 
-.filter-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
+.data-table {
+    width: max-content !important;
+    /* Force compaction: table only as wide as its content */
+    min-width: unset !important;
+    /* Overriding global min-width that caused gaps */
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: auto;
+    background: transparent;
+    margin-right: auto;
+    /* Push everything to the left */
 }
 
-.search-box {
-    flex: 1 1 320px;
-    max-width: 450px;
-    min-width: 200px;
+/* Header & Cell Consistency - Ultra High Density */
+.data-table th,
+.data-table td {
+    padding: 8px 6px !important;
+    /* One more squeeze */
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
 }
 
-.table-wrap {
-    overflow-x: auto;
-    margin-bottom: 20px;
-    padding-bottom: 8px;
-    max-height: 65vh;
-    border-radius: var(--radius-md);
-}
-
-.loader-ring {
-    width: 32px;
-    height: 32px;
-    border: 3px solid var(--accent-dim);
-    border-top: 3px solid var(--accent);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 12px;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.data-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--bg-secondary);
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
-}
-
-/* Resaltado de encabezados */
 .data-table th {
     background: rgba(255, 255, 255, 0.03);
-    color: var(--text-primary);
-    font-weight: 800;
+    /* Subtle solid color instead of gradient/animation */
     font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 16px;
-    border-bottom: 2px solid var(--accent-dim);
-}
-
-/* Forzar que la tabla no sea menor a un ancho mínimo para activar el scroll */
-.data-table {
-    min-width: 1200px;
-}
-
-/* Personalización del scrollbar horizontal */
-.table-wrap::-webkit-scrollbar {
-    height: 8px;
-}
-
-.table-wrap::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
-}
-
-.table-wrap::-webkit-scrollbar-thumb {
-    background: var(--accent-dim);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-}
-
-.table-wrap::-webkit-scrollbar-thumb:hover {
-    background: var(--accent);
-}
-
-/* Opcional: Si quieres mantener el diseño de tabla en móviles en vez de tarjetas */
-@media (max-width: 992px) {
-
-    .responsive-table,
-    .responsive-table tbody,
-    .responsive-table tr,
-    .responsive-table td {
-        display: table-cell !important;
-        width: auto !important;
-    }
-
-    .responsive-table tr {
-        display: table-row !important;
-        background: transparent !important;
-        border: none !important;
-    }
-
-    .responsive-table thead {
-        display: table-header-group !important;
-    }
-
-    .responsive-table td::before {
-        display: none !important;
-    }
-}
-
-.pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 24px;
-    padding: 16px;
-    background: var(--bg-card);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-}
-
-.pagination__info {
-    font-size: 0.85rem;
+    letter-spacing: 0.05em;
     color: var(--text-muted);
-    letter-spacing: 0.02em;
-}
-
-.pagination__info strong {
-    color: var(--text-primary);
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 2px solid var(--glass-border);
+    /* Stronger separator for header */
 }
 
 .data-table td {
-    padding: 20px 16px;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 13px !important;
+    /* Slight drop for more space */
+    border-bottom: 1px solid var(--glass-border);
+    /* Use crisp standard border */
+    color: var(--text-secondary);
+}
+
+/* Pull-in all columns aggressively */
+.col-fecha,
+.col-modelo,
+.col-serial,
+.col-aliado,
+.col-estatus-caso,
+.col-estatus-rep,
+.col-plan,
+.col-acciones {
+    width: 1% !important;
     white-space: nowrap;
 }
 
-.data-table td[data-label="Serial"] {
-    min-width: 140px;
+.col-razon {
+    width: 200px;
+    /* Controlled width to prevent pushing */
+    max-width: 240px;
+    /* Reduced to gain horizontal breathing room */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.data-table td[data-label="Razón Social"] {
-    max-width: 280px;
-    min-width: 200px;
+/* Interactive States - No Animations */
+.data-table__row {
+    cursor: pointer;
 }
 
-.data-table td[data-label="Fecha"] {
-    min-width: 100px;
+.data-table__row:hover td {
+    background: rgba(255, 255, 255, 0.05);
+    /* Slightly brighter for static hover feedback */
+    color: var(--text-primary);
 }
 
-@media (max-width: 768px) {
+/* Align and justify specific columns for balance */
+.data-table th:nth-child(n+6),
+.data-table td:nth-child(n+6) {
+    text-align: center;
+    /* Center status, plan, and actions */
+}
+
+/* Badge Tweaks for high-density */
+.status-badge {
+    transform: scale(0.85);
+    /* Slightly smaller badges */
+    transform-origin: center;
+    /* Center scale for alignment */
+    margin: 0 auto;
+}
+
+/* Actions styling */
+.action-btns {
+    display: flex;
+    gap: 6px;
+    /* Trimmed gap */
+    justify-content: center;
+    /* Justify buttons perfectly under the header */
+}
+
+.action-btn {
+    width: 26px;
+    /* Trimmed button */
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    /* Removed transition for instant feedback */
+}
+
+.copy-btn {
+    margin-left: 4px;
+    opacity: 0.3;
+    /* Adjusted default opacity */
+    /* Removed transition */
+}
+
+.copy-btn:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.copied-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 4px;
+    background: var(--accent);
+    color: #111;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Overrides */
+@media (max-width: 1024px) {
     .device-list__filters {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .search-box {
-        max-width: 100%;
-    }
-
-    .filter-group {
         flex-direction: column;
         align-items: stretch;
     }

@@ -5,12 +5,58 @@
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    padding: 24px 0;
+    padding: 0 0 24px;
+    /* Removed top padding */
     position: fixed;
     top: 0;
     left: 0;
     z-index: 100;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-x: hidden;
+}
+
+/* Collapsed variations */
+.sidebar--collapsed {
+    width: 80px;
+}
+
+.sidebar--collapsed .sidebar__brand {
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar--collapsed .sidebar__brand-title,
+.sidebar--collapsed .sidebar__brand-sub,
+.sidebar--collapsed .sidebar__link span:not(.sidebar__link-icon),
+.sidebar--collapsed .sidebar__chevron,
+.sidebar--collapsed .sidebar__section-title {
+    display: none;
+}
+
+.sidebar--collapsed .sidebar__link {
+    justify-content: center;
+    padding: 10px;
+}
+
+.sidebar--collapsed .sidebar__link-icon {
+    margin: 0;
+}
+
+.sidebar--collapsed .sidebar__link--sub {
+    padding: 10px;
+}
+
+.sidebar--collapsed .sidebar__sub-nav {
+    display: none;
+    /* Might want to close all subnavs when collapsed to prevent weird UI overlap, or show icon only */
+}
+
+.sidebar--collapsed .sidebar__footer-user-info {
+    display: none;
+}
+
+.sidebar--collapsed .sidebar__footer {
+    padding: 16px 12px 0;
 }
 
 /* Brand */
@@ -18,9 +64,12 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 0 20px 28px;
+    padding: 0 24px;
+    height: var(--navbar-h, 70px);
+    /* Exact height match */
     border-bottom: 1px solid var(--border);
     cursor: pointer;
+    background: var(--bg-secondary);
 }
 
 .sidebar__brand-icon {
