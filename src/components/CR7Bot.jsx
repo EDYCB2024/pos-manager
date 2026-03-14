@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { addDevice } from '../store';
 import cr7Avatar from '../assets/cr7-avatar.png';
 import './CR7Bot.css';
 
@@ -19,7 +20,7 @@ export default function CR7Bot() {
         }
     }, [messages]);
 
-    const executeCommand = (text) => {
+    const executeCommand = async (text) => {
         const navMatch = text.match(/\[COMMAND:NAVIGATE:(.+)\]/);
         if (navMatch) {
             const path = navMatch[1].trim();
@@ -42,6 +43,24 @@ export default function CR7Bot() {
         if (text.includes('[COMMAND:MODIFY_STATUS]')) {
             navigate('/search');
             return '¡Entendido! Busca el equipo para modificar su estatus.';
+        }
+
+        // Improved regex to handle multiline or nested-ish content if any
+        const registerMatch = text.match(/\[COMMAND:REGISTER_DEVICE:(\{[\s\S]*?\})\]/);
+        if (registerMatch) {
+            try {
+                const deviceData = JSON.parse(registerMatch[1]);
+                // Set default status if missing
+                if (!deviceData.estatus_caso) deviceData.estatus_caso = 'CASO ABIERTO';
+                if (!deviceData.estatus) deviceData.estatus = 'En diagnóstico';
+                if (!deviceData.fecha) deviceData.fecha = new Date().toISOString().slice(0, 10);
+
+                await addDevice(deviceData);
+                return '¡GOLAZO! El equipo ha sido registrado exitosamente en la base de datos.';
+            } catch (e) {
+                console.error('Error parsing/saving device data:', e);
+                return '¡Falla en el remate! Hubo un problema técnico al registrar el equipo.';
+            }
         }
 
         return null;
@@ -71,7 +90,7 @@ export default function CR7Bot() {
             if (response.status === 429) {
                 setMessages(prev => [...prev, { role: 'bot', content: '¡Calma! Estamos en tiempo de descuento. Espera un poco.' }]);
             } else if (data.content) {
-                const cmdFeedback = executeCommand(data.content);
+                const cmdFeedback = await executeCommand(data.content);
                 // Regex no codicioso para limpiar los tags sin barrer el texto intermedio
                 const cleanContent = data.content.replace(/\[COMMAND:.*?\]/g, '').trim();
 

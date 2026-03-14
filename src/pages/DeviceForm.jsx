@@ -268,21 +268,7 @@ export default function DeviceForm() {
                             </div>
                         </div>
 
-                        {/* ─── Técnico ─────────────────────────────── */}
-                        <div className="form-section">
-                            <h3 className="form-section__title">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                Técnico Responsable
-                            </h3>
-                            <div className="form-grid">
-                                <div className="form-field">
-                                    <label className="form-label">Técnico encargado</label>
-                                    <select className="form-input" name="tecnico" value={form.tecnico} onChange={handleChange} disabled={isReadOnly}>
-                                        {TECNICOS.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+
 
                         {/* ─── Estatus y Clasificación ───────────────────── */}
                         <div className="form-section">
@@ -341,6 +327,22 @@ export default function DeviceForm() {
                                         placeholder="Describe el diagnóstico y trabajo realizado..."
                                         disabled={isReadOnly}
                                     />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ─── Técnico ─────────────────────────────── */}
+                        <div className="form-section">
+                            <h3 className="form-section__title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                Técnico Responsable
+                            </h3>
+                            <div className="form-grid">
+                                <div className="form-field">
+                                    <label className="form-label">Técnico encargado</label>
+                                    <select className="form-input" name="tecnico" value={form.tecnico} onChange={handleChange} disabled={isReadOnly}>
+                                        {TECNICOS.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
                                 </div>
                             </div>
                         </div>
