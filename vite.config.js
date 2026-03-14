@@ -8,7 +8,16 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          // Reenvía cookies al backend sin modificarlas
+          proxy.on('proxyReq', (proxyReq, req) => {
+            if (req.headers.cookie) {
+              proxyReq.setHeader('cookie', req.headers.cookie);
+            }
+          });
+        }
       }
     }
   }
