@@ -15,10 +15,24 @@ import Welcome from './pages/Welcome';
 import AtcInbox from './pages/AtcInbox';
 import QuotationForm from './pages/QuotationForm';
 import Tracking from './pages/Tracking';
+import AllyVatc from './pages/AllyVatc';
+import AllyCredicard from './pages/AllyCredicard';
+import AllyPlatco from './pages/AllyPlatco';
+import AllyPlatcoPos from './pages/AllyPlatcoPos';
+import AllyBanplus from './pages/AllyBanplus';
+import AllyPosComercial from './pages/AllyPosComercial';
+import AllyBancoExterior from './pages/AllyBancoExterior';
+import AllyInstapago from './pages/AllyInstapago';
+import AllyBancaribe from './pages/AllyBancaribe';
+import AllyBancoActivo from './pages/AllyBancoActivo';
+import AllyTokenPagos from './pages/AllyTokenPagos';
+import AllyBancrecer from './pages/AllyBancrecer';
+import AllyBestPay from './pages/AllyBestPay';
+import AllyDelSur from './pages/AllyDelSur';
+import AllyOtros from './pages/AllyOtros';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
-import CR7Bot from './components/CR7Bot';
 import { Outlet } from 'react-router-dom';
 import './App.css';
 
@@ -43,7 +57,6 @@ function ProtectedLayout({ theme, toggleTheme }) {
         <div className="app-content">
           <Outlet />
         </div>
-        <CR7Bot />
       </main>
     </div>
   );
@@ -89,6 +102,21 @@ export default function App() {
               <Route path="/partes" element={<Inventory />} />
               <Route path="/settings" element={<Settings theme={theme} onToggleTheme={toggleTheme} />} />
               <Route path="/atc/inbox" element={<AtcInbox />} />
+              <Route path="/aliados/vatc" element={<AllyVatc />} />
+              <Route path="/aliados/credicard" element={<AllyCredicard />} />
+              <Route path="/aliados/platco" element={<AllyPlatco />} />
+              <Route path="/aliados/platco-pos" element={<AllyPlatcoPos />} />
+              <Route path="/aliados/banplus" element={<AllyBanplus />} />
+              <Route path="/aliados/poscomercial" element={<AllyPosComercial />} />
+              <Route path="/aliados/banco-exterior" element={<AllyBancoExterior />} />
+              <Route path="/aliados/instapago" element={<AllyInstapago />} />
+              <Route path="/aliados/bancaribe" element={<AllyBancaribe />} />
+              <Route path="/aliados/banco-activo" element={<AllyBancoActivo />} />
+              <Route path="/aliados/token-pagos" element={<AllyTokenPagos />} />
+              <Route path="/aliados/bancrecer" element={<AllyBancrecer />} />
+              <Route path="/aliados/best-pay" element={<AllyBestPay />} />
+              <Route path="/aliados/del-sur" element={<AllyDelSur />} />
+              <Route path="/aliados/otros" element={<AllyOtros />} />
               <Route path="*" element={<Welcome />} />
             </Route>
           </Route>

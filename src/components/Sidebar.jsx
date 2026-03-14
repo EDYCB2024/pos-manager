@@ -18,6 +18,7 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
     const [isAccionesOpen, setIsAccionesOpen] = useState(true);
     const [isPartesOpen, setIsPartesOpen] = useState(false);
     const [isAtcOpen, setIsAtcOpen] = useState(false);
+    const [isOtrosOpen, setIsOtrosOpen] = useState(false);
     const [isDespachoOpen, setIsDespachoOpen] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
     const [exportFilters, setExportFilters] = useState({ year: '', aliado: 'Todos', modelo: 'Todos' });
@@ -165,24 +166,70 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
                         </div>
                         {isAliadosOpen && (
                             <div className="sidebar__sub-nav">
-                                {[
-                                    'VAT&C', 'CREDICARD', 'PLATCO', 'PLATCO POS', 'BANCARIBE',
-                                    'BANPLUS', 'POSCOMERCIAL', 'TOKEN PAGOS', 'INSTAPAGO',
-                                    'PAYTECH', 'BANCRECER', 'BANCO ACTIVO', 'DEL SUR'
+                                {['VAT&C', 'CREDICARD', 'PLATCO', 'PLATCO POS', 'BANCARIBE',
+                                    'BANPLUS', 'POSCOMERCIAL', 'BANCO EXTERIOR', 'TOKEN PAGOS', 'INSTAPAGO',
+                                    'PAYTECH', 'BANCO ACTIVO', 'OTROS'
                                 ].map(aliado => (
-                                    <NavLink
-                                        key={aliado}
-                                        to={`/devices?aliado=${encodeURIComponent(aliado)}`}
-                                        onClick={close}
-                                        className={({ isActive }) =>
-                                            `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
-                                        }
-                                    >
-                                        <span className="sidebar__link-icon">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                        </span>
-                                        <span>{aliado}</span>
-                                    </NavLink>
+                                    <div key={aliado} className="sidebar__nav-item-wrap">
+                                        <NavLink
+                                            to={
+                                                aliado === 'VAT&C' ? '/aliados/vatc' :
+                                                    aliado === 'CREDICARD' ? '/aliados/credicard' :
+                                                        aliado === 'PLATCO' ? '/aliados/platco' :
+                                                            aliado === 'PLATCO POS' ? '/aliados/platco-pos' :
+                                                                aliado === 'BANPLUS' ? '/aliados/banplus' :
+                                                                    aliado === 'POSCOMERCIAL' ? '/aliados/poscomercial' :
+                                                                        aliado === 'BANCO EXTERIOR' ? '/aliados/banco-exterior' :
+                                                                            aliado === 'INSTAPAGO' ? '/aliados/instapago' :
+                                                                                aliado === 'BANCARIBE' ? '/aliados/bancaribe' :
+                                                                                    aliado === 'BANCO ACTIVO' ? '/aliados/banco-activo' :
+                                                                                        aliado === 'TOKEN PAGOS' ? '/aliados/token-pagos' :
+                                                                                            aliado === 'OTROS' ? '/aliados/otros' :
+                                                                                                `/devices?aliado=${encodeURIComponent(aliado)}`
+                                            }
+                                            onClick={aliado === 'OTROS' ? (e) => { setIsOtrosOpen(!isOtrosOpen); } : close}
+                                            className={({ isActive }) =>
+                                                `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                            }
+                                            style={aliado === 'OTROS' ? { justifyContent: 'space-between' } : {}}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span className="sidebar__link-icon">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                                </span>
+                                                <span>{aliado}</span>
+                                            </div>
+                                            {aliado === 'OTROS' && (
+                                                <span className={`sidebar__chevron ${isOtrosOpen ? 'sidebar__chevron--open' : ''}`} style={{ fontSize: '8px' }}>▼</span>
+                                            )}
+                                        </NavLink>
+
+                                        {aliado === 'OTROS' && isOtrosOpen && (
+                                            <div className="sidebar__sub-nav" style={{ marginLeft: '12px', borderLeft: '1px solid var(--border)', marginTop: '2px', marginBottom: '4px' }}>
+                                                {['BANCRECER', 'DEL SUR', 'BEST PAY'].map(subAliado => (
+                                                    <NavLink
+                                                        key={subAliado}
+                                                        to={
+                                                            subAliado === 'BANCRECER' ? '/aliados/bancrecer' :
+                                                                subAliado === 'DEL SUR' ? '/aliados/del-sur' :
+                                                                    subAliado === 'BEST PAY' ? '/aliados/best-pay' :
+                                                                        `/devices?aliado=${encodeURIComponent(subAliado)}`
+                                                        }
+                                                        onClick={close}
+                                                        className={({ isActive }) =>
+                                                            `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                                        }
+                                                        style={{ paddingLeft: '24px', fontSize: '11px', height: '32px' }}
+                                                    >
+                                                        <span className="sidebar__link-icon" style={{ opacity: 0.4 }}>
+                                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1.5"></circle></svg>
+                                                        </span>
+                                                        <span>{subAliado}</span>
+                                                    </NavLink>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         )}

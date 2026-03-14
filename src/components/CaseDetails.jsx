@@ -28,6 +28,9 @@ export default function CaseDetails({ form }) {
                         <DetailItem label="Serial Reemplazo" value={form.serial_reemplazo} />
                         <DetailItem label="Garantía" value={form.garantia} />
                         <DetailItem label="Acepta Plan" value={form.acepta_plan} />
+                        <DetailItem label="Nro Factura" value={form.nro_factura} isCode />
+                        <DetailItem label="Lote" value={form.lote} isCode />
+                        <DetailItem label="Fecha Venta" value={formatDate(form.fecha_venta)} />
                         <DetailItem label="Informe Técnico" value={form.informe} isCode />
                     </div>
                 </div>
@@ -94,7 +97,7 @@ export default function CaseDetails({ form }) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8.5" /><path d="M15 21V15h6" /><path d="M21 3h-6v6h6V3z" /></svg>
                         Observaciones / Diagnóstico
                     </h4>
-                    <p className="detail-description detail-description--alt">{form.informes || 'Sin observaciones registradas.'}</p>
+                    <p className="detail-description detail-description--alt">{form.observaciones || form.informes || 'Sin observaciones registradas.'}</p>
                 </div>
             </div>
         </div>

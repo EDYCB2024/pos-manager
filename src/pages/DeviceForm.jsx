@@ -39,6 +39,10 @@ const EMPTY = {
     tecnico: TECNICOS[0],
     acepta_plan: '',
     nro_guia: '',
+    nro_factura: '',
+    lote: '',
+    fecha_venta: '',
+    observaciones: '',
 };
 
 export default function DeviceForm() {
@@ -229,6 +233,18 @@ export default function DeviceForm() {
                                         <option value="No">No</option>
                                     </select>
                                 </div>
+                                <div className="form-field">
+                                    <label className="form-label">Nro Factura</label>
+                                    <input className="form-input" name="nro_factura" value={form.nro_factura} onChange={handleChange} placeholder="Ej: 1234" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Lote</label>
+                                    <input className="form-input" name="lote" value={form.lote} onChange={handleChange} placeholder="Ej: 001" disabled={isReadOnly} />
+                                </div>
+                                <div className="form-field">
+                                    <label className="form-label">Fecha Venta</label>
+                                    <input className="form-input" type="date" name="fecha_venta" value={form.fecha_venta} onChange={handleChange} disabled={isReadOnly} />
+                                </div>
                             </div>
                         </div>
 
@@ -320,8 +336,8 @@ export default function DeviceForm() {
                                     <label className="form-label">Observaciones Generales</label>
                                     <textarea
                                         className="form-input form-textarea"
-                                        name="informes"
-                                        value={form.informes}
+                                        name="observaciones"
+                                        value={form.observaciones}
                                         onChange={handleChange}
                                         rows={4}
                                         placeholder="Describe el diagnóstico y trabajo realizado..."

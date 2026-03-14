@@ -30,6 +30,9 @@ export async function exportDevicesExcel(filters = {}) {
         const formattedData = data.map(item => ({
             'ID': item.id,
             'Fecha': item.fecha,
+            'Fecha Venta': item.fecha_venta || '',
+            'Lote': item.lote || '',
+            'N° Factura': item.nro_factura || '',
             'Aliado': item.aliado || '',
             'Modelo': item.modelo || '',
             'Razón Social': item.razon_social,
@@ -48,7 +51,8 @@ export async function exportDevicesExcel(filters = {}) {
             'Procesadora': item.procesadora || '',
             'Cotización': item.cotizacion || '',
             'Nro de guia': item.nro_guia || '',
-            'Fecha Final': item.fecha_final || ''
+            'Fecha Final': item.fecha_final || '',
+            'Observaciones': item.observaciones || ''
         }));
 
         const ws = utils.json_to_sheet(formattedData);
@@ -232,6 +236,10 @@ export async function addDevice(device) {
         tecnico: device.tecnico,
         acepta_plan: device.acepta_plan,
         nro_guia: device.nro_guia,
+        nro_factura: device.nro_factura,
+        lote: device.lote,
+        fecha_venta: device.fecha_venta,
+        observaciones: device.observaciones,
     };
     const { data, error } = await supabase.from('casos_pos').insert([payload]).select().single();
     if (error) throw new Error(error.message);
@@ -265,6 +273,10 @@ export async function addDevicesBulk(devices) {
         tecnico: device.tecnico,
         acepta_plan: device.acepta_plan,
         nro_guia: device.nro_guia,
+        nro_factura: device.nro_factura,
+        lote: device.lote,
+        fecha_venta: device.fecha_venta,
+        observaciones: device.observaciones,
     }));
 
     const { data, error } = await supabase.from('casos_pos').insert(payloads).select();
@@ -299,6 +311,10 @@ export async function updateDevice(id, updates) {
         tecnico: updates.tecnico,
         acepta_plan: updates.acepta_plan,
         nro_guia: updates.nro_guia,
+        nro_factura: updates.nro_factura,
+        lote: updates.lote,
+        fecha_venta: updates.fecha_venta,
+        observaciones: updates.observaciones,
     };
     const { data, error } = await supabase.from('casos_pos').update(payload).eq('id', id).select().single();
     if (error) throw new Error(error.message);
