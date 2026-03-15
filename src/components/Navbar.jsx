@@ -49,14 +49,17 @@ export default function Navbar() {
                 </div>
             </div>
 
-            <div className="navbar__right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <button
-                    className="btn btn--secondary btn--sm"
-                    onClick={() => navigate('/tracking')}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'rgba(255, 140, 0, 0.1)', color: '#ff8c00', border: '1px solid rgba(255, 140, 0, 0.2)' }}
+            <div className="navbar__right">
+                <button 
+                    className="navbar__icon-btn" 
+                    title="Notificaciones"
+                    onClick={() => {/* Toggle notification panel in future steps */}}
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><path d="M11 8v3l2 2"></path></svg>
-                    Tracking
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg>
+                    <span className="navbar__notification-dot"></span>
                 </button>
                 <div className="navbar__user-container" ref={dropdownRef}>
                     <div

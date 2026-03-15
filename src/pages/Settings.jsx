@@ -68,18 +68,21 @@ export default function Settings({ theme, onToggleTheme }) {
                     <div className="settings-tab-pane animate-fade-in">
                         <div className="settings-grid">
                             <section className="settings-section">
-                                <h2>Interfaz y Apariencia</h2>
+                                <h2>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.5 1.5"></path><path d="M7 11l-4 4"></path><path d="M5 9l-3 3"></path></svg>
+                                    Interfaz y Apariencia
+                                </h2>
                                 <div className="settings-card">
                                     <div className="setting-item">
                                         <div className="setting-info">
-                                            <h3>Tema Visual</h3>
-                                            <p>Alterna entre modo claro y oscuro según tu preferencia laboral.</p>
+                                            <h3>Tema del Sistema</h3>
+                                            <p>Selecciona entre el modo claro para mayor claridad o modo oscuro para reducir la fatiga visual.</p>
                                         </div>
                                         <button className="theme-toggle-btn" onClick={onToggleTheme}>
                                             {theme === 'dark' ? (
-                                                <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg> Modo Claro</>
+                                                <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg> <span>Cambiar a Claro</span></>
                                             ) : (
-                                                <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Modo Oscuro</>
+                                                <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> <span>Cambiar a Oscuro</span></>
                                             )}
                                         </button>
                                     </div>
@@ -87,12 +90,15 @@ export default function Settings({ theme, onToggleTheme }) {
                             </section>
 
                             <section className="settings-section">
-                                <h2>Comunicación</h2>
+                                <h2>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                    Comunicación
+                                </h2>
                                 <div className="settings-card">
                                     <div className="setting-item">
                                         <div className="setting-info">
-                                            <h3>Notificaciones push</h3>
-                                            <p>Recibe alertas en tiempo real sobre nuevos casos y asignaciones.</p>
+                                            <h3>Notificaciones en tiempo real</h3>
+                                            <p>Mantente al día con alertas instantáneas sobre la gestión de equipos.</p>
                                         </div>
                                         <label className="switch">
                                             <input

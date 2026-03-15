@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import * as XLSX from 'xlsx';
 import './shared.css';
 
 /**
@@ -18,6 +19,7 @@ export default function QuotationForm() {
         nivel: '',
         garantia: '',
         informe: '',
+        estatus: '',
         cotizacion: ''
     }]);
     const [suggestions, setSuggestions] = useState([]);
@@ -56,6 +58,7 @@ export default function QuotationForm() {
             nivel: '',
             garantia: '',
             informe: '',
+            estatus: '',
             cotizacion: ''
         };
         setItems(prev => [...prev, newItem]);
@@ -115,6 +118,7 @@ export default function QuotationForm() {
                 nivel: device.nivel || '',
                 garantia: device.garantia || '',
                 informe: device.informe || '',
+                estatus: device.estatus || '',
                 cotizacion: device.cotizacion || ''
             } : item
         ));
@@ -135,11 +139,80 @@ export default function QuotationForm() {
     const removeItem = (id) => {
         setItems(prev => {
             const filtered = prev.filter(item => item.id !== id);
+            if (filtered.length === 0) return [{
+                id: Date.now(),
+                nro: '01',
+                modelo: '',
+                serial: '',
+                razon_social: '',
+                nivel: '',
+                garantia: '',
+                informe: '',
+                estatus: '',
+                cotizacion: ''
+            }];
             return filtered.map((item, index) => ({
                 ...item,
                 nro: (index + 1).toString().padStart(2, '0')
             }));
         });
+    };
+
+    const handleSearch = async (rowId) => {
+        const item = items.find(i => i.id === rowId);
+        if (item && item.serial.length >= 3) {
+            try {
+                const { data, error } = await supabase
+                    .from('casos_pos')
+                    .select('*')
+                    .ilike('serial', `%${item.serial}%`)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    const device = data[0];
+                    setItems(prev => prev.map(i =>
+                        i.id === rowId ? {
+                            ...i,
+                            serial: device.serial,
+                            modelo: device.modelo || '',
+                            razon_social: device.razon_social || '',
+                            nivel: device.nivel || '',
+                            garantia: device.garantia || '',
+                            informe: device.informe || '',
+                            estatus: device.estatus || '',
+                            cotizacion: device.cotizacion || ''
+                        } : i
+                    ));
+                }
+            } catch (err) {
+                console.error('Error fetching device data:', err);
+            }
+        }
+    };
+
+    const handleExportExcel = () => {
+        const data = items.map(item => ({
+            'Nro': item.nro,
+            'Modelo': item.modelo,
+            'Serial': item.serial,
+            'Razón Social': item.razon_social,
+            'Estatus': item.estatus,
+            'Nivel': item.nivel,
+            'Garantía': item.garantia,
+            'Informe': item.informe,
+            'Cotización': item.cotizacion
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Cotización");
+        
+        // Estilo básico para excel (opcional)
+        const fileName = `Cotizacion_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
+        XLSX.writeFile(wb, fileName);
     };
 
     const handleCopyTable = async () => {
@@ -155,6 +228,7 @@ export default function QuotationForm() {
                             <th style="background-color: #f59e0b; color: white; padding: 10px; border: 1px solid #e5e7eb; text-align: left;">Modelo</th>
                             <th style="background-color: #f59e0b; color: white; padding: 10px; border: 1px solid #e5e7eb; text-align: left;">Serial</th>
                             <th style="background-color: #f59e0b; color: white; padding: 10px; border: 1px solid #e5e7eb; text-align: left;">Razón Social</th>
+                            <th style="background-color: #f59e0b; color: white; padding: 10px; border: 1px solid #e5e7eb; text-align: center;">Estatus</th>
                             <th style="background-color: #f59e0b; color: white; padding: 10px; border: 1px solid #e5e7eb; text-align: center;">Nivel</th>
                             <th style="background-color: #f59e0b; color: white; padding: 10px; border: 1px solid #e5e7eb; text-align: center;">Garantía</th>
                             <th style="background-color: #f59e0b; color: white; padding: 10px; border: 1px solid #e5e7eb; text-align: center;">Informe</th>
@@ -171,6 +245,7 @@ export default function QuotationForm() {
                         <td style="padding: 8px; border: 1px solid #e5e7eb;">${item.modelo || '-'}</td>
                         <td style="padding: 8px; border: 1px solid #e5e7eb; font-family: monospace; color: #d97706;">${item.serial || '-'}</td>
                         <td style="padding: 8px; border: 1px solid #e5e7eb; font-weight: bold;">${item.razon_social || '-'}</td>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${item.estatus || '-'}</td>
                         <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${item.nivel || '-'}</td>
                         <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${item.garantia || '-'}</td>
                         <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: center;">${item.informe || '-'}</td>
@@ -245,6 +320,7 @@ export default function QuotationForm() {
                         nivel: '',
                         garantia: '',
                         informe: '',
+                        estatus: '',
                         cotizacion: ''
                     }])}>Resetear</button>
 
@@ -266,6 +342,7 @@ export default function QuotationForm() {
                         <div>Modelo</div>
                         <div>Serial</div>
                         <div>Razón Social</div>
+                        <div className="text-center">Estatus</div>
                         <div className="text-center">Nivel</div>
                         <div className="text-center">Garantía</div>
                         <div className="text-center">Informe</div>
@@ -305,8 +382,15 @@ export default function QuotationForm() {
                                             value={item.serial}
                                             onChange={(e) => handleInputChange(item.id, 'serial', e.target.value)}
                                             onKeyDown={(e) => handleKeyDown(e, item.id)}
-                                            placeholder="Buscar serial..."
+                                            placeholder="Serial..."
                                         />
+                                        <button 
+                                            className="input-btn-search" 
+                                            onClick={() => handleSearch(item.id)}
+                                            title="Buscar"
+                                        >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                        </button>
                                         {activeRowId === item.id && suggestions.length > 0 && (
                                             <div className="search-suggestions glass anim-dropdown" ref={suggestionRef}>
                                                 {suggestions.map((dev) => (
@@ -338,6 +422,18 @@ export default function QuotationForm() {
                                         value={item.razon_social}
                                         onChange={(e) => handleInputChange(item.id, 'razon_social', e.target.value)}
                                         placeholder="Cliente / Comercio"
+                                    />
+                                </div>
+
+                                {/* Estatus */}
+                                <div className="q-col">
+                                    <span className="mobile-label">Estatus</span>
+                                    <input
+                                        type="text"
+                                        className="table-input td-center"
+                                        value={item.estatus}
+                                        onChange={(e) => handleInputChange(item.id, 'estatus', e.target.value)}
+                                        placeholder="-"
                                     />
                                 </div>
 
@@ -423,6 +519,14 @@ export default function QuotationForm() {
 
                         <button
                             className="btn btn--secondary btn--outline"
+                            onClick={handleExportExcel}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Exportar Excel
+                        </button>
+
+                        <button
+                            className="btn btn--secondary btn--outline"
                             onClick={handleCopyTable}
                         >
                             {isCopied ? '¡Copiado!' : 'Copiar Tabla'}
@@ -455,6 +559,7 @@ export default function QuotationForm() {
                                                 <th>Modelo</th>
                                                 <th>Serial</th>
                                                 <th>Razón Social</th>
+                                                <th>Estatus</th>
                                                 <th>Nivel</th>
                                                 <th>Garantía</th>
                                                 <th>Informe</th>
@@ -468,6 +573,7 @@ export default function QuotationForm() {
                                                     <td>{item.modelo || '-'}</td>
                                                     <td className="font-mono" style={{ color: 'var(--accent)' }}>{item.serial || '-'}</td>
                                                     <td><b>{item.razon_social || '-'}</b></td>
+                                                    <td className="t-center">{item.estatus || '-'}</td>
                                                     <td className="t-center">{item.nivel || '-'}</td>
                                                     <td className="t-center">{item.garantia || '-'}</td>
                                                     <td className="t-center">{item.informe || '-'}</td>
@@ -526,7 +632,7 @@ export default function QuotationForm() {
                 .quotation-header-row {
                     display: grid;
                     /* Flexible grid: fixed nro/actions, minmax proportional columns based on content weight */
-                    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1.5fr) minmax(150px, auto) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1fr) 3rem;
+                    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1.5fr) minmax(150px, auto) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1fr) 3rem;
                     gap: 12px;
                     padding: 16px;
                     background: var(--accent-dim); /* Utilizando el mismo color naranja tenue de todo el sistema */
@@ -543,7 +649,7 @@ export default function QuotationForm() {
 
                 .quotation-row {
                     display: grid;
-                    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1.5fr) minmax(150px, auto) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1fr) 3rem;
+                    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1.5fr) minmax(150px, auto) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1fr) 3rem;
                     gap: 12px;
                     padding: 8px 16px;
                     border-bottom: 1px solid var(--glass-border);
@@ -637,8 +743,38 @@ export default function QuotationForm() {
                 }
 
                 .accent-text {
-                    color: var(--accent);
-                    font-weight: 700;
+                    color: #000000;
+                    font-weight: 600;
+                }
+
+                .serial-input-wrapper {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .input-btn-search {
+                    position: absolute;
+                    right: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: var(--accent);
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    z-index: 5;
+                }
+
+                .input-btn-search:hover {
+                    background: var(--accent-dark);
+                    transform: translateY(-50%) scale(1.05);
                 }
 
                 .btn-remove {

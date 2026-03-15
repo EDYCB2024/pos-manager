@@ -111,7 +111,6 @@ app.all('/api/auth/change-password', async (req, res) => {
     }
 });
 
-
 app.all('/api/ai-agent', async (req, res) => {
     try {
         if (!req.headers.cookie && req.cookies) {

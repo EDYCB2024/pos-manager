@@ -1,12 +1,57 @@
 import StatusBadge from './StatusBadge';
 
-export default function CaseDetails({ form }) {
+export default function CaseDetails({ form, variant = 'grid' }) {
     const formatDate = (dateString) => {
         if (!dateString) return '—';
         const [year, month, day] = dateString.split('-');
         if (!year || !month || !day) return dateString;
         return `${day}-${month}-${year.slice(-2)}`;
     };
+
+    if (variant === 'table') {
+        const rows = [
+            { label: 'Razón Social', value: form.razon_social, category: 'CLIENTE' },
+            { label: 'RIF', value: form.rif, category: 'CLIENTE' },
+            { label: 'Procesadora', value: form.procesadora, category: 'EQUIPO' },
+            { label: 'Serial del Equipo', value: form.serial, category: 'EQUIPO' },
+            { label: 'Modelo', value: form.modelo, category: 'EQUIPO' },
+            { label: 'Marca', value: form.marca, category: 'EQUIPO' },
+            { label: 'Serial Reemplazo', value: form.serial_reemplazo, category: 'EQUIPO' },
+            { label: 'Garantía', value: form.garantia, category: 'PROCESO' },
+            { label: 'Acepta Plan', value: form.acepta_plan, category: 'PROCESO' },
+            { label: 'Nro de Ingreso', value: form.ingreso, category: 'PROCESO' },
+            { label: 'Nro Factura', value: form.nro_factura, category: 'PROCESO' },
+            { label: 'Lote', value: form.lote, category: 'PROCESO' },
+            { label: 'Fecha de Ingreso', value: formatDate(form.fecha), category: 'REGISTRO' },
+            { label: 'Aliado', value: form.aliado, category: 'REGISTRO' },
+            { label: 'Técnico', value: form.tecnico, category: 'TÉCNICO' },
+            { label: 'Estatus Caso', value: <StatusBadge status={form.estatus_caso} type="caso" />, category: 'ESTADO' },
+            { label: 'Estatus Reparación', value: <StatusBadge status={form.estatus} type="reparacion" />, category: 'ESTADO' },
+            { label: 'Falla Notificada', value: form.falla_notificada, category: 'DETALLES' },
+            { label: 'Observaciones', value: form.observaciones || form.informes, category: 'DETALLES' },
+        ];
+
+        return (
+            <div className="case-details-table anim-fadeIn">
+                <table className="details-table">
+                    <thead>
+                        <tr>
+                            <th>Propiedad</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((row, idx) => (
+                            <tr key={idx}>
+                                <td className="prop-name">{row.label}</td>
+                                <td className="prop-value">{row.value || '—'}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
 
     return (
         <div className="case-details anim-fadeIn">

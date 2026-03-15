@@ -51,7 +51,7 @@ export default function DeviceForm() {
     const isEdit = Boolean(id);
     const navigate = useNavigate();
 
-    const [uploadMode, setUploadMode] = useState('individual'); // 'individual' or 'massive'
+    const [uploadMode, setUploadMode] = useState(searchParams.get('mode') === 'massive' ? 'massive' : 'individual'); // 'individual' or 'massive'
     const [form, setForm] = useState(() => {
         const aliadoParam = searchParams.get('aliado');
         const serialParam = searchParams.get('serial');

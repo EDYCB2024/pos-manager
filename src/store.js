@@ -11,7 +11,7 @@ export async function exportDevicesExcel(filters = {}) {
     try {
         const { year, aliado, modelo } = filters;
 
-        let query = supabase.from('casos_pos').select('*').order('created_at', { ascending: false });
+        let query = supabase.from('casos_pos').select('*').order('fecha', { ascending: false }).order('created_at', { ascending: false });
 
         if (year) {
             query = query.gte('fecha', `${year}-01-01`).lte('fecha', `${year}-12-31`);
@@ -143,6 +143,7 @@ export async function getAllDevices() {
         const { data, error } = await supabase
             .from('casos_pos')
             .select('*')
+            .order('fecha', { ascending: false })
             .order('created_at', { ascending: false })
             .range(from, from + pageSize - 1);
 
@@ -182,6 +183,7 @@ export async function getDevicesPaged({ page = 1, pageSize = 50, search = '', fi
     }
 
     const { data, count, error } = await query
+        .order('fecha', { ascending: false })
         .order('created_at', { ascending: false })
         .range(from, to);
 

@@ -1,160 +1,110 @@
 import { useState, useRef, useEffect } from 'react';
 import './VirtualAssistant.css';
 
-// ── Envío del mensaje al backend ──────────────────────────────────────────────
-const sendMessage = async (input) => {
+const sendMessage = async (input, history) => {
     try {
         const response = await fetch('/api/ai-agent', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ prompt: input }),
+            body: JSON.stringify({ prompt: input, history }),
         });
-
-        if (!response.ok) throw new Error(`Error ${response.status}`);
-
+        if (!response.ok) throw new Error(`Status ${response.status}`);
         const data = await response.json();
         return data.message;
     } catch (error) {
-        console.error('Error al hablar con la IA:', error);
+        console.error('Fetch Error:', error);
         throw error;
     }
 };
 
-// ── Icono SVG de Aura ─────────────────────────────────────────────────────────
-function AuraIcon({ size = 28 }) {
+function BotIcon({ size = 28 }) {
     return (
-        <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
-            <circle cx="20" cy="20" r="20" fill="url(#g)" />
-            <circle cx="20" cy="20" r="7" fill="white" fillOpacity=".9" />
-            <circle cx="20" cy="20" r="3.5" fill="url(#g)" />
-            <defs>
-                <linearGradient id="g" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#6366F1" />
-                    <stop offset="1" stopColor="#0EA5E9" />
-                </linearGradient>
-            </defs>
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="6" width="20" height="12" rx="2" stroke="white" strokeWidth="2" />
+            <path d="M7 12H7.01M17 12H17.01" stroke="white" strokeWidth="3" strokeLinecap="round" />
+            <path d="M10 15H14" stroke="white" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 2V6" stroke="white" strokeWidth="2" />
+            <circle cx="12" cy="2" r="1" fill="white" />
         </svg>
     );
 }
 
-// ── Indicador de escritura ────────────────────────────────────────────────────
-function TypingDots() {
-    return (
-        <div className="va-message va-message--ai">
-            <div className="va-avatar"><AuraIcon size={22} /></div>
-            <div className="va-bubble va-bubble--typing">
-                <span /><span /><span />
-            </div>
-        </div>
-    );
-}
-
-// ── Componente principal ──────────────────────────────────────────────────────
 export default function VirtualAssistant() {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'ai', text: '¡Hola! Soy tu asistente de POS Manager. ¿En qué te ayudo hoy?' }
+        { role: 'assistant', content: 'Asistente Operativo listo. ¿En qué puedo ayudarte con la gestión de casos hoy?' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const endRef = useRef(null);
-    const inputRef = useRef(null);
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, loading]);
 
-    const handleOpen = () => {
-        setOpen(true);
-        setTimeout(() => inputRef.current?.focus(), 100);
-    };
-
     const handleSend = async () => {
         const text = input.trim();
         if (!text || loading) return;
 
-        setMessages(prev => [...prev, { role: 'user', text }]);
+        const newMessages = [...messages, { role: 'user', content: text }];
+        setMessages(newMessages);
         setInput('');
         setLoading(true);
 
         try {
-            const reply = await sendMessage(text);
-            setMessages(prev => [...prev, { role: 'ai', text: reply }]);
+            const history = newMessages.slice(-5);
+            const reply = await sendMessage(text, history);
+            setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
         } catch {
-            setMessages(prev => [...prev, { role: 'ai', text: '❌ Error de conexión. Intenta de nuevo.' }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Servicio no disponible. Verifica la configuración.' }]);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleKey = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    };
-
     return (
         <div className="va-widget">
-            {/* Ventana */}
             {open && (
                 <div className="va-window">
-                    {/* Header */}
                     <div className="va-header">
                         <div className="va-header-info">
-                            <AuraIcon size={30} />
+                            <div className="va-icon-bg"><BotIcon size={20} /></div>
                             <div>
-                                <p className="va-name">Asistente IA</p>
-                                <p className="va-status"><span className="va-dot" /> En línea</p>
+                                <p className="va-name">Asistente Ops</p>
+                                <p className="va-status">RAG Conectado</p>
                             </div>
                         </div>
-                        <button className="va-close" onClick={() => setOpen(false)}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
-                        </button>
+                        <button className="va-close" onClick={() => setOpen(false)}>×</button>
                     </div>
 
-                    {/* Mensajes */}
                     <div className="va-messages">
                         {messages.map((m, i) => (
                             <div key={i} className={`va-message va-message--${m.role}`}>
-                                {m.role === 'ai' && <div className="va-avatar"><AuraIcon size={22} /></div>}
-                                <div className={`va-bubble va-bubble--${m.role}`}>{m.text}</div>
+                                <div className="va-bubble">{m.content}</div>
                             </div>
                         ))}
-                        {loading && <TypingDots />}
+                        {loading && <div className="va-loading">Analizando registros...</div>}
                         <div ref={endRef} />
                     </div>
 
-                    {/* Input */}
                     <div className="va-input-row">
-                        <textarea
-                            ref={inputRef}
+                        <input
                             className="va-input"
-                            placeholder="Escribe tu consulta..."
+                            placeholder="Escribe una tarea o búsqueda..."
                             value={input}
-                            rows={1}
-                            onChange={e => setInput(e.target.value)}
-                            onKeyDown={handleKey}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             disabled={loading}
                         />
-                        <button className="va-send" onClick={handleSend} disabled={loading || !input.trim()}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-                            </svg>
+                        <button className="va-send" onClick={handleSend} disabled={loading}>
+                            →
                         </button>
                     </div>
                 </div>
             )}
-
-            {/* Botón flotante */}
-            <button className="va-trigger" onClick={open ? () => setOpen(false) : handleOpen}>
-                {open
-                    ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    : <AuraIcon size={24} />
-                }
+            <button className={`${open ? 'va-trigger va-trigger--active' : 'va-trigger'}`} onClick={() => setOpen(!open)}>
+                <BotIcon size={24} />
             </button>
         </div>
     );

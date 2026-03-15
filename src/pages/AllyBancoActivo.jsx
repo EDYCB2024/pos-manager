@@ -5,6 +5,7 @@ import StatusBadge from '../components/StatusBadge';
 import CaseDetails from '../components/CaseDetails';
 import './DeviceList.css'; 
 import './shared.css';
+import bancoActivoLogo from '../assets/banco-activo-logo.png';
 
 export default function AllyBancoActivo() {
     const [devices, setDevices] = useState([]);
@@ -68,11 +69,36 @@ export default function AllyBancoActivo() {
     return (
         <div className="device-list anim-fadeUp">
             <div className="page-header">
-                <div>
-                    <h1 className="page-title">Tabla BANCO ACTIVO</h1>
-                    <p className="page-sub">
-                        {total} equipo{total !== 1 ? 's' : ''} gestionado{total !== 1 ? 's' : ''} para BANCO ACTIVO
-                    </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ 
+                        width: '64px', 
+                        height: '64px', 
+                        background: '#fff', 
+                        padding: '8px', 
+                        borderRadius: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: 'var(--shadow-card)'
+                    }}>
+                        <img src={bancoActivoLogo} alt="Banco Activo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <div>
+                        <h1 className="page-title">Equipos Aliado Banco Activo</h1>
+                        <p className="page-sub">
+                            {total} equipo{total !== 1 ? 's' : ''} gestionado{total !== 1 ? 's' : ''} para BANCO ACTIVO
+                        </p>
+                    </div>
+                </div>
+                <div className="page-header__actions">
+                    <button className="btn btn--secondary" onClick={() => navigate('/devices/new?mode=massive')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        Carga Masiva
+                    </button>
+                    <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+                        Nuevo Equipo
+                    </button>
                 </div>
             </div>
 
@@ -116,8 +142,8 @@ export default function AllyBancoActivo() {
                     </select>
 
                     <button className="btn btn--primary" onClick={() => { setPage(1); load(); }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5"/></svg>
-                        Filtrar
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+                        Buscar
                     </button>
 
                     {(search || filterCaso || filterRep) && (
@@ -130,6 +156,17 @@ export default function AllyBancoActivo() {
                             Limpiar
                         </button>
                     )}
+                </div>
+
+                <div style={{ marginLeft: 'auto' }}>
+                    <button 
+                        className="btn btn--secondary" 
+                        onClick={() => load()} 
+                        title="Refrescar tabla"
+                        style={{ padding: '10px' }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -171,10 +208,10 @@ export default function AllyBancoActivo() {
                                     <th>GARANTIA</th>
                                     <th>INFORME2</th>
                                     <th>COTIZACIÓN</th>
+                                    <th>REPUESTO/SERVICIO 1</th>
+                                    <th>REPUESTO/SERVICIO 2</th>
+                                    <th>REPUESTO/SERVICIO 3</th>
                                     <th>OBSERVACIONES</th>
-                                    <th>REPUESTO 1</th>
-                                    <th>REPUESTO 2</th>
-                                    <th>REPUESTO 3</th>
                                     <th style={{ textAlign: 'right' }}>ACCIONES</th>
                                 </tr>
                             </thead>
@@ -228,14 +265,14 @@ export default function AllyBancoActivo() {
                                         <td>{d.garantia || 'No'}</td>
                                         <td>{d.informe || '—'}</td>
                                         <td>{d.cotizacion || '0'}</td>
+                                        <td>{d.repuesto_1 || '—'}</td>
+                                        <td>{d.repuesto_2 || '—'}</td>
+                                        <td>{d.repuesto_3 || '—'}</td>
                                         <td>
                                             <div style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.observaciones}>
                                                 {d.observaciones || '—'}
                                             </div>
                                         </td>
-                                        <td>{d.repuesto_1 || '—'}</td>
-                                        <td>{d.repuesto_2 || '—'}</td>
-                                        <td>{d.repuesto_3 || '—'}</td>
                                         <td onClick={e => e.stopPropagation()}>
                                             <div className="action-btns">
                                                 <button

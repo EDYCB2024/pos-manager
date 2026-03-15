@@ -51,10 +51,10 @@
   --bg-primary-rgb: 248, 250, 252;
   --bg-secondary: #ffffff;
   --bg-secondary-rgb: 255, 255, 255;
-  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card: #ffffff;
   --bg-card-rgb: 255, 255, 255;
   --border: #e2e8f0;
-  --border-glow: rgba(228, 121, 53, 0.25);
+  --border-glow: rgba(99, 102, 241, 0.2);
 
   --accent: #E47935;
   --accent-dim: rgba(228, 121, 53, 0.08);
@@ -62,15 +62,15 @@
   --accent-gradient: linear-gradient(135deg, #E47935 0%, #cc662b 100%);
 
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #64748b;
   --text-muted: #94a3b8;
 
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
-  --shadow-glow: 0 0 20px rgba(228, 121, 53, 0.08);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.05);
   --calendar-invert: invert(0);
 
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: #f1f5f9;
 }
 
 /* ─── Reset ──────────────────────────────────────────────── */

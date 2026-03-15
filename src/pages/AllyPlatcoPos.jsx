@@ -68,11 +68,38 @@ export default function AllyPlatcoPos() {
     return (
         <div className="device-list anim-fadeUp">
             <div className="page-header">
-                <div>
-                    <h1 className="page-title">Lista de Equipos: PLATCO POS</h1>
-                    <p className="page-sub">
-                        {total} equipo{total !== 1 ? 's' : ''} gestionado{total !== 1 ? 's' : ''} para PLATCO POS
-                    </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ 
+                        width: '64px', 
+                        height: '64px', 
+                        background: 'rgba(255, 255, 255, 0.05)', 
+                        border: '1px dashed var(--border)',
+                        borderRadius: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: 'var(--shadow-card)',
+                        color: 'var(--text-muted)',
+                        fontSize: '24px'
+                    }}>
+                        🏢
+                    </div>
+                    <div>
+                        <h1 className="page-title">Equipos Aliado Platco Pos</h1>
+                        <p className="page-sub">
+                            {total} equipo{total !== 1 ? 's' : ''} gestionado{total !== 1 ? 's' : ''} para PLATCO POS
+                        </p>
+                    </div>
+                </div>
+                <div className="page-header__actions">
+                    <button className="btn btn--secondary" onClick={() => navigate('/devices/new?mode=massive')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        Carga Masiva
+                    </button>
+                    <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
+                        Nuevo Equipo
+                    </button>
                 </div>
             </div>
 
@@ -116,8 +143,8 @@ export default function AllyPlatcoPos() {
                     </select>
 
                     <button className="btn btn--primary" onClick={() => { setPage(1); load(); }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5"/></svg>
-                        Filtrar
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+                        Buscar
                     </button>
 
                     {(search || filterCaso || filterRep) && (
@@ -130,6 +157,17 @@ export default function AllyPlatcoPos() {
                             Limpiar
                         </button>
                     )}
+                </div>
+
+                <div style={{ marginLeft: 'auto' }}>
+                    <button 
+                        className="btn btn--secondary" 
+                        onClick={() => load()} 
+                        title="Refrescar tabla"
+                        style={{ padding: '10px' }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -152,27 +190,30 @@ export default function AllyPlatcoPos() {
                         <table className="data-table">
                             <thead>
                                 <tr>
-                                    <th>NRO</th>
+                                    <th>N°</th>
                                     <th>FECHA</th>
                                     <th>ALIADO</th>
                                     <th>MODELO</th>
                                     <th>RAZÓN SOCIAL</th>
                                     <th>SERIAL</th>
+                                    <th>INFORME</th>
                                     <th>RIF</th>
                                     <th>INGRESO</th>
                                     <th>SERIAL DE REMPLAZO</th>
-                                    <th>FECHA VENTA</th>
+                                    <th>FALLA NOTIFICADA</th>
                                     <th>CATEGORÍA</th>
                                     <th>FECHA FINAL</th>
                                     <th>ESTATUS DEL CASO</th>
                                     <th>ESTATUS</th>
                                     <th>NIVEL</th>
                                     <th>GARANTIA</th>
+                                    <th>INFORME2</th>
                                     <th>COTIZACIÓN</th>
-                                    <th>REPUESTO / SERVICIO</th>
-                                    <th>REPUESTO / SERVICIO 2</th>
-                                    <th>REPUESTO / SERVICIO 3</th>
+                                    <th>REPUESTO/SERVICIO 1</th>
+                                    <th>REPUESTO/SERVICIO 2</th>
+                                    <th>REPUESTO/SERVICIO 3</th>
                                     <th>OBSERVACIONES</th>
+                                    <th>FECHA VENTA</th>
                                     <th>LOTE</th>
                                     <th style={{ textAlign: 'right' }}>ACCIONES</th>
                                 </tr>
@@ -210,16 +251,22 @@ export default function AllyPlatcoPos() {
                                                 </button>
                                             </div>
                                         </td>
+                                        <td>{d.informes || '—'}</td>
                                         <td>{d.rif}</td>
                                         <td>{d.ingreso || '—'}</td>
                                         <td>{d.serial_reemplazo || '—'}</td>
-                                        <td>{formatDate(d.fecha_venta)}</td>
+                                        <td>
+                                            <div style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.falla_notificada}>
+                                                {d.falla_notificada || '—'}
+                                            </div>
+                                        </td>
                                         <td>{d.categoria}</td>
                                         <td>{formatDate(d.fecha_final)}</td>
                                         <td><StatusBadge status={d.estatus_caso} type="caso" /></td>
                                         <td><StatusBadge status={d.estatus} type="reparacion" /></td>
                                         <td>{d.nivel || '—'}</td>
                                         <td>{d.garantia || 'No'}</td>
+                                        <td>{d.informe || '—'}</td>
                                         <td>{d.cotizacion || '0'}</td>
                                         <td>{d.repuesto_1 || '—'}</td>
                                         <td>{d.repuesto_2 || '—'}</td>
@@ -229,6 +276,7 @@ export default function AllyPlatcoPos() {
                                                 {d.observaciones || '—'}
                                             </div>
                                         </td>
+                                        <td>{formatDate(d.fecha_venta)}</td>
                                         <td>{d.lote || '—'}</td>
                                         <td onClick={e => e.stopPropagation()}>
                                             <div className="action-btns">

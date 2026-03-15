@@ -7,33 +7,32 @@
 
 .settings-header {
     margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
 }
 
 .settings-title {
-    font-size: 2.5rem;
+    font-size: 32px;
     font-weight: 800;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     color: var(--text-primary);
-    letter-spacing: -0.04em;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.03em;
 }
 
 .settings-subtitle {
-    font-size: 1.125rem;
+    font-size: 16px;
     color: var(--text-secondary);
-    max-width: 600px;
+    max-width: 800px;
+    line-height: 1.6;
 }
 
 /* Tab Navigation Refinement */
 .settings-tabs {
     display: flex;
-    gap: 12px;
-    background: var(--bg-secondary);
+    gap: 8px;
+    background: #f1f5f9;
     padding: 6px;
-    border-radius: var(--radius-lg);
+    border-radius: 14px;
     margin-bottom: 40px;
     border: 1px solid var(--border);
     width: fit-content;
@@ -42,33 +41,32 @@
 .tab-btn {
     background: transparent;
     border: none;
-    padding: 10px 24px;
-    color: var(--text-muted);
-    font-size: 0.95rem;
+    padding: 10px 20px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
+    border-radius: 10px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .tab-btn:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent);
+    background: #fff;
 }
 
 .tab-btn.active {
-    color: var(--accent);
-    background: var(--accent-dim);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    background: var(--accent);
+    box-shadow: 0 4px 12px var(--accent-dim);
 }
 
 .tab-btn-icon {
     width: 18px;
     height: 18px;
-    opacity: 0.8;
 }
 
 /* Bento Grid Sections */
@@ -83,36 +81,35 @@
 }
 
 .settings-section h2 {
-    font-size: 0.75rem;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 20px;
-    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .settings-section h2::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: linear-gradient(to right, var(--border), transparent);
+    background: var(--border);
 }
 
 .settings-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 24px;
+    padding: 32px;
     box-shadow: var(--shadow-card);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .settings-card:hover {
-    box-shadow: var(--shadow-xl);
+    border-color: var(--accent-dim);
 }
 
 /* Setting Items */
@@ -120,7 +117,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 0;
+    padding: 20px 0;
     border-bottom: 1px solid var(--border);
 }
 
@@ -152,7 +149,7 @@
 .settings-form {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 32px;
 }
 
 .form-group {
@@ -172,12 +169,13 @@
 }
 
 .form-group input {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--bg-primary);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-radius: var(--radius-md);
-    font-size: 1rem;
+    font-size: 0.95rem;
+    font-family: inherit;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -185,7 +183,13 @@
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 4px var(--accent-dim);
-    background: rgba(0, 0, 0, 0.3);
+    background: #fff;
+}
+
+.form-group input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--bg-primary);
 }
 
 /* Premium Buttons */
@@ -195,9 +199,10 @@
     background: var(--accent);
     color: white;
     border: none;
-    padding: 12px 32px;
+    padding: 14px 32px;
     border-radius: var(--radius-md);
     font-weight: 700;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 4px 12px var(--accent-dim);

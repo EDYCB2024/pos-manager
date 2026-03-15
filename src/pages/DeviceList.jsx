@@ -205,76 +205,106 @@ export default function DeviceList() {
                             <p>No se encontraron equipos con esos filtros.</p>
                         </div>
                     ) : (
-                        <div className="results-grid">
-                            {devices.map(d => (
-                                <div 
-                                    key={d.id} 
-                                    className="result-card anim-slideIn"
-                                    onClick={() => {
-                                        setDetailLoading(true);
-                                        getDeviceById(d.id).then(fullDevice => {
-                                            setViewingDevice(fullDevice);
-                                            setDetailLoading(false);
-                                        }).catch(() => setDetailLoading(false));
-                                    }}
-                                >
-                                    <div className="result-card__header">
-                                        <span className="result-card__date">{formatDate(d.fecha)}</span>
-                                        <StatusBadge status={d.estatus_caso} type="caso" />
-                                    </div>
-                                    
-                                    <h3 className="result-card__title">{d.razon_social}</h3>
-                                    
-                                    <div className="result-card__details">
-                                        <div className="detail-p">
-                                            <span className="label">Serial</span>
-                                            <span className="value"><code>{d.serial}</code></span>
-                                        </div>
-                                        <div className="detail-p">
-                                            <span className="label">Modelo</span>
-                                            <span className="value">{d.modelo || '—'}</span>
-                                        </div>
-                                        <div className="detail-p">
-                                            <span className="label">Aliado</span>
-                                            <span className="value">{d.aliado}</span>
-                                        </div>
-                                        <div className="detail-p">
-                                            <span className="label">REPARACIÓN</span>
-                                            <span className="value">{d.estatus}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="result-card__footer">
-                                        <div className="result-card__badges">
-                                            <StatusBadge status={d.estatus} type="reparacion" />
-                                        </div>
-                                        <div className="result-card__actions" onClick={e => e.stopPropagation()}>
-                                            <button 
-                                                className="action-card-btn" 
-                                                title="Copiar Serial"
-                                                onClick={(e) => copyToClipboard(e, d.serial)}
-                                            >
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
-                                            </button>
-                                            <button 
-                                                className="action-card-btn" 
-                                                title="Editar"
-                                                onClick={() => navigate(`/devices/${d.id}/edit`)}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
-                                            </button>
-                                            <button 
-                                                className="action-card-btn action-card-btn--delete" 
-                                                title="Eliminar"
-                                                onClick={() => setConfirm({ id: d.id, serial: d.serial })}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {copiedSerial === d.serial && <div className="copied-toast">Serial Copiado!</div>}
-                                </div>
-                            ))}
+                        <div className="table-wrap">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>N° Factura</th>
+                                        <th>Fecha</th>
+                                        <th>Ingreso</th>
+                                        <th>Fecha Final</th>
+                                        <th>Aliado</th>
+                                        <th>Razón Social</th>
+                                        <th>RIF</th>
+                                        <th>Modelo</th>
+                                        <th>Serial</th>
+                                        <th>Categoría</th>
+                                        <th>Falla Notificada</th>
+                                        <th>Estatus</th>
+                                        <th>Garantía</th>
+                                        <th>Cotización</th>
+                                        <th>Observaciones</th>
+                                        <th>Repuesto/Servicio 1</th>
+                                        <th>Repuesto/Servicio 2</th>
+                                        <th>Repuesto/Servicio 3</th>
+                                        <th style={{ textAlign: 'right' }}>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {devices.map(d => (
+                                        <tr 
+                                            key={d.id} 
+                                            className="data-table__row"
+                                            onClick={() => {
+                                                setDetailLoading(true);
+                                                getDeviceById(d.id).then(fullDevice => {
+                                                    setViewingDevice(fullDevice);
+                                                    setDetailLoading(false);
+                                                }).catch(() => setDetailLoading(false));
+                                            }}
+                                        >
+                                            <td>{d.nro_factura || '—'}</td>
+                                            <td>{formatDate(d.fecha)}</td>
+                                            <td>{d.ingreso || '—'}</td>
+                                            <td>{formatDate(d.fecha_final)}</td>
+                                            <td>{d.aliado}</td>
+                                            <td style={{ fontWeight: 600 }}>{d.razon_social}</td>
+                                            <td>{d.rif || '—'}</td>
+                                            <td>{d.modelo || '—'}</td>
+                                            <td>
+                                                <div className="serial-container">
+                                                    {copiedSerial === d.serial && (
+                                                        <span className="copied-tooltip">Copiado</span>
+                                                    )}
+                                                    <code className="serial-code">{d.serial}</code>
+                                                    <button
+                                                        className="copy-btn"
+                                                        title="Copiar Serial"
+                                                        onClick={(e) => copyToClipboard(e, d.serial)}
+                                                    >
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td>{d.categoria || '—'}</td>
+                                            <td>
+                                                <div style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.falla_notificada}>
+                                                    {d.falla_notificada || '—'}
+                                                </div>
+                                            </td>
+                                            <td><StatusBadge status={d.estatus} type="reparacion" /></td>
+                                            <td>{d.garantia || 'No'}</td>
+                                            <td>{d.cotizacion || '0'}</td>
+                                            <td>
+                                                <div style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.observaciones}>
+                                                    {d.observaciones || '—'}
+                                                </div>
+                                            </td>
+                                            <td>{d.repuesto_1 || '—'}</td>
+                                            <td>{d.repuesto_2 || '—'}</td>
+                                            <td>{d.repuesto_3 || '—'}</td>
+                                            <td onClick={e => e.stopPropagation()} style={{ textAlign: 'right' }}>
+                                                <div className="action-btns" style={{ justifyContent: 'flex-end' }}>
+                                                    <button 
+                                                        className="action-btn action-btn--edit" 
+                                                        title="Editar"
+                                                        onClick={() => navigate(`/devices/${d.id}/edit`)}
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                                    </button>
+                                                    <button 
+                                                        className="action-btn action-btn--delete" 
+                                                        title="Eliminar"
+                                                        onClick={() => setConfirm({ id: d.id, serial: d.serial })}
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     )}
 
