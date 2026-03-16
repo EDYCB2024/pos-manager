@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getDevicesPaged, deleteDevice, getDeviceById, ESTATUSES_CASO, ESTATUSES_REPARACION } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import CaseDetails from '../components/CaseDetails';
+import platcoLogo from '../assets/platco-logo.png';
 import './DeviceList.css'; 
 import './shared.css';
 
@@ -72,17 +73,16 @@ export default function AllyPlatcoPos() {
                     <div style={{ 
                         width: '64px', 
                         height: '64px', 
-                        background: 'rgba(255, 255, 255, 0.05)', 
-                        border: '1px dashed var(--border)',
+                        background: '#fff', 
+                        border: '1px solid rgba(0,0,0,0.05)',
                         borderRadius: '16px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         boxShadow: 'var(--shadow-card)',
-                        color: 'var(--text-muted)',
-                        fontSize: '24px'
+                        overflow: 'hidden'
                     }}>
-                        🏢
+                        <img src={platcoLogo} alt="Platco" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </div>
                     <div>
                         <h1 className="page-title">Equipos Aliado Platco Pos</h1>
