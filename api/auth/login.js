@@ -40,6 +40,10 @@ export default async function handler(req, res) {
             .eq('email', email)
             .single();
 
+        console.log('Login attempt for email:', email);
+        console.log('User found:', !!user);
+        if (error) console.log('Supabase error:', error);
+
         if (error || !user) {
             return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
         }
