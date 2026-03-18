@@ -370,3 +370,7 @@ export async function getAtcCases() {
     return data;
 }
 
+export async function deleteAtcCase(id) {
+    const { error } = await supabase.from('casos_atc').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+}

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { getAtcCases } from '../store';
+import { getAtcCases, deleteAtcCase } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import './AtcInbox.css';
 
 export default function AtcInbox() {
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [confirm, setConfirm] = useState(null);
 
     const load = async () => {
         setLoading(true);
@@ -23,6 +24,16 @@ export default function AtcInbox() {
         load();
     }, []);
 
+    const handleDelete = async (id) => {
+        try {
+            await deleteAtcCase(id);
+            setConfirm(null);
+            load();
+        } catch (err) {
+            alert('Error al eliminar: ' + err.message);
+        }
+    };
+
     // Headers requested by the user
     const headers = [
         '#', 'FECHA', 'SERIAL', 'OPERADORA', 'PROVEEDOR WIFI', 'REPORTADO EN',
@@ -30,7 +41,7 @@ export default function AtcInbox() {
         'TIEMPO', 'PERSONA CONTACTO', 'TELEFONO CONTACTO', 'CIUDAD',
         'ESTADO', 'REPORTADO POR', 'CATEGORIA DE FALLA', 'FALLA REPORTADA CLIENTE',
         'ANALISTA OPERACIONES TÉCNICAS', 'ESTATUS CASO', 'OBSERVACIONES',
-        'OBSERVACION 2', 'OBSERVACION 3', 'VENCIMIENTO CASO'
+        'OBSERVACION 2', 'OBSERVACION 3', 'VENCIMIENTO CASO', 'ACCIONES'
     ];
 
     const formatDate = (dateString) => {
@@ -70,7 +81,7 @@ export default function AtcInbox() {
                         <thead>
                             <tr>
                                 {headers.map((h, i) => (
-                                    <th key={i}>{h}</th>
+                                    <th key={i} style={h === 'ACCIONES' ? { textAlign: 'right' } : {}}>{h}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -117,6 +128,23 @@ export default function AtcInbox() {
                                         <td>{c.observacion_2 || '—'}</td>
                                         <td>{c.observacion_3 || '—'}</td>
                                         <td>{formatDate(c.vencimiento_caso)}</td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <div className="action-btns" style={{ justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="action-btn action-btn--delete"
+                                                    title="Eliminar"
+                                                    onClick={() => setConfirm({ id: c.id, serial: c.serial })}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M3 6h18" />
+                                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                        <line x1="10" x2="10" y1="11" y2="17" />
+                                                        <line x1="14" x2="14" y1="11" y2="17" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -124,6 +152,22 @@ export default function AtcInbox() {
                     </table>
                 </div>
             </div>
+
+            {/* Confirm dialog */}
+            {confirm && (
+                <div className="modal-overlay" onClick={() => setConfirm(null)}>
+                    <div className="modal glass" onClick={e => e.stopPropagation()}>
+                        <h3 className="modal__title">¿Eliminar caso ATC?</h3>
+                        <p className="modal__body">
+                            Se eliminará el caso del cliente con serial <code className="serial-code">{confirm.serial || 'Sin Serial'}</code>. Esta acción no se puede deshacer.
+                        </p>
+                        <div className="modal__actions">
+                            <button className="btn btn--ghost" onClick={() => setConfirm(null)}>Cancelar</button>
+                            <button className="btn btn--danger" onClick={() => handleDelete(confirm.id)}>Sí, eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
