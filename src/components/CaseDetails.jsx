@@ -1,12 +1,137 @@
 import StatusBadge from './StatusBadge';
 
-export default function CaseDetails({ form, variant = 'table' }) {
+export default function CaseDetails({ form, variant = 'table', actions = null }) {
     const formatDate = (dateString) => {
         if (!dateString) return '—';
+        if (dateString.includes('T')) {
+            // Handle ISO string or datetime-local
+            const d = new Date(dateString);
+            return d.toLocaleString('es-VE', { 
+                day: '2-digit', month: '2-digit', year: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
         const [year, month, day] = dateString.split('-');
         if (!year || !month || !day) return dateString;
         return `${day}-${month}-${year.slice(-2)}`;
     };
+
+    if (variant === 'atc-vertical') {
+        const atcRows = [
+            { label: '# ID', value: form.id },
+            { label: 'FECHA', value: formatDate(form.fecha) },
+            { label: 'SERIAL', value: <code className="serial-code">{form.serial}</code> },
+            { label: 'OPERADORA', value: form.operadora },
+            { label: 'PROVEEDOR WIFI', value: form.proveedor_wifi },
+            { label: 'REPORTADO EN', value: form.afiliado },
+            { label: 'RIF', value: form.rif },
+            { label: 'NOMBRE COMERCIO', value: form.nombre_comercio },
+            { label: 'HORA DE REPORTE', value: form.hora_reporte },
+            { label: 'HORA DE ATENCION', value: form.hora_atencion },
+            { label: 'TIEMPO', value: form.tiempo },
+            { label: 'PERSONA CONTACTO', value: form.persona_contacto },
+            { label: 'TELEFONO CONTACTO', value: form.telefono_contacto },
+            { label: 'CIUDAD', value: form.ciudad },
+            { label: 'ESTADO', value: form.estado },
+            { label: 'REPORTADO POR', value: form.reportado_by },
+            { label: 'CATEGORIA DE FALLA', value: form.categoria_falla },
+            { label: 'FALLA REPORTADA CLIENTE', value: form.falla_cliente },
+            { label: 'ANALISTA OPERACIONES TÉCNICAS', value: form.analista_tecnico },
+            { label: 'ESTATUS CASO', value: <StatusBadge status={form.estatus_caso} type="caso" /> },
+            { label: 'OBSERVACIONES', value: form.observaciones },
+            { label: 'OBSERVACION 2', value: form.observacion_2 },
+            { label: 'OBSERVACION 3', value: form.observacion_3 },
+            { label: 'VENCIMIENTO CASO', value: formatDate(form.vencimiento_caso) },
+        ];
+
+        return (
+            <div className="case-details-table anim-fadeIn">
+                <table className="details-table details-table--atc">
+                    <thead>
+                        <tr>
+                            <th>Propiedad</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {atcRows.map((row, idx) => (
+                            <tr key={idx}>
+                                <td className="prop-name">{row.label}</td>
+                                <td className="prop-value">{row.value || '—'}</td>
+                            </tr>
+                        ))}
+                        {actions && (
+                            <tr>
+                                <td className="prop-name">ACCIONES</td>
+                                <td className="prop-value">{actions}</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+
+    if (variant === 'aliados-vertical') {
+        const aliadoRows = [
+            { label: 'N°', value: form.id },
+            { label: 'FACTURA', value: form.nro_factura },
+            { label: 'PROCESADORA', value: form.procesadora },
+            { label: 'FECHA', value: formatDate(form.fecha) },
+            { label: 'ALIADO', value: form.aliado },
+            { label: 'MODELO', value: form.modelo },
+            { label: 'RAZÓN SOCIAL', value: form.razon_social },
+            { label: 'SERIAL', value: <code className="serial-code">{form.serial}</code> },
+            { label: 'INFORME', value: form.informes },
+            { label: 'RIF', value: form.rif },
+            { label: 'INGRESO', value: form.ingreso },
+            { label: 'SERIAL DE REMPLAZO', value: form.serial_reemplazo },
+            { label: 'FALLA NOTIFICADA', value: form.falla_notificada },
+            { label: 'CATEGORÍA', value: form.categoria },
+            { label: 'FECHA FINAL', value: formatDate(form.fecha_final) },
+            { label: 'ESTATUS DEL CASO', value: <StatusBadge status={form.estatus_caso} type="caso" /> },
+            { label: 'ESTATUS', value: <StatusBadge status={form.estatus} type="reparacion" /> },
+            { label: 'NIVEL', value: form.nivel },
+            { label: 'GARANTIA', value: form.garantia },
+            { label: 'INFORME2', value: form.informe },
+            { label: 'COTIZACIÓN', value: form.cotizacion },
+            { label: 'REPUESTO/SERVICIO 1', value: form.repuesto_1 },
+            { label: 'REPUESTO/SERVICIO 2', value: form.repuesto_2 },
+            { label: 'REPUESTO/SERVICIO 3', value: form.repuesto_3 },
+            { label: 'OBSERVACIONES', value: form.observaciones },
+        ];
+
+        // Filter out rows where label matches table headers that might not exist in the form
+        // But the user wants them to match the table, so we show them even if empty (—)
+        // unless they are specific fields like 'PROCESADORA' which only certain allies have.
+
+        return (
+            <div className="case-details-table anim-fadeIn">
+                <table className="details-table details-table--aliados">
+                    <thead>
+                        <tr>
+                            <th>Propiedad</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {aliadoRows.map((row, idx) => (
+                            <tr key={idx}>
+                                <td className="prop-name">{row.label}</td>
+                                <td className="prop-value">{row.value || '—'}</td>
+                            </tr>
+                        ))}
+                        {actions && (
+                            <tr>
+                                <td className="prop-name">ACCIONES</td>
+                                <td className="prop-value">{actions}</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
 
     if (variant === 'table') {
         const rows = [

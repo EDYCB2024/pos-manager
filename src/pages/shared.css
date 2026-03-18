@@ -115,8 +115,12 @@
 }
 
 .table-wrap::-webkit-scrollbar-thumb {
-    background: var(--border);
+    background: var(--accent);
     border-radius: 10px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover {
+    filter: brightness(1.2);
 }
 
 .data-table {
@@ -165,6 +169,40 @@
 
 .data-table__row:last-child td {
     border-bottom: none;
+}
+
+/* Sticky Actions Column */
+.data-table th:last-child,
+.data-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 11;
+    box-shadow: -8px 0 12px -8px rgba(0, 0, 0, 0.2);
+    /* Soft shadow on the left edge */
+}
+
+.data-table th:last-child {
+    z-index: 12;
+    background: var(--accent-dim);
+    border-bottom: 3px solid var(--accent);
+}
+
+/* Important: Sticky cells need a background to not be transparent */
+.data-table td:last-child {
+    background: var(--bg-secondary);
+}
+
+.data-table__row:hover td:last-child {
+    background: var(--bg-card-hover) !important;
+    color: var(--text-primary);
+}
+
+[data-theme='light'] .data-table td:last-child {
+    background: #ffffff;
+}
+
+[data-theme='light'] .data-table__row:hover td:last-child {
+    background: #f1f5f9 !important;
 }
 
 /* Serial */

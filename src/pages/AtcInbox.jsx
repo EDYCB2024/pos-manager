@@ -240,30 +240,40 @@ export default function AtcInbox() {
                             </button>
                         </div>
                         <div style={{ maxHeight: '80vh', overflowY: 'auto' }}>
-                            <CaseDetails form={{
-                                razon_social: viewing.nombre_comercio,
-                                rif: viewing.rif,
-                                serial: viewing.serial,
-                                modelo: viewing.operadora ? `Operadora: ${viewing.operadora}` : null,
-                                procesadora: viewing.proveedor_wifi ? `WiFi: ${viewing.proveedor_wifi}` : null,
-                                aliado: viewing.afiliado,
-                                ingreso: viewing.hora_reporte,
-                                nro_guia: viewing.reportado_by,
-                                fecha: viewing.fecha,
-                                fecha_final: viewing.vencimiento_caso,
-                                tecnico: viewing.analista_tecnico,
-                                categoria: viewing.categoria_falla,
-                                estatus_caso: viewing.estatus_caso,
-                                estatus: null,
-                                falla_notificada: viewing.falla_cliente,
-                                observaciones: [
-                                    viewing.observaciones,
-                                    viewing.observacion_2,
-                                    viewing.observacion_3
-                                ].filter(Boolean).join('\n\n') || null,
-                                nivel: viewing.persona_contacto ? `${viewing.persona_contacto} — ${viewing.telefono_contacto || ''}` : null,
-                                garantia: viewing.ciudad ? `${viewing.ciudad}, ${viewing.estado || ''}` : null,
-                            }} />
+                            <CaseDetails 
+                                variant="atc-vertical"
+                                form={viewing}
+                                actions={(
+                                    <div className="action-btns">
+                                        <button
+                                            className="action-btn action-btn--edit"
+                                            title="Editar"
+                                            onClick={() => {
+                                                setViewing(null);
+                                                openEdit(viewing);
+                                            }}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            className="action-btn action-btn--delete"
+                                            title="Eliminar"
+                                            onClick={() => {
+                                                setViewing(null);
+                                                setConfirm({ id: viewing.id, serial: viewing.serial });
+                                            }}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                                <line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                )}
+                            />
                         </div>
                     </div>
                 </div>,
