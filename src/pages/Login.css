@@ -164,6 +164,36 @@
     outline: none;
 }
 
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-input-wrapper input {
+    padding-right: 3.5rem !important;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.8rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    z-index: 5;
+}
+
+.password-toggle:hover {
+    color: var(--accent);
+}
+
 .login-field input:focus {
     border-color: var(--accent);
     background: rgba(0, 212, 255, 0.05);
