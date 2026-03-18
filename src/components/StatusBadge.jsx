@@ -3,6 +3,8 @@ import './StatusBadge.css';
 const CASO_CONFIG = {
     'CASO ABIERTO': { color: 'ingresado', dot: true },
     'CASO CERRADO': { color: 'listo', dot: false },
+    'ABIERTO': { color: 'ingresado', dot: true },
+    'CERRADO': { color: 'listo', dot: false },
     'PENDIENTE POR PAGO': { color: 'sin-reparacion', dot: true },
 };
 

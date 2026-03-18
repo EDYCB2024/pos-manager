@@ -1,6 +1,6 @@
 import StatusBadge from './StatusBadge';
 
-export default function CaseDetails({ form, variant = 'grid' }) {
+export default function CaseDetails({ form, variant = 'table' }) {
     const formatDate = (dateString) => {
         if (!dateString) return '—';
         const [year, month, day] = dateString.split('-');

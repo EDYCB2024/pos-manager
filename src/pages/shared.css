@@ -271,6 +271,21 @@
     border-color: var(--border-glow);
 }
 
+.btn-icon--primary {
+    background: var(--accent-gradient);
+    border-color: transparent;
+    color: #000;
+}
+
+[data-theme='light'] .btn-icon--primary {
+    color: #fff;
+}
+
+.btn-icon--primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px var(--accent-dim);
+}
+
 .btn-icon--danger {
     color: #f87171;
     background: rgba(239, 68, 68, 0.05);

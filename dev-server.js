@@ -9,12 +9,13 @@ import changePasswordHandler from './api/auth/change-password.js';
 import usersHandler from './api/users/index.js';
 import updateUsersHandler from './api/users/update.js';
 import deleteUserHandler from './api/users/delete.js';
+import chatHandler from './api/chat.js';
 import { config } from 'dotenv';
 config();
 
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -110,6 +111,14 @@ app.all('/api/auth/change-password', async (req, res) => {
     }
 });
 
+app.all('/api/chat', async (req, res) => {
+    try {
+        await chatHandler(req, res);
+    } catch (err) {
+        console.error('Error in Express Chat Route:', err);
+        if (!res.headersSent) res.status(500).json({ error: 'Internal Error' });
+    }
+});
 
 const PORT = 3001;
 app.listen(PORT, () => {

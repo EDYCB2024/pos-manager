@@ -359,7 +359,7 @@ export default function AllyVatc() {
                                     <p>Cargando información detallada...</p>
                                 </div>
                             ) : (
-                                <CaseDetails form={viewingDevice} variant="table" />
+                                <CaseDetails form={viewingDevice} />
                             )}
                         </div>
                     </div>

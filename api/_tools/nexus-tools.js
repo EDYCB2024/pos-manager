@@ -1,0 +1,177 @@
+import { DynamicStructuredTool } from "@langchain/core/tools";
+import { z } from "zod";
+import { supabase } from "../_lib/supabase.js";
+
+/**
+ * Tool for looking up device status by serial number.
+ */
+export const getDeviceStatusTool = new DynamicStructuredTool({
+  name: "get_device_status",
+  description: "Busca un dispositivo por su serial para dar información del estatus actual y detalles del caso.",
+  schema: z.object({
+    serial: z.string().describe("El número de serial del dispositivo (POS)"),
+  }),
+  func: async ({ serial }) => {
+    try {
+      // Intentamos buscar por serial exacto primero
+      const { data, error } = await supabase
+        .from('casos_pos')
+        .select('*')
+        .eq('serial', serial.trim())
+        .order('id', { ascending: false }) // Suponiendo que el ID más alto es el más reciente
+        .limit(1)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return "No se encontró ningún caso para ese serial.";
+        throw error;
+      }
+      return JSON.stringify(data);
+    } catch (err) {
+      return `Error al buscar el dispositivo: ${err.message}`;
+    }
+  },
+});
+
+/**
+ * Tool to update status of a device case.
+ */
+export const updateDeviceStatusTool = new DynamicStructuredTool({
+  name: "update_device_status",
+  description: "Actualiza el estatus o campos específicos de un caso existente (buscado por serial).",
+  schema: z.object({
+    serial: z.string().describe("Serial del dispositivo"),
+    estatus_caso: z.string().optional().describe("Estatus general ('Abierto'/'Cerrado')"),
+    estatus: z.string().optional().describe("Estatus detalle ('Pendiente'/'Listo'/'Entregado')"),
+    estatus_reparacion: z.string().optional().describe("Estatus técnico ('Reparado'/'Rechazado'/'En Revisión')"),
+    observaciones: z.string().optional().describe("Nuevas observaciones para el técnico"),
+  }),
+  func: async ({ serial, ...updates }) => {
+    try {
+      // Buscamos el caso más reciente por serial
+      const { data: latest, error: searchError } = await supabase
+        .from('casos_pos')
+        .select('id')
+        .eq('serial', serial.trim())
+        .order('id', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (searchError) throw searchError;
+
+      const { data, error } = await supabase
+        .from('casos_pos')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', latest.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return `Éxito: Se actualizó el caso ${data.id} para el serial ${serial}. Nuevos valores: ${Object.keys(updates).join(', ')}`;
+    } catch (err) {
+      return `Error al actualizar: ${err.message}`;
+    }
+  },
+});
+
+/**
+ * Tool to register a new case in the database.
+ */
+export const registerDeviceInfoTool = new DynamicStructuredTool({
+  name: "register_new_case",
+  description: "Registra un nuevo ingreso/caso de dispositivo en la base de datos.",
+  schema: z.object({
+    serial: z.string().describe("Serial del equipo"),
+    modelo: z.string().optional().describe("Modelo del equipo"),
+    aliado: z.string().optional().describe("Nombre del aliado o cliente"),
+    rif: z.string().optional().describe("RIF del cliente"),
+    falla_notificada: z.string().optional().describe("Descripción de la falla"),
+    razon_social: z.string().optional().describe("Razón social del cliente"),
+  }),
+  func: async (newCase) => {
+    try {
+      // Normalizar campos a mayúsculas
+      const normalized = {
+        ...newCase,
+        aliado: newCase.aliado ? newCase.aliado.trim().toUpperCase() : undefined,
+        serial: newCase.serial ? newCase.serial.trim().toUpperCase() : undefined,
+        rif: newCase.rif ? newCase.rif.trim().toUpperCase() : undefined,
+        modelo: newCase.modelo ? newCase.modelo.trim().toUpperCase() : undefined,
+      };
+
+      const { data, error } = await supabase
+        .from('casos_pos')
+        .insert([{
+          ...normalized,
+          fecha: new Date().toISOString().split('T')[0],
+          estatus_caso: 'Abierto',
+          estatus_reparacion: 'Pendiente',
+          estatus: 'Pendiente',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return `Éxito: Nuevo caso registrado con ID ${data.id}.`;
+    } catch (err) {
+      return `Error al registrar: ${err.message}`;
+    }
+  },
+});
+
+/**
+ * Tool to register a record in Bandeja ATC.
+ */
+export const registerAtcCaseTool = new DynamicStructuredTool({
+  name: "register_atc_case",
+  description: "Registra la información de un cliente en la Bandeja ATC. Debe usarse cuando el usuario suministra datos de un reporte o falla (serial, rif, nombre comercio, afiliado, etc.) para ser procesados.",
+  schema: z.object({
+    serial: z.string().optional().describe("Serial del equipo"),
+    rif: z.string().optional().describe("RIF del cliente"),
+    nombre_comercio: z.string().optional().describe("Nombre del comercio o razón social"),
+    afiliado: z.string().optional().describe("Número de afiliado"),
+    falla_cliente: z.string().optional().describe("Descripción de la falla reportada por el cliente"),
+    operadora: z.string().optional().describe("Operadora (Digitel, Movistar, etc.)"),
+    proveedor_wifi: z.string().optional().describe("Proveedor de internet/wifi"),
+    ciudad: z.string().optional().describe("Ciudad del cliente"),
+    estado: z.string().optional().describe("Estado federal"),
+    persona_contacto: z.string().optional().describe("Persona de contacto"),
+    telefono_contacto: z.string().optional().describe("Teléfono de contacto"),
+    observaciones: z.string().optional().describe("Observaciones adicionales"),
+  }),
+  func: async (atcCase) => {
+    try {
+      // Normalizar campos a mayúsculas
+      const normalized = {
+        ...atcCase,
+        serial: atcCase.serial ? atcCase.serial.trim().toUpperCase() : undefined,
+        rif: atcCase.rif ? atcCase.rif.trim().toUpperCase() : undefined,
+        operadora: atcCase.operadora ? atcCase.operadora.trim().toUpperCase() : undefined,
+        afiliado: atcCase.afiliado ? atcCase.afiliado.trim().toUpperCase() : undefined,
+      };
+
+      const { data, error } = await supabase
+        .from('casos_atc')
+        .insert([{
+          ...normalized,
+          fecha: new Date().toISOString().split('T')[0],
+          hora_reporte: new Date().toTimeString().split(' ')[0], // HH:MM:SS
+          estatus_caso: 'Abierto',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return `Éxito: Caso ATC registrado en la bandeja con ID ${data.id}. El registro para el cliente '${atcCase.nombre_comercio || atcCase.rif}' ha sido completado.`;
+    } catch (err) {
+      return `Error al registrar en bandeja ATC: ${err.message}`;
+    }
+  },
+});
+
+export const tools = [getDeviceStatusTool, updateDeviceStatusTool, registerDeviceInfoTool, registerAtcCaseTool];

@@ -360,3 +360,13 @@ export async function getUniqueAliados() {
     const unique = [...new Set(data.map(d => d.aliado))];
     return unique.filter(Boolean);
 }
+
+export async function getAtcCases() {
+    const { data, error } = await supabase
+        .from('casos_atc')
+        .select('*')
+        .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data;
+}
+
