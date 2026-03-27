@@ -28,7 +28,13 @@ async function handler(req, res) {
       apiVersion: "v1beta"
     });
 
+    const currentDate = new Date().toLocaleDateString('es-VE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const currentTime = new Date().toLocaleTimeString('es-VE');
+
     const systemPrompt = `Eres Nexus AI, el asistente virtual oficial de POS Manager. 
+    FECHA ACTUAL: ${currentDate}.
+    HORA ACTUAL: ${currentTime}.
+
     ENTORNO:
     - Plataforma: POS Manager (Gestión de Punto de Venta).
     - Tecnologías: React, Supabase, Vercel, Node.js.
@@ -38,22 +44,28 @@ async function handler(req, res) {
     2. Actualizar estatus o campos de un caso en Casos POS (update_device_status).
     3. Registrar nuevos ingresos de equipos en Casos POS (register_new_case).
     4. Procesar mensajes de clientes y registrar reportes en Bandeja ATC (register_atc_case).
+    5. Rastrear envíos de Zoom Venezuela por número de guía (track_zoom_shipment).
     
     REGLAS IMPORTANTES:
     1. Si el usuario suministra datos de un cliente para la Bandeja ATC, usa register_atc_case.
     2. Si el usuario pide estatus de un serial, usa get_device_status.
     3. Si el usuario suministra datos para registrar un ingreso de equipo, usa register_new_case.
-    4. Guardamos automáticamente el historial para que recuerdes el contexto.
-    5. Mantén un tono profesional, experto y conciso.`;
+    4. Si el usuario pregunta por el rastreo o ubicación de un paquete/guía de Zoom, usa track_zoom_shipment.
+    5. Guardamos automáticamente el historial para que recuerdes el contexto.
+    6. Mantén un tono profesional, experto y conciso.`;
 
     // 1. Guardar el último mensaje del usuario en el historial
     const userMsg = messages[messages.length - 1];
     if (userMsg && userMsg.role === "user") {
-      await supabase.from('chat_history').insert({
-        user_id: userId,
-        role: "user",
-        content: userMsg.content
-      });
+      try {
+        await supabase.from('chat_history').insert({
+          user_id: userId,
+          role: "user",
+          content: userMsg.content
+        });
+      } catch (e) {
+        console.warn("No se pudo guardar historial (tabla inexistente)");
+      }
     }
 
     // Convertir historial a formato Core Messages
@@ -80,11 +92,15 @@ async function handler(req, res) {
     const assistantContent = lastResultMsg.content || "Lo siento, no pude procesar tu solicitud.";
 
     // 2. Guardar la respuesta del asistente en el historial
-    await supabase.from('chat_history').insert({
-      user_id: userId,
-      role: "assistant",
-      content: assistantContent
-    });
+    try {
+      await supabase.from('chat_history').insert({
+        user_id: userId,
+        role: "assistant",
+        content: assistantContent
+      });
+    } catch (e) {
+      console.warn("No se pudo guardar historial assistant (tabla inexistente)");
+    }
 
     return res.status(200).json({ 
       role: "assistant", 

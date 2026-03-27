@@ -135,28 +135,45 @@ app.all('/api/assistant/history', async (req, res) => {
     }
 });
 
-const PORT = 3001;
-// ─── Zoom PROD Proxy (Eitol/zoom-red-tracking) ───────────────────────
-app.get('/api/zoom/track/:nro_guia', async (req, res) => {
+// ─── Zoom Sandbox Proxy ─────────────────────────────────────────────
+app.get('/api/zoom/sandbox/track/:nro_guia', async (req, res) => {
     try {
         const { nro_guia } = req.params;
-        // Production URL from github.com/Eitol/zoom-red-tracking
-        // Changed to HTTPS and www.zoom.red to avoid potential port 80 blocks/timeouts
-        const url = `https://www.zoom.red/baaszoom/public/canguroazul/getZoomTrackWs?tipo_busqueda=1&web=1&codigo=${nro_guia}`;
-        
+        const codigo_cliente = '407940';
+        const url = `https://sandbox.zoom.red/baaszoom/public/canguroazul/getZoomTrackWs?tipo_busqueda=1&web=1&codigo=${nro_guia}`;
+
+        console.log(`[Proxy] Fetching Zoom Sandbox: ${url}`);
+
         const response = await fetch(url, {
-            headers: { 
-                'Connection': 'keep-alive',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            redirect: 'follow',
+            headers: {
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'application/json'
             }
         });
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response from Zoom Sandbox:', text.substring(0, 200));
+            return res.status(502).json({ error: 'La API de Zoom no devolvió un formato JSON válido.' });
+        }
+
         const data = await response.json();
+        console.log(`[Proxy] Metadata from Zoom:`, { 
+            ok: response.ok, 
+            status: response.status, 
+            cod: data.codrespuesta || data.codResponse,
+            hasShipment: !!data.Shipment 
+        });
         res.json(data);
     } catch (err) {
-        console.error('Zoom PROD Proxy Error:', err);
-        res.status(500).json({ error: 'Error al conectar con el servidor de ZOOM' });
+        console.error('Zoom Sandbox Proxy Error:', err);
+        res.status(500).json({ error: 'Error al conectar con el servidor Sandbox de ZOOM' });
     }
 });
+
+const PORT = 3001;
 
 app.listen(PORT, () => {
     console.log(`Mock Vercel API running on http://localhost:${PORT}`);

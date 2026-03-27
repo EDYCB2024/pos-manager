@@ -227,4 +227,54 @@ export const getDailyReportTool = new DynamicStructuredTool({
   }
 });
 
-export const tools = [getDeviceStatusTool, updateDeviceStatusTool, registerDeviceInfoTool, registerAtcCaseTool, getDailyReportTool];
+/**
+ * Tool to track a Zoom Venezuela shipment.
+ */
+export const trackZoomShipmentTool = new DynamicStructuredTool({
+  name: "track_zoom_shipment",
+  description: "Rastrea un envío de Zoom Venezuela usando el número de guía para obtener estatus, destinatario e historial de movimientos.",
+  schema: z.object({
+    nro_guia: z.string().describe("El número de guía de Zoom (ej: 71090585)"),
+  }),
+  func: async ({ nro_guia }) => {
+    try {
+      const url = `https://sandbox.zoom.red/baaszoom/public/canguroazul/getZoomTrackWs?tipo_busqueda=1&web=1&codigo=${nro_guia.trim()}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const data = await response.json();
+      
+      if (data.Shipment && data.Shipment.infoZoom) {
+        const info = data.Shipment.infoZoom;
+        const tracking = data.Shipment.tracking || [];
+        
+        return JSON.stringify({
+          guia: info.num_guiat,
+          estatus_actual: info.estatus,
+          destinatario: info.nom_des,
+          remitente: info.nom_rem,
+          fecha_envio: info.fec_env,
+          peso: info.peso,
+          historial_reciente: tracking.slice(0, 3).map(t => ({
+            fecha: t.fecha,
+            estatus: t.descripcion_estatus,
+            ubicacion: t.ub_rastreo
+          }))
+        }, null, 2);
+      }
+
+      return `No se encontró información para la guía ${nro_guia}. Zoom reportó: ${data.mensaje || 'Información no encontrada'}`;
+    } catch (err) {
+      return `Error al conectar con Zoom: ${err.message}`;
+    }
+  },
+});
+
+export const tools = [getDeviceStatusTool, updateDeviceStatusTool, registerDeviceInfoTool, registerAtcCaseTool, getDailyReportTool, trackZoomShipmentTool];

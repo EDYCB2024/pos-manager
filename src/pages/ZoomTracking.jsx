@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { trackShipment } from '../lib/zoom';
+import { trackShipment } from '../lib/zoom-sandbox';
 import { 
   Truck, Search, History, ArrowRight, Package, Clock, MapPin, 
   AlertCircle, CheckCircle2, Info, Receipt, Calendar, Tag, Layers, ExternalLink, Box
@@ -12,7 +12,7 @@ export default function ZoomTracking() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem('zoom_history_v2');
+    const saved = localStorage.getItem('zoom_sandbox_history');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -25,7 +25,9 @@ export default function ZoomTracking() {
     setResult(null);
 
     try {
+      console.log(`[ZoomTracking] handleTrack for ${guia}`);
       const response = await trackShipment(guia.trim());
+      console.log(`[ZoomTracking] Response:`, response);
       if (response.success) {
         setResult(response.data);
         // Save to history
@@ -39,12 +41,12 @@ export default function ZoomTracking() {
           ...history.filter(h => h.guia !== guia.trim()).slice(0, 8)
         ];
         setHistory(newHistory);
-        localStorage.setItem('zoom_history_v2', JSON.stringify(newHistory));
+        localStorage.setItem('zoom_sandbox_history', JSON.stringify(newHistory));
       } else {
         setError(response.error || 'No se pudo obtener información del envío.');
       }
     } catch (err) {
-      setError('Error inesperado al conectar con el servicio de Zoom.');
+      setError('Error inesperado al conectar con el servicio de Zoom Sandbox.');
     } finally {
       setLoading(false);
     }
@@ -53,7 +55,7 @@ export default function ZoomTracking() {
   const getStatusIcon = (status) => {
     const s = status?.toLowerCase() || '';
     if (s.includes('entrega') || s.includes('recibido') || s.includes('entregado')) return <CheckCircle2 className="text-success" size={24} />;
-    if (s.includes('transito') || s.includes('ruta') || s.includes('camino')) return <Clock className="text-primary" size={24} />;
+    if (s.includes('transito') || s.includes('ruta') || s.includes('camino') || s.includes('custodia')) return <Clock className="text-primary" size={24} />;
     return <Package className="text-secondary" size={24} />;
   };
 
@@ -62,7 +64,7 @@ export default function ZoomTracking() {
       <div className="page-header" style={{ marginBottom: '32px' }}>
         <div>
           <h1 className="page-title">Rastreo de Guías Zoom</h1>
-          <p className="page-sub">Consulta oficial conectada al servidor de producción de Zoom Venezuela</p>
+          <p className="page-sub">Consulta oficial conectada al servidor Sandbox de Zoom Venezuela</p>
         </div>
         <div style={{ 
           background: 'var(--accent-dim)', 
@@ -75,8 +77,8 @@ export default function ZoomTracking() {
         }}>
           <Truck className="text-primary" />
           <div>
-            <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', fontWeight: '800', opacity: 0.6 }}>Conexión Producción</span>
-            <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '14px' }}>WebServices ZOOM Public</span>
+            <span style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', fontWeight: '800', opacity: 0.6 }}>Entorno Sandbox</span>
+            <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '14px' }}>getInfoTracking API</span>
           </div>
         </div>
       </div>
@@ -93,7 +95,7 @@ export default function ZoomTracking() {
                 <input
                   className="search-box__input"
                   style={{ fontSize: '18px', paddingLeft: '64px' }}
-                  placeholder="Introduce el número de guía de Zoom..."
+                  placeholder="Introduce el número de guía (Ej: 71090585)..."
                   value={guia}
                   onChange={(e) => setGuia(e.target.value)}
                 />
@@ -113,8 +115,8 @@ export default function ZoomTracking() {
           {loading && (
             <div className="section-card anim-fadeIn" style={{ padding: '80px 0', textAlign: 'center' }}>
               <div className="loader-ring" style={{ margin: '0 auto 20px' }}></div>
-              <h3 style={{ fontWeight: '600' }}>Obteniendo datos de Zoom...</h3>
-              <p className="text-secondary">Conectando con webservices.zoom.red</p>
+              <h3 style={{ fontWeight: '600' }}>Obteniendo datos del Sandbox...</h3>
+              <p className="text-secondary">Conectando con sandbox.zoom.red</p>
             </div>
           )}
 
@@ -158,14 +160,14 @@ export default function ZoomTracking() {
                     <p style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <MapPin size={12} /> Remitente / Origen
                     </p>
-                    <p style={{ fontWeight: '700', fontSize: '16px' }}>{result.remitente || '---'}</p>
+                    <p style={{ fontWeight: '700', fontSize: '16px' }}>{result.remitente}</p>
                     <p className="text-secondary" style={{ fontSize: '13px' }}>{result.origen}</p>
                   </div>
                   <div style={{ background: 'var(--bg-primary)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border)' }}>
                     <p style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <MapPin size={12} /> Destinatario / Destino
                     </p>
-                    <p style={{ fontWeight: '700', fontSize: '16px' }}>{result.destinatario || '---'}</p>
+                    <p style={{ fontWeight: '700', fontSize: '16px' }}>{result.destinatario}</p>
                     <p className="text-secondary" style={{ fontSize: '13px' }}>{result.destino}</p>
                   </div>
                 </div>
@@ -174,10 +176,10 @@ export default function ZoomTracking() {
                {/* Detailed Metadata Grid */}
                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
                 {[
-                  { icon: <Receipt size={18} />, label: 'Referencias', value: result.referencia || 'N/A' },
-                  { icon: <Calendar size={18} />, label: 'Fecha Guía', value: result.fecha_creacion || 'N/A' },
-                  { icon: <Box size={18} />, label: 'Peso / Piezas', value: `${result.peso}Kg / ${result.piezas} pzs` },
-                  { icon: <Layers size={18} />, label: 'Servicio', value: result.servicio || 'Mercancía' }
+                  { icon: <Receipt size={18} />, label: 'Referencia', value: result.referencia || 'N/A' },
+                  { icon: <Calendar size={18} />, label: 'Fecha Envío', value: result.fecha_creacion || 'N/A' },
+                  { icon: <Box size={18} />, label: 'Peso', value: `${result.peso}Kg` },
+                  { icon: <Layers size={18} />, label: 'Servicio', value: result.servicio || 'N/A' }
                 ].map((item, idx) => (
                   <div key={idx} className="section-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
@@ -236,16 +238,18 @@ export default function ZoomTracking() {
                                 {step.fecha} {step.hora}
                               </span>
                             </div>
-                            <p style={{ 
-                              fontSize: '14px', 
-                              color: 'var(--text-muted)', 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              gap: '6px',
-                              marginTop: '6px'
-                            }}>
-                              <MapPin size={14} /> {step.ubicacion}
-                            </p>
+                            {step.ubicacion !== '--' && (
+                              <p style={{ 
+                                fontSize: '14px', 
+                                color: 'var(--text-muted)', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '6px',
+                                marginTop: '6px'
+                              }}>
+                                <MapPin size={14} /> {step.ubicacion}
+                              </p>
+                            )}
                             {step.observacion && (
                                 <p style={{ fontSize: '13px', marginTop: '4px', opacity: 0.8 }} className="text-secondary italic">
                                     "{step.observacion}"
@@ -281,8 +285,8 @@ export default function ZoomTracking() {
               }}>
                 <Truck size={64} className="text-muted" />
               </div>
-              <h2 style={{ fontSize: '20px', fontWeight: '700' }}>Rastreo de Guías</h2>
-              <p className="text-secondary">Introduce el número de guía oficial de Zoom para ver los detalles.</p>
+              <h2 style={{ fontSize: '20px', fontWeight: '700' }}>Rastreo Dispatch</h2>
+              <p className="text-secondary">Introduce el número de guía de Zoom Sandbox para ver los detalles.</p>
             </div>
           )}
         </div>
@@ -335,7 +339,7 @@ export default function ZoomTracking() {
                 ))}
                 
                 <button 
-                  onClick={() => { localStorage.removeItem('zoom_history_v2'); setHistory([]); }}
+                  onClick={() => { localStorage.removeItem('zoom_sandbox_history'); setHistory([]); }}
                   style={{ 
                     marginTop: '12px', 
                     fontSize: '12px', 
@@ -361,10 +365,10 @@ export default function ZoomTracking() {
             
             <div style={{ background: 'var(--accent-dim)', padding: '16px', borderRadius: '12px', border: '1px solid var(--accent-dim)' }}>
                <h4 style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                 <Info size={14} /> Producción
+                 <Info size={14} /> Sandbox
                </h4>
                <p style={{ fontSize: '12px', lineHeight: '1.4', opacity: 0.8 }}>
-                 Usando el motor de búsqueda basado en <code>Eitol/zoom-red-tracking</code> para mayor precisión en datos de peso y piezas.
+                 Conectado al entorno de pruebas de Zoom para el cliente 407940.
                </p>
             </div>
           </div>

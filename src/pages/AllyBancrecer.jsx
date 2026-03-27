@@ -53,7 +53,8 @@ export default function AllyBancrecer() {
 
     const formatDate = (dateString) => {
         if (!dateString) return '—';
-        const [year, month, day] = dateString.split('-');
+        const pureDate = dateString.split('T')[0];
+        const [year, month, day] = pureDate.split('-');
         if (!year || !month || !day) return dateString;
         return `${day}-${month}-${year.slice(-2)}`;
     };
@@ -196,7 +197,7 @@ export default function AllyBancrecer() {
                                     <th>MODELO</th>
                                     <th>RAZÓN SOCIAL</th>
                                     <th>SERIAL</th>
-                                    <th>INFORME</th>
+                                    <th>INFORMES</th>
                                     <th>RIF</th>
                                     <th>INGRESO</th>
                                     <th>SERIAL DE REMPLAZO</th>
@@ -207,7 +208,7 @@ export default function AllyBancrecer() {
                                     <th>ESTATUS</th>
                                     <th>NIVEL</th>
                                     <th>GARANTIA</th>
-                                    <th>INFORME2</th>
+                                    <th>INFORME</th>
                                     <th>COTIZACIÓN</th>
                                     <th>REPUESTO/SERVICIO 1</th>
                                     <th>REPUESTO/SERVICIO 2</th>

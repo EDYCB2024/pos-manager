@@ -402,23 +402,18 @@ export async function deleteDevice(id) {
 }
 
 export async function getStats() {
-    const byCaso = {};
-    const byReparacion = {};
+    const { data, error } = await supabase.rpc('get_dashboard_stats');
+    if (error) throw new Error(error.message);
 
-    // Consultamos los conteos por estatus de forma eficiente
-    await Promise.all([
-        ...ESTATUSES_CASO.map(async s => {
-            const { count } = await supabase.from('casos_pos').select('*', { count: 'exact', head: true }).eq('estatus_caso', s);
-            byCaso[s] = count || 0;
-        }),
-        ...ESTATUSES_REPARACION.map(async s => {
-            const { count } = await supabase.from('casos_pos').select('*', { count: 'exact', head: true }).eq('estatus', s);
-            byReparacion[s] = count || 0;
-        })
-    ]);
+    const byCaso = data.byCaso || {};
+    const byReparacion = data.byReparacion || {};
+
+    // Aseguramos que todos los estatus existan en el objeto (como en el original)
+    ESTATUSES_CASO.forEach(s => { if (!(s in byCaso)) byCaso[s] = 0; });
+    ESTATUSES_REPARACION.forEach(s => { if (!(s in byReparacion)) byReparacion[s] = 0; });
 
     // El total real es la suma de los estatus de caso actuales
-    const total = Object.values(byCaso).reduce((a, b) => a + b, 0);
+    const total = Object.values(byCaso).reduce((a, b) => a + (Number(b) || 0), 0);
 
     return { total, byCaso, byReparacion };
 }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, MessageSquare, X, Bot, Loader2, Sparkles } from 'lucide-react';
+import { Send, MessageSquare, X, Bot, Loader2, Sparkles, Package, Search } from 'lucide-react';
 import './ChatWindow.css';
 
 export default function ChatWindow() {
@@ -17,7 +17,7 @@ export default function ChatWindow() {
           credentials: 'include'
         });
         const data = await res.json();
-        
+
         if (data.history && data.history.length > 0) {
           setMessages(data.history.map(msg => ({
             role: msg.role,
@@ -29,7 +29,7 @@ export default function ChatWindow() {
             {
               role: "assistant",
               id: "initial",
-              content: "¡Hola! Soy Nexus AI, tu asistente avanzado para POS Manager. 🚀\n\nAhora tengo acceso directo al sistema y puedo:\n• **Consultar estatus** de cualquier equipo por su serial.\n• **Registrar nuevos casos** en el Histórico ATC y Laboratorio.\n• **Generar reportes** de días específicos (ej: 'dame el reporte de hoy').\n• **Actualizar el estatus** de reparación o del caso.\n\n¿En qué puedo ayudarte hoy?",
+              content: "¡Hola! Soy Nexus AI, tu asistente avanzado para POS Manager. 🚀\n\nAhora tengo acceso directo al sistema y puedo:\n• **Rastrear envíos de Zoom** por número de guía.\n• **Consultar estatus** de cualquier equipo por su serial.\n• **Registrar nuevos casos** en el Histórico ATC y Laboratorio.\n• **Generar reportes** de días específicos (ej: 'dame el reporte de hoy').\n• **Actualizar el estatus** de reparación o del caso.\n\n¿En qué puedo ayudarte hoy?",
             }
           ]);
         }
@@ -44,18 +44,18 @@ export default function ChatWindow() {
         ]);
       }
     };
-    
+
     fetchHistory();
   }, []);
 
   const renderContent = (content) => {
     if (!content) return null;
-    
+
     // Split by lines and process each line
     const lines = content.split('\n');
     return lines.map((line, idx) => {
       let processedLine = line;
-      
+
       // Handle Bold (**text**)
       const parts = processedLine.split(/(\*\*.*?\*\*)/g);
       const elements = parts.map((part, i) => {
@@ -86,7 +86,7 @@ export default function ChatWindow() {
       return (
         <div key={idx} className="chat-line">
           {elements}
-          {idx < lines.length - 1 && lines[idx+1] === '' && <br />}
+          {idx < lines.length - 1 && lines[idx + 1] === '' && <br />}
         </div>
       );
     });
@@ -151,9 +151,9 @@ export default function ChatWindow() {
 
   const messageVariants = {
     hidden: { opacity: 0, y: 10, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       scale: 1,
       transition: { type: "spring", stiffness: 260, damping: 20 }
     }
@@ -188,8 +188,8 @@ export default function ChatWindow() {
 
             <div className="chat-messages">
               {messages.map((m, i) => (
-                <motion.div 
-                  key={m.id} 
+                <motion.div
+                  key={m.id}
                   variants={messageVariants}
                   initial="hidden"
                   animate="visible"
@@ -201,7 +201,7 @@ export default function ChatWindow() {
                 </motion.div>
               ))}
               {isLoading && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="message-row assistant"
@@ -216,6 +216,25 @@ export default function ChatWindow() {
             </div>
 
             <div className="chat-input-container">
+              {messages.length < 5 && !isLoading && (
+                <div className="chat-suggestions">
+                  {[
+                    { icon: <Package size={14} />, text: "Rastrear guía Zoom" },
+                    { icon: <Search size={14} />, text: "Estatus del serial: " },
+                    { icon: <Sparkles size={14} />, text: "Reporte de hoy" },
+                    { icon: <Bot size={14} />, text: "Registrar caso ATC" }
+                  ].map((s, i) => (
+                    <button
+                      key={i}
+                      className="suggestion-pill"
+                      onClick={() => setInput(s.text)}
+                    >
+                      {s.icon}
+                      <span>{s.text}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="input-form">
                 <textarea
                   placeholder="Escribe tu mensaje aquí..."
@@ -239,7 +258,7 @@ export default function ChatWindow() {
         )}
       </AnimatePresence>
 
-      <motion.button 
+      <motion.button
         whileHover={{ scale: 1.05, y: -4 }}
         whileTap={{ scale: 0.95 }}
         className={`chat-trigger ${isOpen ? 'active' : ''}`}

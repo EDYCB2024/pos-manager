@@ -23,8 +23,8 @@ export default function AllyBestPay() {
 
     const load = () => {
         setLoading(true);
-        // Specifically filter by ally "BEST PAY"
-        getDevicesPaged({ page, pageSize, search, filterCaso, filterRep, filterAliado: 'BEST PAY' }).then(({ data, count }) => {
+        // Specifically filter by ally "BESTPAY"
+        getDevicesPaged({ page, pageSize, search, filterCaso, filterRep, filterAliado: 'BESTPAY' }).then(({ data, count }) => {
             setDevices(data);
             setTotal(count || 0);
             setLoading(false);
@@ -53,9 +53,19 @@ export default function AllyBestPay() {
 
     const formatDate = (dateString) => {
         if (!dateString) return '—';
-        const [year, month, day] = dateString.split('-');
-        if (!year || !month || !day) return dateString;
-        return `${day}-${month}-${year.slice(-2)}`;
+        // Try parsing ISO format YYYY-MM-DD
+        const parts = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (parts) {
+            const [_, y, m, d] = parts;
+            return `${d}-${m}-${y.slice(-2)}`;
+        }
+        // Fallback for other formats (like GMT strings)
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return dateString;
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = String(d.getFullYear()).slice(-2);
+        return `${dd}-${mm}-${yy}`;
     };
 
     const copyToClipboard = (e, text) => {
@@ -196,7 +206,7 @@ export default function AllyBestPay() {
                                     <th>MODELO</th>
                                     <th>RAZÓN SOCIAL</th>
                                     <th>SERIAL</th>
-                                    <th>INFORME</th>
+                                    <th>INFORMES</th>
                                     <th>RIF</th>
                                     <th>INGRESO</th>
                                     <th>SERIAL DE REMPLAZO</th>
@@ -207,7 +217,7 @@ export default function AllyBestPay() {
                                     <th>ESTATUS</th>
                                     <th>NIVEL</th>
                                     <th>GARANTIA</th>
-                                    <th>INFORME2</th>
+                                    <th>INFORME</th>
                                     <th>COTIZACIÓN</th>
                                     <th>REPUESTO/SERVICIO 1</th>
                                     <th>REPUESTO/SERVICIO 2</th>

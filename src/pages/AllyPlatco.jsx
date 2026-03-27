@@ -4,7 +4,7 @@ import { getDevicesPaged, deleteDevice, getDeviceById, ESTATUSES_CASO, ESTATUSES
 import StatusBadge from '../components/StatusBadge';
 import CaseDetails from '../components/CaseDetails';
 import platcoLogo from '../assets/platco-logo.png';
-import './DeviceList.css'; 
+import './DeviceList.css';
 import './shared.css';
 
 export default function AllyPlatco() {
@@ -54,9 +54,19 @@ export default function AllyPlatco() {
 
     const formatDate = (dateString) => {
         if (!dateString) return '—';
-        const [year, month, day] = dateString.split('-');
-        if (!year || !month || !day) return dateString;
-        return `${day}-${month}-${year.slice(-2)}`;
+        // Try parsing ISO format YYYY-MM-DD
+        const parts = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (parts) {
+            const [_, y, m, d] = parts;
+            return `${d}-${m}-${y.slice(-2)}`;
+        }
+        // Fallback for other formats (like GMT strings)
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return dateString;
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = String(d.getFullYear()).slice(-2);
+        return `${dd}-${mm}-${yy}`;
     };
 
     const copyToClipboard = (e, text) => {
@@ -70,10 +80,10 @@ export default function AllyPlatco() {
         <div className="device-list anim-fadeUp">
             <div className="page-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div style={{ 
-                        width: '64px', 
-                        height: '64px', 
-                        background: '#fff', 
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        background: '#fff',
                         border: '1px solid rgba(0,0,0,0.05)',
                         borderRadius: '16px',
                         display: 'flex',
@@ -93,7 +103,7 @@ export default function AllyPlatco() {
                 </div>
                 <div className="page-header__actions">
                     <button className="btn btn--minimal" onClick={() => navigate('/devices/new?mode=massive&aliado=PLATCO')}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>
                         Carga Masiva
                     </button>
                     <button className="btn btn--minimal" onClick={() => navigate('/devices/new?aliado=PLATCO')}>
@@ -122,20 +132,20 @@ export default function AllyPlatco() {
                         </button>
                     )}
                 </div>
-                
+
                 <div className="filter-group">
-                    <select 
-                        className="filter-select" 
-                        value={filterCaso} 
+                    <select
+                        className="filter-select"
+                        value={filterCaso}
                         onChange={e => setFilterCaso(e.target.value)}
                     >
                         <option value="">Estatus Caso</option>
                         {ESTATUSES_CASO.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
 
-                    <select 
-                        className="filter-select" 
-                        value={filterRep} 
+                    <select
+                        className="filter-select"
+                        value={filterRep}
                         onChange={e => setFilterRep(e.target.value)}
                     >
                         <option value="">Reparación</option>
@@ -160,13 +170,13 @@ export default function AllyPlatco() {
                 </div>
 
                 <div style={{ marginLeft: 'auto' }}>
-                    <button 
-                        className="btn btn--secondary" 
-                        onClick={() => load()} 
+                    <button
+                        className="btn btn--secondary"
+                        onClick={() => load()}
                         title="Refrescar tabla"
                         style={{ padding: '10px' }}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5" /></svg>
                     </button>
                 </div>
             </div>
@@ -362,8 +372,8 @@ export default function AllyPlatco() {
                                     <p>Cargando información detallada...</p>
                                 </div>
                             ) : (
-                                                                <CaseDetails 
-                                    variant="aliados-vertical" 
+                                <CaseDetails
+                                    variant="aliados-vertical"
                                     form={viewingDevice}
                                     actions={(
                                         <div className="action-btns">

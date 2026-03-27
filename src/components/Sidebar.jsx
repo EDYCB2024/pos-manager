@@ -97,18 +97,6 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
                         <span>Tracking de Equipos</span>
                     </NavLink>
 
-                    <NavLink
-                        to="/aliados/zoom"
-                        onClick={close}
-                        className={({ isActive }) =>
-                            `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
-                        }
-                    >
-                        <span className="sidebar__link-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 16h6"></path><path d="M12 22a2 2 0 0 1-2-2v-4l-6-6V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6l-6 6v4a2 2 0 0 1-2 2z"></path></svg>
-                        </span>
-                        <span>Guías Zoom</span>
-                    </NavLink>
 
                     <div className="sidebar__section">
                         <div
@@ -343,10 +331,16 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
                                 </div>
                                 {isDespachoOpen && (
                                     <div className="sidebar__sub-nav">
-                                        <div className="sidebar__link sidebar__link--sub" style={{ opacity: 0.5, cursor: 'default' }}>
+                                        <NavLink
+                                            to="/aliados/zoom"
+                                            onClick={close}
+                                            className={({ isActive }) =>
+                                                `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
+                                            }
+                                        >
                                             <span className="sidebar__link-icon">•</span>
-                                            <span>En construction...</span>
-                                        </div>
+                                            <span>Rastreo Zoom</span>
+                                        </NavLink>
                                     </div>
                                 )}
                             </div>

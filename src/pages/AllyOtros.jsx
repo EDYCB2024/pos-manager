@@ -53,7 +53,8 @@ export default function AllyOtros() {
 
     const formatDate = (dateString) => {
         if (!dateString) return '—';
-        const [year, month, day] = dateString.split('-');
+        const isoDate = dateString.split('T')[0];
+        const [year, month, day] = isoDate.split('-');
         if (!year || !month || !day) return dateString;
         return `${day}-${month}-${year.slice(-2)}`;
     };

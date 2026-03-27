@@ -87,9 +87,19 @@ export default function DeviceList() {
 
     const formatDate = (dateString) => {
         if (!dateString) return '—';
-        const [year, month, day] = dateString.split('-');
-        if (!year || !month || !day) return dateString;
-        return `${day}-${month}-${year.slice(-2)}`;
+        // Try parsing ISO format YYYY-MM-DD
+        const parts = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (parts) {
+            const [_, y, m, d] = parts;
+            return `${d}-${m}-${y.slice(-2)}`;
+        }
+        // Fallback for other formats (like GMT strings)
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return dateString;
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = String(d.getFullYear()).slice(-2);
+        return `${dd}-${mm}-${yy}`;
     };
 
     const copyToClipboard = (e, text) => {
@@ -246,7 +256,7 @@ export default function DeviceList() {
                                         >
                                             <td>{d.nro_factura || '—'}</td>
                                             <td>{formatDate(d.fecha)}</td>
-                                            <td>{d.ingreso || '—'}</td>
+                                            <td>{formatDate(d.ingreso)}</td>
                                             <td>{formatDate(d.fecha_final)}</td>
                                             <td>{d.aliado}</td>
                                             <td style={{ fontWeight: 600 }}>{d.razon_social}</td>
