@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Modal from '../components/ui/Modal';
 import { getDeviceBySerial, getReportUrl } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import CaseDetails from '../components/CaseDetails';
@@ -146,19 +147,21 @@ export default function DeviceSearch() {
                 </div>
             ))}
             {/* Case Details Modal */}
-            {viewingDevice && (
-                <div className="modal-overlay" onClick={() => setViewingDevice(null)}>
-                    <div className="modal modal--wide glass anim-fadeUp" onClick={e => e.stopPropagation()}>
-                        <div className="modal__header">
-                            <h3 className="modal__title">Detalles del Caso</h3>
-                            <button className="modal__close" onClick={() => setViewingDevice(null)}>✕</button>
-                        </div>
-                        <div className="modal__body" style={{ maxHeight: '80vh', overflowY: 'auto', padding: '0' }}>
-                            <CaseDetails form={viewingDevice} />
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Case Details Modal */}
+            <Modal
+                isOpen={!!viewingDevice}
+                onClose={() => setViewingDevice(null)}
+                title={(
+                    <>
+                        <span className="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 flex items-center justify-center text-sm shadow-inner">🔎</span>
+                        Detalles del Caso
+                    </>
+                )}
+                maxWidth="max-w-5xl"
+                noPadding
+            >
+                <CaseDetails form={viewingDevice} />
+            </Modal>
         </div>
     );
 }

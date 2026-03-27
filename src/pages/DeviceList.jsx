@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getDevicesPaged, deleteDevice, ESTATUSES_CASO, ESTATUSES_REPARACION, getReportUrl, getUniqueAliados, getDeviceById } from '../store';
+import Modal from '../components/ui/Modal';
 import StatusBadge from '../components/StatusBadge';
 import CaseDetails from '../components/CaseDetails';
 import './DeviceList.css';
@@ -320,66 +321,74 @@ export default function DeviceList() {
             )}
 
             {/* Modals */}
-            {confirm && (
-                <div className="modal-overlay" onClick={() => setConfirm(null)}>
-                    <div className="modal glass" onClick={e => e.stopPropagation()}>
-                        <h3 className="modal__title">¿Eliminar caso?</h3>
-                        <p className="modal__body">Se eliminará el caso <code>{confirm.serial}</code>. Esta acción es permanente.</p>
-                        <div className="modal__actions">
-                            <button className="btn btn--ghost" onClick={() => setConfirm(null)}>Cancelar</button>
-                            <button className="btn btn--danger" onClick={() => handleDelete(confirm.id)}>Eliminar</button>
-                        </div>
-                    </div>
+            <Modal
+                isOpen={!!confirm}
+                onClose={() => setConfirm(null)}
+                title="¿Eliminar caso?"
+                maxWidth="max-w-sm"
+                footer={(
+                    <>
+                        <button className="flex-1 px-4 py-2 text-slate-500 font-bold text-sm bg-slate-100 rounded-xl hover:bg-slate-200 transition-all uppercase tracking-wider" onClick={() => setConfirm(null)}>Cancelar</button>
+                        <button className="flex-[2] px-5 py-2 bg-rose-600 text-white font-bold text-sm rounded-xl hover:bg-rose-700 transition-all shadow-lg shadow-rose-500/20 uppercase tracking-widest" onClick={() => handleDelete(confirm.id)}>Eliminar Caso</button>
+                    </>
+                )}
+            >
+                <p className="text-sm text-slate-500 mb-2 leading-relaxed">Se eliminará el caso permanentemente.</p>
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Serial</span>
+                    <code className="text-rose-600 font-black tracking-tight">{confirm?.serial}</code>
                 </div>
-            )}
+            </Modal>
 
-            {(viewingDevice || detailLoading) && (
-                <div className="modal-overlay" onClick={() => setViewingDevice(null)}>
-                    <div className="modal modal--wide glass" onClick={e => e.stopPropagation()}>
-                        <div className="modal__header">
-                            <h3 className="modal__title">Detalles del Caso</h3>
-                            <button className="modal__close" onClick={() => setViewingDevice(null)}>×</button>
-                        </div>
-                        <div className="modal__body">
-                            {detailLoading ? (
-                                <div className="empty-state" style={{ padding: '40px' }}>
-                                    <div className="loader-ring"></div>
-                                    <p>Cargando información detallada...</p>
-                                </div>
-                            ) : (
-                                <CaseDetails 
-                                    variant="aliados-vertical" 
-                                    form={viewingDevice}
-                                    actions={(
-                                        <div className="action-btns">
-                                            <button
-                                                className="action-btn action-btn--edit"
-                                                title="Editar"
-                                                onClick={() => {
-                                                    setViewingDevice(null);
-                                                    navigate(`/devices/${viewingDevice.id}/edit`);
-                                                }}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
-                                            </button>
-                                            <button
-                                                className="action-btn action-btn--delete"
-                                                title="Eliminar"
-                                                onClick={() => {
-                                                    setViewingDevice(null);
-                                                    setConfirm({ id: viewingDevice.id, serial: viewingDevice.serial });
-                                                }}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
-                                            </button>
-                                        </div>
-                                    )}
-                                />
-                            )}
-                        </div>
+            <Modal
+                isOpen={!!(viewingDevice || detailLoading)}
+                onClose={() => setViewingDevice(null)}
+                title={(
+                    <>
+                        <span className="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 flex items-center justify-center text-sm shadow-inner">🔎</span>
+                        Detalles del Caso
+                    </>
+                )}
+                maxWidth="max-w-5xl"
+                noPadding
+            >
+                {detailLoading ? (
+                    <div className="flex flex-col items-center justify-center py-24 gap-4">
+                        <div className="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+                        <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">Cargando información detallada...</p>
                     </div>
-                </div>
-            )}
+                ) : (
+                    <CaseDetails 
+                        variant="aliados-vertical" 
+                        form={viewingDevice}
+                        actions={(
+                            <div className="flex gap-2">
+                                <button
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all"
+                                    title="Editar"
+                                    onClick={() => {
+                                        setViewingDevice(null);
+                                        navigate(`/devices/${viewingDevice.id}/edit`);
+                                    }}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                </button>
+                                <button
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all"
+                                    title="Eliminar"
+                                    onClick={() => {
+                                        setViewingDevice(null);
+                                        setConfirm({ id: viewingDevice.id, serial: viewingDevice.serial });
+                                    }}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
+                                </button>
+                            </div>
+                        )}
+                    />
+                )}
+            </Modal>
+
         </div>
     );
 }

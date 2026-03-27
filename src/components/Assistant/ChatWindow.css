@@ -164,6 +164,43 @@
   white-space: pre-wrap;
 }
 
+.message-bubble strong {
+  font-weight: 700;
+  color: inherit;
+  background: linear-gradient(120deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+.assistant .message-bubble strong {
+  color: var(--nexus-primary);
+}
+
+.user .message-bubble strong {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.chat-line {
+  margin-bottom: 4px;
+}
+
+.chat-list-item {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0;
+  padding-left: 4px;
+}
+
+.bullet-dot {
+  color: var(--nexus-primary);
+  font-weight: 900;
+}
+
+.user .bullet-dot {
+  color: white;
+}
+
 .assistant .message-bubble {
   background: white;
   color: var(--nexus-text-main);

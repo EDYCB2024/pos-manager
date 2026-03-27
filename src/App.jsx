@@ -30,6 +30,7 @@ import AllyBancrecer from './pages/AllyBancrecer';
 import AllyBestPay from './pages/AllyBestPay';
 import AllyDelSur from './pages/AllyDelSur';
 import AllyOtros from './pages/AllyOtros';
+import ZoomTracking from './pages/ZoomTracking';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -119,6 +120,7 @@ export default function App() {
               <Route path="/aliados/best-pay" element={<AllyBestPay />} />
               <Route path="/aliados/del-sur" element={<AllyDelSur />} />
               <Route path="/aliados/otros" element={<AllyOtros />} />
+              <Route path="/aliados/zoom" element={<ZoomTracking />} />
               <Route path="*" element={<Welcome />} />
             </Route>
           </Route>

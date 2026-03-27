@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -10,8 +11,6 @@ import usersHandler from './api/users/index.js';
 import updateUsersHandler from './api/users/update.js';
 import deleteUserHandler from './api/users/delete.js';
 import chatHandler from './api/chat.js';
-import { config } from 'dotenv';
-config();
 
 const app = express();
 app.use(cors({
@@ -121,6 +120,28 @@ app.all('/api/chat', async (req, res) => {
 });
 
 const PORT = 3001;
+// ─── Zoom PROD Proxy (Eitol/zoom-red-tracking) ───────────────────────
+app.get('/api/zoom/track/:nro_guia', async (req, res) => {
+    try {
+        const { nro_guia } = req.params;
+        // Production URL from github.com/Eitol/zoom-red-tracking
+        // Changed to HTTPS and www.zoom.red to avoid potential port 80 blocks/timeouts
+        const url = `https://www.zoom.red/baaszoom/public/canguroazul/getZoomTrackWs?tipo_busqueda=1&web=1&codigo=${nro_guia}`;
+        
+        const response = await fetch(url, {
+            headers: { 
+                'Connection': 'keep-alive',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        console.error('Zoom PROD Proxy Error:', err);
+        res.status(500).json({ error: 'Error al conectar con el servidor de ZOOM' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Mock Vercel API running on http://localhost:${PORT}`);
 });

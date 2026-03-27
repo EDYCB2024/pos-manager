@@ -5,6 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pos-manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'dashboard-bg': '#0b0d12',
+              'dashboard-card': '#111318',
+              'dashboard-accent': '#6366F1',
+              'dashboard-border': 'rgba(255, 255, 255, 0.08)',
+            }
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

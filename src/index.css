@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ─── Design Tokens ──────────────────────────────────────── */
 :root {
   --bg-primary: #0b0d12;
@@ -29,6 +33,16 @@
 
   --sidebar-w: 280px;
   --navbar-h: 70px;
+  
+  /* Responsive Overrides */
+  @media (max-width: 1024px) {
+    --sidebar-w: 240px;
+  }
+  
+  @media (max-width: 768px) {
+    --sidebar-w: 0px;
+    --navbar-h: 60px;
+  }
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;

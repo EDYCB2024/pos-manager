@@ -1,0 +1,54 @@
+﻿[dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+node : file:///C:/Users/yonai
+/Desktop/POS%20MANAGER/node_m
+odules/@supabase/supabase-js/
+dist/index.mjs:150
+En línea: 1 Carácter: 1
++ node dev-server.js 2>&1 | 
+Out-File -FilePath log.txt 
+-Encoding UTF8
++ ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (file://  
+  /C:/User...t/index.mjs:1   
+ 50:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+	if (!trimmedUrl) throw new 
+Error("supabaseUrl is 
+required.");
+	                       ^
+
+Error: supabaseUrl is 
+required.
+    at validateSupabaseUrl (f
+ile:///C:/Users/yonai/Desktop
+/POS%20MANAGER/node_modules/@
+supabase/supabase-js/dist/ind
+ex.mjs:150:25)
+    at new SupabaseClient (fi
+le:///C:/Users/yonai/Desktop/
+POS%20MANAGER/node_modules/@s
+upabase/supabase-js/dist/inde
+x.mjs:199:19)
+    at createClient (file:///
+C:/Users/yonai/Desktop/POS%20
+MANAGER/node_modules/@supabas
+e/supabase-js/dist/index.mjs:
+392:9)
+    at file:///C:/Users/yonai
+/Desktop/POS%20MANAGER/api/_l
+ib/supabase.js:7:25
+    at ModuleJob.run (node:in
+ternal/modules/esm/module_job
+:430:25)
+    at async onImport.tracePr
+omise.__proto__ (node:interna
+l/modules/esm/loader:661:26)
+    at async asyncRunEntryPoi
+ntWithESMLoader (node:interna
+l/modules/run_main:101:5)
+
+Node.js v24.14.0

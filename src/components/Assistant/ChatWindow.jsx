@@ -16,6 +16,50 @@ export default function ChatWindow() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const renderContent = (content) => {
+    if (!content) return null;
+    
+    // Split by lines and process each line
+    const lines = content.split('\n');
+    return lines.map((line, idx) => {
+      let processedLine = line;
+      
+      // Handle Bold (**text**)
+      const parts = processedLine.split(/(\*\*.*?\*\*)/g);
+      const elements = parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={i}>{part.slice(2, -2)}</strong>;
+        }
+        return part;
+      });
+
+      // Handle Bullets (• or *)
+      if (line.trim().startsWith('•') || line.trim().startsWith('*')) {
+        const bulletText = line.trim().substring(1).trim();
+        return (
+          <div key={idx} className="chat-list-item">
+            <span className="bullet-dot">•</span>
+            <span>
+              {bulletText.split(/(\*\*.*?\*\*)/g).map((part, i) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                  return <strong key={i}>{part.slice(2, -2)}</strong>;
+                }
+                return part;
+              })}
+            </span>
+          </div>
+        );
+      }
+
+      return (
+        <div key={idx} className="chat-line">
+          {elements}
+          {idx < lines.length - 1 && lines[idx+1] === '' && <br />}
+        </div>
+      );
+    });
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -121,7 +165,7 @@ export default function ChatWindow() {
                   className={`message-row ${m.role}`}
                 >
                   <div className="message-bubble">
-                    {m.content}
+                    {renderContent(m.content)}
                   </div>
                 </motion.div>
               ))}

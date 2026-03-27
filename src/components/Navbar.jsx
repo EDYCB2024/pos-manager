@@ -1,10 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import NotificationCreator from './NotificationCreator';
 import './Navbar.css';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
+    const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
+    const [isCreatorOpen, setIsCreatorOpen] = useState(false);
+    const notifRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -14,6 +19,9 @@ export default function Navbar() {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsDropdownOpen(false);
+            }
+            if (notifRef.current && !notifRef.current.contains(event.target)) {
+                setIsNotifMenuOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -49,18 +57,55 @@ export default function Navbar() {
                 </div>
             </div>
 
-            <div className="navbar__right">
-                <button 
-                    className="navbar__icon-btn" 
-                    title="Notificaciones"
-                    onClick={() => {/* Toggle notification panel in future steps */}}
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                    </svg>
-                    <span className="navbar__notification-dot"></span>
-                </button>
+            <div className="navbar__right flex items-center gap-4">
+                <div className="relative" ref={notifRef}>
+                    <button 
+                        className={`navbar__icon-btn transition-transform hover:scale-110 active:scale-90 ${isNotifMenuOpen ? 'text-blue-500' : ''}`} 
+                        title="Notificaciones"
+                        onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                        </svg>
+                        <span className="absolute top-1 right-1 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-[#0b0d12]"></span>
+                    </button>
+
+                    <AnimatePresence>
+                        {isNotifMenuOpen && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                className="absolute right-0 mt-3 w-80 bg-[#111318]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                            >
+                                <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">Notificaciones</h4>
+                                    <span className="px-2 py-1 bg-blue-600/20 text-blue-400 text-[10px] font-black rounded-lg">CENTRAL</span>
+                                </div>
+                                <div className="max-h-64 overflow-y-auto p-2">
+                                    <div className="p-8 text-center">
+                                        <div className="text-4xl mb-3 opacity-20">🔔</div>
+                                        <p className="text-slate-500 text-xs font-medium">No hay notificaciones nuevas</p>
+                                    </div>
+                                </div>
+                                <div className="p-3 bg-white/[0.02] border-t border-white/5">
+                                    <button 
+                                        onClick={() => {
+                                            setIsNotifMenuOpen(false);
+                                            setIsCreatorOpen(true);
+                                        }}
+                                        className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 group"
+                                    >
+                                        <span className="text-lg group-hover:rotate-12 transition-transform">➕</span>
+                                        Añadir Recordatorio
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
                 <div className="navbar__user-container" ref={dropdownRef}>
                     <div
                         className={`navbar__user ${isDropdownOpen ? 'navbar__user--active' : ''}`}
@@ -102,6 +147,10 @@ export default function Navbar() {
                     )}
                 </div>
             </div>
+            
+            {/* The Modal */}
+            <NotificationCreator isOpen={isCreatorOpen} onClose={() => setIsCreatorOpen(false)} />
         </header>
     );
 }
+

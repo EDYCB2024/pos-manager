@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import Modal from '../components/ui/Modal';
 import { getAtcCases, deleteAtcCase } from '../store';
 import { supabase } from '../lib/supabase';
 import StatusBadge from '../components/StatusBadge';
@@ -281,76 +282,75 @@ export default function AtcInbox() {
             )}
 
 
-            {/* ── Edit Modal ─────────────────────────────── */}
-            {editing && (
-
-                <div className="modal-overlay" onClick={() => setEditing(null)}>
-                    <div className="modal modal--wide atc-edit-modal" onClick={e => e.stopPropagation()}>
-                        <div className="modal__header">
-                            <h3 className="modal__title">Editar Caso ATC #{editing.id}</h3>
-                            <button className="modal__close" onClick={() => setEditing(null)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                                </svg>
-                            </button>
+            {/* ── Modals ───────────────────────────────── */}
+            <Modal
+                isOpen={!!editing}
+                onClose={() => setEditing(null)}
+                title={(
+                    <>
+                        <span className="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 flex items-center justify-center text-sm shadow-inner">📝</span>
+                        Editar Caso ATC #{editing?.id}
+                    </>
+                )}
+                maxWidth="max-w-4xl"
+                footer={(
+                    <>
+                        <button className="px-6 py-2.5 bg-slate-100 text-slate-500 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-200 transition-all font-bold" onClick={() => setEditing(null)}>Cancelar</button>
+                        <button className="px-8 py-2.5 bg-blue-600 text-white font-bold text-xs uppercase tracking-[2px] rounded-xl hover:bg-blue-700 active:scale-95 shadow-lg shadow-blue-500/20 transition-all font-bold" onClick={handleSave} disabled={saving}>
+                            {saving ? 'Guardando...' : 'Guardar Cambios'}
+                        </button>
+                    </>
+                )}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {editFields.map(({ key, label, type, options }) => (
+                        <div key={key} className={`flex flex-col gap-1.5 ${type === 'textarea' ? 'md:col-span-2' : ''}`}>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+                            {type === 'textarea' ? (
+                                <textarea
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none text-sm font-medium"
+                                    value={editing?.form[key] || ''}
+                                    onChange={e => handleEditChange(key, e.target.value)}
+                                    rows={3}
+                                />
+                            ) : type === 'select' ? (
+                                <select
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
+                                    value={editing?.form[key] || ''}
+                                    onChange={e => handleEditChange(key, e.target.value)}
+                                >
+                                    {options.map(o => <option key={o}>{o}</option>)}
+                                </select>
+                            ) : (
+                                <input
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                                    type={type}
+                                    value={editing?.form[key] || ''}
+                                    onChange={e => handleEditChange(key, e.target.value)}
+                                />
+                            )}
                         </div>
-                        <div className="modal__body atc-edit-body">
-                            <div className="atc-edit-grid">
-                                {editFields.map(({ key, label, type, options }) => (
-                                    <div key={key} className={`atc-field ${type === 'textarea' ? 'atc-field--full' : ''}`}>
-                                        <label className="atc-field__label">{label}</label>
-                                        {type === 'textarea' ? (
-                                            <textarea
-                                                className="atc-field__input"
-                                                value={editing.form[key] || ''}
-                                                onChange={e => handleEditChange(key, e.target.value)}
-                                                rows={2}
-                                            />
-                                        ) : type === 'select' ? (
-                                            <select
-                                                className="atc-field__input"
-                                                value={editing.form[key] || ''}
-                                                onChange={e => handleEditChange(key, e.target.value)}
-                                            >
-                                                {options.map(o => <option key={o}>{o}</option>)}
-                                            </select>
-                                        ) : (
-                                            <input
-                                                className="atc-field__input"
-                                                type={type}
-                                                value={editing.form[key] || ''}
-                                                onChange={e => handleEditChange(key, e.target.value)}
-                                            />
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="modal__actions">
-                            <button className="btn btn--ghost" onClick={() => setEditing(null)}>Cancelar</button>
-                            <button className="btn btn--primary" onClick={handleSave} disabled={saving}>
-                                {saving ? 'Guardando...' : 'Guardar Cambios'}
-                            </button>
-                        </div>
-                    </div>
+                    ))}
                 </div>
-            )}
+            </Modal>
 
-            {/* ── Delete Confirm ─────────────────────────── */}
-            {confirm && (
-                <div className="modal-overlay" onClick={() => setConfirm(null)}>
-                    <div className="modal glass" onClick={e => e.stopPropagation()}>
-                        <h3 className="modal__title">¿Eliminar caso ATC?</h3>
-                        <p className="modal__body">
-                            Se eliminará el caso del cliente con serial <code className="serial-code">{confirm.serial || 'Sin Serial'}</code>. Esta acción no se puede deshacer.
-                        </p>
-                        <div className="modal__actions">
-                            <button className="btn btn--ghost" onClick={() => setConfirm(null)}>Cancelar</button>
-                            <button className="btn btn--danger" onClick={() => handleDelete(confirm.id)}>Sí, eliminar</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <Modal
+                isOpen={!!confirm}
+                onClose={() => setConfirm(null)}
+                title="¿Eliminar caso ATC?"
+                maxWidth="max-w-sm"
+                footer={(
+                    <>
+                        <button className="flex-1 px-4 py-3 text-slate-500 font-bold text-xs uppercase tracking-widest bg-slate-100 rounded-xl hover:bg-slate-200 transition-all" onClick={() => setConfirm(null)}>Cancelar</button>
+                        <button className="flex-[2] px-6 py-3 bg-rose-600 text-white font-bold text-xs uppercase tracking-[2px] rounded-xl hover:bg-rose-700 transition-all shadow-lg shadow-rose-500/20" onClick={() => handleDelete(confirm.id)}>Sí, eliminar</button>
+                    </>
+                )}
+            >
+                <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                    Se eliminará el caso del cliente con serial <code className="bg-slate-100 px-1.5 py-0.5 rounded text-rose-600 font-bold tracking-tight">{confirm?.serial || 'Sin Serial'}</code>. Esta acción no se puede deshacer.
+                </p>
+            </Modal>
+
         </div>
     );
 }
