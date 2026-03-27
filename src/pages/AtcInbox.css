@@ -176,3 +176,37 @@
     background: var(--bg-base);
     color: var(--text-primary);
 }
+
+/* Date Filters */
+.atc-date-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.atc-date-filter label {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-left: 4px;
+}
+
+.atc-date-filter input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.atc-date-filter input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}

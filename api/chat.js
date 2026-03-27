@@ -2,14 +2,17 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { tools } from "./_tools/nexus-tools.js";
+import { supabase } from "./_lib/supabase.js";
+import { authMiddleware } from "./_lib/middleware.js";
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
     const { messages } = req.body;
+    const userId = req.user.id;
 
     if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       throw new Error("API Key de Google no configurada");
@@ -29,7 +32,6 @@ export default async function handler(req, res) {
     ENTORNO:
     - Plataforma: POS Manager (Gestión de Punto de Venta).
     - Tecnologías: React, Supabase, Vercel, Node.js.
-    - Funciones: Gestión de inventario, ventas, usuarios, reportes PDF/Excel y sincronización con Google Sheets.
     
     CAPACIDADES (TIENES HERRAMIENTAS PARA):
     1. Buscar estatus de dispositivos por serial (get_device_status).
@@ -38,12 +40,21 @@ export default async function handler(req, res) {
     4. Procesar mensajes de clientes y registrar reportes en Bandeja ATC (register_atc_case).
     
     REGLAS IMPORTANTES:
-    1. Si el usuario suministra datos de un cliente (serial, RIF, nombre comercio, afiliado, falla reportada) para un nuevo reporte en la Bandeja ATC, usa register_atc_case.
-    2. Extrae meticulosamente la información suministrada (la que exista) y deja vacíos los campos no presentes.
-    3. Si el usuario pide estatus de un serial, usa get_device_status.
-    4. Si el usuario suministra datos para registrar un ingreso de equipo al taller técnico, usa register_new_case.
-    5. NUNCA reveles ni pidas API Keys, tokens o contraseñas.
-    6. Mantén un tono profesional, experto y conciso.`;
+    1. Si el usuario suministra datos de un cliente para la Bandeja ATC, usa register_atc_case.
+    2. Si el usuario pide estatus de un serial, usa get_device_status.
+    3. Si el usuario suministra datos para registrar un ingreso de equipo, usa register_new_case.
+    4. Guardamos automáticamente el historial para que recuerdes el contexto.
+    5. Mantén un tono profesional, experto y conciso.`;
+
+    // 1. Guardar el último mensaje del usuario en el historial
+    const userMsg = messages[messages.length - 1];
+    if (userMsg && userMsg.role === "user") {
+      await supabase.from('chat_history').insert({
+        user_id: userId,
+        role: "user",
+        content: userMsg.content
+      });
+    }
 
     // Convertir historial a formato Core Messages
     const chatHistory = (messages || []).map((msg) => {
@@ -53,7 +64,7 @@ export default async function handler(req, res) {
     });
 
     // Separar el último mensaje como input
-    const lastMessage = chatHistory.pop();
+    const currentInput = chatHistory.pop();
     
     const agent = createReactAgent({
       llm: model,
@@ -62,20 +73,29 @@ export default async function handler(req, res) {
     });
 
     const result = await agent.invoke({
-      messages: [...chatHistory, lastMessage],
+      messages: [...chatHistory, currentInput],
     });
 
     const lastResultMsg = result.messages[result.messages.length - 1];
+    const assistantContent = lastResultMsg.content || "Lo siento, no pude procesar tu solicitud.";
+
+    // 2. Guardar la respuesta del asistente en el historial
+    await supabase.from('chat_history').insert({
+      user_id: userId,
+      role: "assistant",
+      content: assistantContent
+    });
 
     return res.status(200).json({ 
       role: "assistant", 
-      content: lastResultMsg.content || "Lo siento, no pude procesar tu solicitud." 
+      content: assistantContent 
     });
   } catch (error) {
     console.error("Chat Agent Error:", error);
     return res.status(500).json({ 
-      error: error?.message || "Error interno en el agente Nexus",
-      stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined 
+      error: error?.message || "Error interno en el agente Nexus"
     });
   }
 }
+
+export default authMiddleware(handler);

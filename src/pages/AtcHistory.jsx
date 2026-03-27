@@ -5,7 +5,7 @@ import { getAtcCasesPaged, deleteAtcCase } from '../store';
 import { supabase } from '../lib/supabase';
 import StatusBadge from '../components/StatusBadge';
 import CaseDetails from '../components/CaseDetails';
-import './AtcInbox.css';
+import './AtcInbox.css'; // Reuse CSS
 
 const EMPTY_FORM = {
     fecha: '', serial: '', operadora: '', proveedor_wifi: '', afiliado: '',
@@ -16,17 +16,20 @@ const EMPTY_FORM = {
     observacion_2: '', observacion_3: '', vencimiento_caso: '',
 };
 
-export default function AtcInbox() {
+export default function AtcHistory() {
+    const today = new Date().toISOString().split('T')[0];
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(false);
     const [confirm, setConfirm] = useState(null);
     const [viewing, setViewing] = useState(null);
-    const [editing, setEditing] = useState(null); // { id, form }
+    const [editing, setEditing] = useState(null);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [search, setSearch] = useState('');
+    const [startDate, setStartDate] = useState(today);
+    const [endDate, setEndDate] = useState(today);
     const pageSize = 10;
 
     const mapRow = (row) => ({
@@ -45,7 +48,7 @@ export default function AtcInbox() {
         setLoading(true);
         setError(null);
         try {
-            const { data, count } = await getAtcCasesPaged({ page, pageSize, search });
+            const { data, count } = await getAtcCasesPaged({ page, pageSize, search, startDate, endDate });
             setCases(data.map(mapRow));
             setTotal(count || 0);
         } catch (err) {
@@ -56,7 +59,7 @@ export default function AtcInbox() {
         }
     };
 
-    useEffect(() => { load(); }, [page]);
+    useEffect(() => { load(); }, [page, startDate, endDate]);
 
     useEffect(() => {
         const h = setTimeout(() => {
@@ -116,7 +119,6 @@ export default function AtcInbox() {
                 vencimiento_caso: f.vencimiento_caso
             };
             
-            // Clean empty strings to null for optional fields
             Object.keys(payload).forEach(k => { if (payload[k] === '') payload[k] = null; });
 
             const { error } = await supabase
@@ -151,7 +153,6 @@ export default function AtcInbox() {
         return `${day}-${month}-${year.slice(-2)}`;
     };
 
-    /* ── Edit modal fields config ─────────────────────── */
     const editFields = [
         { key: 'fecha', label: 'Fecha', type: 'date' },
         { key: 'serial', label: 'Serial', type: 'text' },
@@ -182,37 +183,39 @@ export default function AtcInbox() {
         <div className="atc-inbox anim-fadeUp">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">Histórico ATC</h1>
+                    <h1 className="page-title">Casos del Día</h1>
                     <p className="page-sub">
-                        {total} caso{total !== 1 ? 's' : ''} gestionado{total !== 1 ? 's' : ''} en total
+                        {total} caso{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''}
                     </p>
                 </div>
 
-                <div className="search-box-container" style={{ flex: 1, maxWidth: '400px', marginLeft: '32px' }}>
+                <div className="search-box-container" style={{ flex: 1, maxWidth: '300px', marginLeft: '24px' }}>
                     <div className="search-box">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
                         </svg>
                         <input 
                             type="text" 
-                            placeholder="Buscar por serial, comercio o RIF..." 
+                            placeholder="Buscar..." 
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />
                     </div>
                 </div>
-                <div className="page-header__actions">
-                    <button className="btn btn--minimal" onClick={load} title="Refrescar bandeja">
+
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div className="atc-date-filter">
+                        <label>Desde</label>
+                        <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                    </div>
+                    <div className="atc-date-filter">
+                        <label>Hasta</label>
+                        <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                    </div>
+                    <button className="btn btn--minimal" onClick={load} title="Refrescar">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5" />
                         </svg>
-                        Refrescar
-                    </button>
-                    <button className="btn btn--minimal" title="Nuevo Caso ATC">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Nuevo Caso
                     </button>
                 </div>
             </div>
@@ -237,15 +240,11 @@ export default function AtcInbox() {
                                 </tr>
                             ) : cases.length === 0 ? (
                                 <tr>
-                                    <td colSpan={headers.length} className="empty-cell">No hay casos en la bandeja de entrada.</td>
+                                    <td colSpan={headers.length} className="empty-cell">No hay casos para el rango seleccionado.</td>
                                 </tr>
                             ) : (
                                 cases.map((c, index) => (
-                                    <tr
-                                        key={c.id}
-                                        className="data-table__row"
-                                        onClick={() => setViewing(c)}
-                                    >
+                                    <tr key={c.id} className="data-table__row" onClick={() => setViewing(c)}>
                                         <td>{(page - 1) * pageSize + index + 1}</td>
                                         <td>{formatDate(c.fecha)}</td>
                                         <td><code className="serial-code">{c.serial || '—'}</code></td>
@@ -276,25 +275,11 @@ export default function AtcInbox() {
                                         <td>{formatDate(c.vencimiento_caso)}</td>
                                         <td style={{ textAlign: 'right' }} onClick={e => e.stopPropagation()}>
                                             <div className="action-btns" style={{ justifyContent: 'flex-end' }}>
-                                                <button
-                                                    className="action-btn action-btn--edit"
-                                                    title="Editar"
-                                                    onClick={() => openEdit(c)}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" />
-                                                    </svg>
+                                                <button className="action-btn action-btn--edit" onClick={() => openEdit(c)}>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
                                                 </button>
-                                                <button
-                                                    className="action-btn action-btn--delete"
-                                                    title="Eliminar"
-                                                    onClick={() => setConfirm({ id: c.id, serial: c.serial })}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                        <line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
-                                                    </svg>
+                                                <button className="action-btn action-btn--delete" onClick={() => setConfirm({ id: c.id, serial: c.serial })}>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
                                                 </button>
                                             </div>
                                         </td>
@@ -314,106 +299,48 @@ export default function AtcInbox() {
                 </div>
             )}
 
-            {/* ── View Details Modal (portaled to body) ── */}
+            {/* Modals same as Inbox */}
             {viewing && createPortal(
                 <div className="modal-overlay" onClick={() => setViewing(null)}>
                     <div className="modal modal--wide" onClick={e => e.stopPropagation()}>
                         <div className="modal__header">
                             <h3 className="modal__title">Detalles del Caso ATC #{viewing.id}</h3>
                             <button className="modal__close" onClick={() => setViewing(null)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                                </svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                             </button>
                         </div>
                         <div style={{ maxHeight: '80vh', overflowY: 'auto' }}>
-                            <CaseDetails 
-                                variant="atc-vertical"
-                                form={viewing}
-                                actions={(
-                                    <div className="action-btns">
-                                        <button
-                                            className="action-btn action-btn--edit"
-                                            title="Editar"
-                                            onClick={() => {
-                                                setViewing(null);
-                                                openEdit(viewing);
-                                            }}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" />
-                                            </svg>
-                                        </button>
-                                        <button
-                                            className="action-btn action-btn--delete"
-                                            title="Eliminar"
-                                            onClick={() => {
-                                                setViewing(null);
-                                                setConfirm({ id: viewing.id, serial: viewing.serial });
-                                            }}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                                <line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                )}
-                            />
+                            <CaseDetails variant="atc-vertical" form={viewing} actions={(
+                                <div className="action-btns">
+                                    <button className="action-btn action-btn--edit" onClick={() => { setViewing(null); openEdit(viewing); }}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                    </button>
+                                    <button className="action-btn action-btn--delete" onClick={() => { setViewing(null); setConfirm({ id: viewing.id, serial: viewing.serial }); }}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
+                                    </button>
+                                </div>
+                            )} />
                         </div>
                     </div>
                 </div>,
                 document.body
             )}
 
-
-            {/* ── Modals ───────────────────────────────── */}
             <Modal
-                isOpen={!!editing}
-                onClose={() => setEditing(null)}
-                title={(
-                    <>
-                        <span className="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-600 flex items-center justify-center text-sm shadow-inner">📝</span>
-                        Editar Caso ATC #{editing?.id}
-                    </>
-                )}
-                maxWidth="max-w-4xl"
-                footer={(
-                    <>
-                        <button className="px-6 py-2.5 bg-slate-100 text-slate-500 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-200 transition-all font-bold" onClick={() => setEditing(null)}>Cancelar</button>
-                        <button className="px-8 py-2.5 bg-blue-600 text-white font-bold text-xs uppercase tracking-[2px] rounded-xl hover:bg-blue-700 active:scale-95 shadow-lg shadow-blue-500/20 transition-all font-bold" onClick={handleSave} disabled={saving}>
-                            {saving ? 'Guardando...' : 'Guardar Cambios'}
-                        </button>
-                    </>
-                )}
+                isOpen={!!editing} onClose={() => setEditing(null)}
+                title={<>📝 Editar Caso ATC #{editing?.id}</>} maxWidth="max-w-4xl"
+                footer={<><button className="px-6 py-2.5 bg-slate-100 rounded-xl font-bold" onClick={() => setEditing(null)}>Cancelar</button><button className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold" onClick={handleSave} disabled={saving}>{saving ? 'Guardando...' : 'Guardar'}</button></>}
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {editFields.map(({ key, label, type, options }) => (
                         <div key={key} className={`flex flex-col gap-1.5 ${type === 'textarea' ? 'md:col-span-2' : ''}`}>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</label>
                             {type === 'textarea' ? (
-                                <textarea
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none text-sm font-medium"
-                                    value={editing?.form[key] || ''}
-                                    onChange={e => handleEditChange(key, e.target.value)}
-                                    rows={3}
-                                />
+                                <textarea className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm" value={editing?.form[key] || ''} onChange={e => handleEditChange(key, e.target.value)} rows={3} />
                             ) : type === 'select' ? (
-                                <select
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer"
-                                    value={editing?.form[key] || ''}
-                                    onChange={e => handleEditChange(key, e.target.value)}
-                                >
-                                    {options.map(o => <option key={o}>{o}</option>)}
-                                </select>
+                                <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold" value={editing?.form[key] || ''} onChange={e => handleEditChange(key, e.target.value)}>{options.map(o => <option key={o}>{o}</option>)}</select>
                             ) : (
-                                <input
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                    type={type}
-                                    value={editing?.form[key] || ''}
-                                    onChange={e => handleEditChange(key, e.target.value)}
-                                />
+                                <input className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold" type={type} value={editing?.form[key] || ''} onChange={e => handleEditChange(key, e.target.value)} />
                             )}
                         </div>
                     ))}
@@ -421,22 +348,12 @@ export default function AtcInbox() {
             </Modal>
 
             <Modal
-                isOpen={!!confirm}
-                onClose={() => setConfirm(null)}
-                title="¿Eliminar caso ATC?"
-                maxWidth="max-w-sm"
-                footer={(
-                    <>
-                        <button className="flex-1 px-4 py-3 text-slate-500 font-bold text-xs uppercase tracking-widest bg-slate-100 rounded-xl hover:bg-slate-200 transition-all" onClick={() => setConfirm(null)}>Cancelar</button>
-                        <button className="flex-[2] px-6 py-3 bg-rose-600 text-white font-bold text-xs uppercase tracking-[2px] rounded-xl hover:bg-rose-700 transition-all shadow-lg shadow-rose-500/20" onClick={() => handleDelete(confirm.id)}>Sí, eliminar</button>
-                    </>
-                )}
+                isOpen={!!confirm} onClose={() => setConfirm(null)}
+                title="¿Eliminar caso?" maxWidth="max-w-sm"
+                footer={<><button className="flex-1 px-4 py-3 bg-slate-100 rounded-xl font-bold" onClick={() => setConfirm(null)}>Cancelar</button><button className="flex-[2] px-6 py-3 bg-rose-600 text-white rounded-xl font-bold" onClick={() => handleDelete(confirm.id)}>Sí, eliminar</button></>}
             >
-                <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                    Se eliminará el caso del cliente con serial <code className="bg-slate-100 px-1.5 py-0.5 rounded text-rose-600 font-bold tracking-tight">{confirm?.serial || 'Sin Serial'}</code>. Esta acción no se puede deshacer.
-                </p>
+                <p className="text-sm text-slate-500 mb-6 font-bold">Confirma la eliminación del caso serial: {confirm?.serial}</p>
             </Modal>
-
         </div>
     );
 }

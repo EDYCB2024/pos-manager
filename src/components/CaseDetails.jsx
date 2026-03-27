@@ -3,16 +3,9 @@ import StatusBadge from './StatusBadge';
 export default function CaseDetails({ form, variant = 'table', actions = null }) {
     const formatDate = (dateString) => {
         if (!dateString) return '—';
-        if (dateString.includes('T')) {
-            // Handle ISO string or datetime-local
-            const d = new Date(dateString);
-            return d.toLocaleString('es-VE', { 
-                day: '2-digit', month: '2-digit', year: '2-digit',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-        const [year, month, day] = dateString.split('-');
-        if (!year || !month || !day) return dateString;
+        const datePart = dateString.split('T')[0];
+        const [year, month, day] = datePart.split('-');
+        if (!year || !month || !day) return datePart;
         return `${day}-${month}-${year.slice(-2)}`;
     };
 
@@ -74,8 +67,8 @@ export default function CaseDetails({ form, variant = 'table', actions = null })
 
     if (variant === 'aliados-vertical') {
         const aliadoRows = [
-            { label: 'N°', value: form.id },
-            { label: 'FACTURA', value: form.nro_factura },
+            { label: 'N°', value: form.nro_caso || form.n || '—' },
+            { label: 'FACTURA', value: formatDate(form.nro_factura) },
             { label: 'PROCESADORA', value: form.procesadora },
             { label: 'FECHA', value: formatDate(form.fecha) },
             { label: 'ALIADO', value: form.aliado },

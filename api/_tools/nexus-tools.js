@@ -124,16 +124,16 @@ export const registerDeviceInfoTool = new DynamicStructuredTool({
 });
 
 /**
- * Tool to register a record in Bandeja ATC.
+ * Tool to register a record in Histórico ATC (table 'data').
  */
 export const registerAtcCaseTool = new DynamicStructuredTool({
   name: "register_atc_case",
-  description: "Registra la información de un cliente en la Bandeja ATC. Debe usarse cuando el usuario suministra datos de un reporte o falla (serial, rif, nombre comercio, afiliado, etc.) para ser procesados.",
+  description: "Registra la información de un cliente en el Histórico ATC. Debe usarse cuando el usuario suministra datos de un reporte o falla (serial, rif, nombre comercio, afiliado, etc.) para ser procesados.",
   schema: z.object({
     serial: z.string().optional().describe("Serial del equipo"),
     rif: z.string().optional().describe("RIF del cliente"),
     nombre_comercio: z.string().optional().describe("Nombre del comercio o razón social"),
-    afiliado: z.string().optional().describe("Número de afiliado"),
+    afiliado: z.string().optional().describe("Número de afiliado (reportado en)"),
     falla_cliente: z.string().optional().describe("Descripción de la falla reportada por el cliente"),
     operadora: z.string().optional().describe("Operadora (Digitel, Movistar, etc.)"),
     proveedor_wifi: z.string().optional().describe("Proveedor de internet/wifi"),
@@ -145,33 +145,86 @@ export const registerAtcCaseTool = new DynamicStructuredTool({
   }),
   func: async (atcCase) => {
     try {
-      // Normalizar campos a mayúsculas
-      const normalized = {
-        ...atcCase,
-        serial: atcCase.serial ? atcCase.serial.trim().toUpperCase() : undefined,
-        rif: atcCase.rif ? atcCase.rif.trim().toUpperCase() : undefined,
-        operadora: atcCase.operadora ? atcCase.operadora.trim().toUpperCase() : undefined,
-        afiliado: atcCase.afiliado ? atcCase.afiliado.trim().toUpperCase() : undefined,
+      // Mapping to 'data' table columns
+      const payload = {
+        fecha: new Date().toISOString().split('T')[0],
+        serial: atcCase.serial?.trim().toUpperCase(),
+        rif: atcCase.rif?.trim().toUpperCase(),
+        nombre_comercio: atcCase.nombre_comercio,
+        reportado_en: atcCase.afiliado?.trim().toUpperCase(),
+        falla_reportada_cliente: atcCase.falla_cliente,
+        operadora: atcCase.operadora?.trim().toUpperCase(),
+        proveedor_wifi: atcCase.proveedor_wifi,
+        ciudad: atcCase.ciudad,
+        estado: atcCase.estado,
+        persona_contacto: atcCase.persona_contacto,
+        telefono_contacto: atcCase.telefono_contacto,
+        observaciones: atcCase.observaciones,
+        hora_de_reporte: new Date().toTimeString().split(' ')[0],
+        estatus_caso: 'Abierto'
       };
 
       const { data, error } = await supabase
-        .from('casos_atc')
-        .insert([{
-          ...normalized,
-          fecha: new Date().toISOString().split('T')[0],
-          hora_reporte: new Date().toTimeString().split(' ')[0], // HH:MM:SS
-          estatus_caso: 'Abierto',
-          created_at: new Date().toISOString()
-        }])
+        .from('data')
+        .insert([payload])
         .select()
         .single();
 
       if (error) throw error;
-      return `Éxito: Caso ATC registrado en la bandeja con ID ${data.id}. El registro para el cliente '${atcCase.nombre_comercio || atcCase.rif}' ha sido completado.`;
+      return `Éxito: Caso ATC registrado en el histórico con ID ${data.internal_id}.`;
     } catch (err) {
-      return `Error al registrar en bandeja ATC: ${err.message}`;
+      return `Error al registrar en ATC: ${err.message}`;
     }
   },
 });
 
-export const tools = [getDeviceStatusTool, updateDeviceStatusTool, registerDeviceInfoTool, registerAtcCaseTool];
+/**
+ * Tool to get reports for specific days.
+ */
+export const getDailyReportTool = new DynamicStructuredTool({
+  name: "get_daily_report",
+  description: "Obtiene un reporte o resumen de casos para un día o rango de días específico.",
+  schema: z.object({
+    startDate: z.string().describe("Fecha de inicio (YYYY-MM-DD)"),
+    endDate: z.string().optional().describe("Fecha de fin (YYYY-MM-DD)"),
+    service: z.enum(['atc', 'pos']).describe("Servicio del reporte: 'atc' (tabla data) o 'pos' (tabla casos_pos)")
+  }),
+  func: async ({ startDate, endDate, service }) => {
+    try {
+      const table = service === 'atc' ? 'data' : 'casos_pos';
+      const lastDate = endDate || startDate;
+      
+      const { data, count, error } = await supabase
+        .from(table)
+        .select('*', { count: 'exact' })
+        .gte('fecha', startDate)
+        .lte('fecha', lastDate);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) return `No se encontraron registros para el periodo ${startDate} a ${lastDate} en ${service}.`;
+
+      // Summary
+      const summary = data.reduce((acc, curr) => {
+        const status = curr.estatus_caso || 'Indefinido';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+
+      return JSON.stringify({
+        total: count,
+        periodo: `${startDate} al ${lastDate}`,
+        resumen_estatus: summary,
+        ejemplos: data.slice(0, 3).map(d => ({
+          serial: d.serial,
+          comercio: d.nombre_comercio || d.razon_social,
+          fecha: d.fecha
+        }))
+      }, null, 2);
+    } catch (err) {
+      return `Error al generar reporte: ${err.message}`;
+    }
+  }
+});
+
+export const tools = [getDeviceStatusTool, updateDeviceStatusTool, registerDeviceInfoTool, registerAtcCaseTool, getDailyReportTool];

@@ -5,16 +5,48 @@ import './ChatWindow.css';
 
 export default function ChatWindow() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      id: "initial",
-      content: "¡Hola! Soy Nexus AI, tu asistente avanzado para POS Manager. 🚀\n\nAhora tengo acceso directo al sistema y puedo:\n• **Consultar estatus** de cualquier equipo por su serial.\n• **Registrar nuevos ingresos** de dispositivos al laboratorio.\n• **Actualizar el estatus** de reparación o del caso.\n• Ayudarte con reportes y sincronización.\n\n¿Por qué serial o equipo quieres empezar hoy?",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch('/api/assistant/history', {
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (data.history && data.history.length > 0) {
+          setMessages(data.history.map(msg => ({
+            role: msg.role,
+            id: msg.id,
+            content: msg.content
+          })));
+        } else {
+          setMessages([
+            {
+              role: "assistant",
+              id: "initial",
+              content: "¡Hola! Soy Nexus AI, tu asistente avanzado para POS Manager. 🚀\n\nAhora tengo acceso directo al sistema y puedo:\n• **Consultar estatus** de cualquier equipo por su serial.\n• **Registrar nuevos casos** en el Histórico ATC y Laboratorio.\n• **Generar reportes** de días específicos (ej: 'dame el reporte de hoy').\n• **Actualizar el estatus** de reparación o del caso.\n\n¿En qué puedo ayudarte hoy?",
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error("Error loading chat history:", error);
+        setMessages([
+          {
+            role: "assistant",
+            id: "initial",
+            content: "¡Hola! Soy Nexus AI, tu asistente avanzado para POS Manager. 🚀\n\nHubo un problema cargando tu historial, pero estoy listo para ayudarte. ¿Qué necesitas hoy?",
+          }
+        ]);
+      }
+    };
+    
+    fetchHistory();
+  }, []);
 
   const renderContent = (content) => {
     if (!content) return null;
@@ -84,11 +116,10 @@ export default function ChatWindow() {
     setIsLoading(true);
 
     try {
-      const apiEndpoint = window.location.hostname === 'localhost' ? 'http://localhost:3001/api/chat' : '/api/chat';
-
-      const response = await fetch(apiEndpoint, {
+      const response = await fetch('/api/chat', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ messages: [...messages, userMessage] }),
       });
 

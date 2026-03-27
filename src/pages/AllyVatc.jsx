@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getDevicesPaged, deleteDevice, getDeviceById, ESTATUSES_CASO, ESTATUSES_REPARACION } from '../store';
 import StatusBadge from '../components/StatusBadge';
 import CaseDetails from '../components/CaseDetails';
-import './DeviceList.css'; 
+import './DeviceList.css';
 import './shared.css';
 import vatcLogo from '../assets/vatc-logo.jpg';
 
@@ -70,11 +70,11 @@ export default function AllyVatc() {
         <div className="device-list anim-fadeUp">
             <div className="page-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div style={{ 
-                        width: '64px', 
-                        height: '64px', 
-                        background: '#fff', 
-                        padding: '8px', 
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        background: '#fff',
+                        padding: '8px',
                         borderRadius: '16px',
                         display: 'flex',
                         alignItems: 'center',
@@ -91,11 +91,11 @@ export default function AllyVatc() {
                     </div>
                 </div>
                 <div className="page-header__actions">
-                    <button className="btn btn--secondary" onClick={() => navigate('/devices/new?mode=massive')}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                    <button className="btn btn--minimal" onClick={() => navigate('/devices/new?mode=massive&aliado=VAT&C')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></svg>
                         Carga Masiva
                     </button>
-                    <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
+                    <button className="btn btn--minimal" onClick={() => navigate('/devices/new?aliado=VAT&C')}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
                         Nuevo Equipo
                     </button>
@@ -121,20 +121,20 @@ export default function AllyVatc() {
                         </button>
                     )}
                 </div>
-                
+
                 <div className="filter-group">
-                    <select 
-                        className="filter-select" 
-                        value={filterCaso} 
+                    <select
+                        className="filter-select"
+                        value={filterCaso}
                         onChange={e => setFilterCaso(e.target.value)}
                     >
                         <option value="">Estatus Caso</option>
                         {ESTATUSES_CASO.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
 
-                    <select 
-                        className="filter-select" 
-                        value={filterRep} 
+                    <select
+                        className="filter-select"
+                        value={filterRep}
                         onChange={e => setFilterRep(e.target.value)}
                     >
                         <option value="">Reparación</option>
@@ -159,13 +159,13 @@ export default function AllyVatc() {
                 </div>
 
                 <div style={{ marginLeft: 'auto' }}>
-                    <button 
-                        className="btn btn--secondary" 
-                        onClick={() => load()} 
+                    <button
+                        className="btn btn--secondary"
+                        onClick={() => load()}
                         title="Refrescar tabla"
                         style={{ padding: '10px' }}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.57L21 8M21 3v5h-5" /></svg>
                     </button>
                 </div>
             </div>
@@ -359,8 +359,8 @@ export default function AllyVatc() {
                                     <p>Cargando información detallada...</p>
                                 </div>
                             ) : (
-                                <CaseDetails 
-                                    variant="aliados-vertical" 
+                                <CaseDetails
+                                    variant="aliados-vertical"
                                     form={viewingDevice}
                                     actions={(
                                         <div className="action-btns">

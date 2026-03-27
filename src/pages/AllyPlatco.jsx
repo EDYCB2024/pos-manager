@@ -92,11 +92,11 @@ export default function AllyPlatco() {
                     </div>
                 </div>
                 <div className="page-header__actions">
-                    <button className="btn btn--secondary" onClick={() => navigate('/devices/new?mode=massive')}>
+                    <button className="btn btn--minimal" onClick={() => navigate('/devices/new?mode=massive&aliado=PLATCO')}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                         Carga Masiva
                     </button>
-                    <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
+                    <button className="btn btn--minimal" onClick={() => navigate('/devices/new?aliado=PLATCO')}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
                         Nuevo Equipo
                     </button>
@@ -215,6 +215,7 @@ export default function AllyPlatco() {
                                     <th>OBSERVACIONES</th>
                                     <th>FECHA VENTA</th>
                                     <th>LOTE</th>
+                                    <th>FACTURA</th>
                                     <th style={{ textAlign: 'right' }}>ACCIONES</th>
                                 </tr>
                             </thead>
@@ -231,11 +232,11 @@ export default function AllyPlatco() {
                                             }).catch(() => setDetailLoading(false));
                                         }}
                                     >
-                                        <td>{(page - 1) * pageSize + index + 1}</td>
+                                        <td className="text-secondary" style={{ fontSize: '12px' }}>{(page - 1) * pageSize + index + 1}</td>
                                         <td>{formatDate(d.fecha)}</td>
                                         <td>{d.aliado}</td>
                                         <td>{d.modelo || '—'}</td>
-                                        <td>{d.razon_social}</td>
+                                        <td style={{ minWidth: '150px' }}>{d.razon_social}</td>
                                         <td>
                                             <div className="serial-container">
                                                 {copiedSerial === d.serial && (
@@ -278,6 +279,7 @@ export default function AllyPlatco() {
                                         </td>
                                         <td>{formatDate(d.fecha_venta)}</td>
                                         <td>{d.lote || '—'}</td>
+                                        <td>{d.nro_factura || '—'}</td>
                                         <td onClick={e => e.stopPropagation()}>
                                             <div className="action-btns">
                                                 <button

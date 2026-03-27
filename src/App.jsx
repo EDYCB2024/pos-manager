@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Activate from './pages/Activate';
 import Welcome from './pages/Welcome';
 import AtcInbox from './pages/AtcInbox';
+import AtcHistory from './pages/AtcHistory';
 import QuotationForm from './pages/QuotationForm';
 import Tracking from './pages/Tracking';
 import AllyVatc from './pages/AllyVatc';
@@ -105,6 +106,7 @@ export default function App() {
               <Route path="/partes" element={<Inventory />} />
               <Route path="/settings" element={<Settings theme={theme} onToggleTheme={toggleTheme} />} />
               <Route path="/atc/inbox" element={<AtcInbox />} />
+              <Route path="/atc/history" element={<AtcHistory />} />
               <Route path="/aliados/vatc" element={<AllyVatc />} />
               <Route path="/aliados/credicard" element={<AllyCredicard />} />
               <Route path="/aliados/platco" element={<AllyPlatco />} />

@@ -11,6 +11,7 @@ import usersHandler from './api/users/index.js';
 import updateUsersHandler from './api/users/update.js';
 import deleteUserHandler from './api/users/delete.js';
 import chatHandler from './api/chat.js';
+import historyHandler from './api/assistant/history.js';
 
 const app = express();
 app.use(cors({
@@ -112,9 +113,24 @@ app.all('/api/auth/change-password', async (req, res) => {
 
 app.all('/api/chat', async (req, res) => {
     try {
+        if (!req.headers.cookie && req.cookies) {
+            req.headers.cookie = Object.entries(req.cookies).map(([k, v]) => `${k}=${v}`).join('; ');
+        }
         await chatHandler(req, res);
     } catch (err) {
         console.error('Error in Express Chat Route:', err);
+        if (!res.headersSent) res.status(500).json({ error: 'Internal Error' });
+    }
+});
+
+app.all('/api/assistant/history', async (req, res) => {
+    try {
+        if (!req.headers.cookie && req.cookies) {
+            req.headers.cookie = Object.entries(req.cookies).map(([k, v]) => `${k}=${v}`).join('; ');
+        }
+        await historyHandler(req, res);
+    } catch (err) {
+        console.error('Error in Express History Route:', err);
         if (!res.headersSent) res.status(500).json({ error: 'Internal Error' });
     }
 });

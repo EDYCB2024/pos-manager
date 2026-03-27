@@ -33,23 +33,25 @@
 
   --sidebar-w: 280px;
   --navbar-h: 70px;
-  
+
   /* Responsive Overrides */
   @media (max-width: 1024px) {
     --sidebar-w: 240px;
   }
-  
+
   @media (max-width: 768px) {
     --sidebar-w: 0px;
     --navbar-h: 60px;
   }
+
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;
 
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.15);
-  --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.4),
+  0 0 0 1px rgba(255, 255, 255, 0.05);
 
   --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   --calendar-invert: invert(0.8);
@@ -354,6 +356,22 @@ button {
 .btn--ghost:hover {
   color: var(--text-primary);
   background: var(--bg-card-hover);
+}
+
+.btn--minimal {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.btn--minimal:hover {
+  background: var(--bg-primary);
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
 }
 
 /* ─── Animations ─────────────────────────────────────────── */

@@ -125,6 +125,26 @@ export const OPERADORAS = ['Digitel', 'Movistar'];
 
 export const OPCIONES_SI_NO = ['Sí', 'No'];
 
+// Mapa de Aliados a sus Tablas específicas
+export const ALLY_TO_TABLE = {
+    'VAT&C': 'vatc',
+    'CREDICARD': 'ccr',
+    'PLATCO': 'platco',
+    'PLATCO POS': 'platco',
+    'BANCARIBE': 'bancaribe',
+    'BANPLUS': 'banplus',
+    'POSCOMERCIAL': 'poscom',
+    'BANCO EXTERIOR': 'exterior',
+    'TOKEN PAGOS': 'tokenp',
+    'INSTAPAGO': 'instapago',
+    'PAYTECH': 'paytech',
+    'BANCO ACTIVO': 'bactivo',
+    'BANCRECER': 'bancrecer',
+    'DEL SUR': 'delsur',
+    'BEST PAY': 'bestpay',
+    'OTROS': 'otros'
+};
+
 export function getReportUrl(code) {
     if (!code) return null;
     const url = import.meta.env.VITE_SUPABASE_URL;
@@ -162,169 +182,222 @@ export async function getAllDevices() {
 }
 
 /**
+ * Mapea un objeto de dispositivo a las columnas específicas de la tabla correspondiente.
+ */
+function mapDeviceToTable(device, tableName = 'vatc') {
+    const isSpecialRep = ['vatc', 'banplus', 'ccr', 'platco', 'poscom', 'bancaribe'].includes(tableName);
+    const data = {
+        fecha: device.fecha || new Date().toISOString().slice(0, 10),
+        aliado: device.aliado,
+        modelo: device.modelo,
+        razn_social: device.razon_social,
+        serial: device.serial,
+        informes: device.informes,
+        rif: device.rif,
+        ingreso: device.ingreso,
+        serial_de_remplazo: device.serial_reemplazo,
+        falla_notificada: device.falla_notificada,
+        categora: device.categoria,
+        fecha_final: device.fecha_final,
+        estatus_del_caso: device.estatus_caso,
+        estatus: device.estatus,
+        nivel: device.nivel,
+        garantia: device.garantia,
+        informe: device.informe,
+        cotizacin: device.cotizacion,
+        procesadora: device.procesadora || null,
+        tecnico: device.tecnico || null,
+        acepta_plan: device.acepta_plan || null,
+        nro_guia: device.nro_guia || null,
+        factura: device.nro_factura || null,
+        lote: device.lote || null,
+        fecha_venta: device.fecha_venta || null,
+        observaciones: device.observaciones || null,
+    };
+
+    if (isSpecialRep) {
+        if (tableName === 'banplus') {
+            data.repuesto__servicio = device.repuesto_1;
+        } else {
+            data.repuesto__servicio_1 = device.repuesto_1;
+        }
+        data.repuesto__servicio_2 = device.repuesto_2 || null;
+        data.repuesto__servicio_3 = device.repuesto_3 || null;
+    } else {
+        data.repuesto_1 = device.repuesto_1 || null;
+        data.repuesto_2 = device.repuesto_2 || null;
+        data.repuesto_3 = device.repuesto_3 || null;
+    }
+    return data;
+}
+
+/**
+ * Mapea una fila de cualquier tabla al formato estándar de la aplicación.
+ */
+function mapTableToDevice(row) {
+    if (!row) return null;
+    return {
+        ...row,
+        id: row.internal_id || row.id,
+        razon_social: row.razn_social || row.razon_social,
+        categoria: row.categora || row.categoria,
+        estatus_caso: row.estatus_del_caso || row.estatus_caso,
+        serial_reemplazo: row.serial_de_remplazo || row.serial_reemplazo,
+        cotizacion: row.cotizacin || row.cotizacion,
+        nro_factura: row.factura || row.nro_factura,
+        nro_caso: row.n || row.nro_caso || row.nro,
+        repuesto_1: row.repuesto_1 || row.repuesto__servicio_1 || row.repuesto__servicio,
+        repuesto_2: row.repuesto_2 || row.repuesto__servicio_2,
+        repuesto_3: row.repuesto_3 || row.repuesto__servicio_3,
+    };
+}
+
+// ─── CRUD usando Supabase ─────────────────────────────────────────
+
+/**
  * Obtiene dispositivos con paginación, búsqueda y filtros en el servidor.
  */
 export async function getDevicesPaged({ page = 1, pageSize = 50, search = '', filterCaso = '', filterRep = '', filterAliado = '' }) {
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
+    const tableName = ALLY_TO_TABLE[filterAliado] || 'casos_pos';
+    const isDirectTable = tableName !== 'casos_pos';
+
     let query = supabase
-        .from('casos_pos')
+        .from(tableName)
         .select('*', { count: 'exact' });
 
     // Filtros en servidor
-    if (filterCaso) query = query.eq('estatus_caso', filterCaso);
-    if (filterRep) query = query.eq('estatus', filterRep);
-    if (filterAliado) query = query.eq('aliado', filterAliado);
+    if (isDirectTable) {
+        if (filterCaso) query = query.eq('estatus_del_caso', filterCaso);
+        if (filterRep) query = query.eq('estatus', filterRep);
+        if (filterAliado) query = query.eq('aliado', filterAliado);
+    } else {
+        if (filterCaso) query = query.eq('estatus_caso', filterCaso);
+        if (filterRep) query = query.eq('estatus', filterRep);
+        if (filterAliado) query = query.eq('aliado', filterAliado);
+    }
 
     // Búsqueda en servidor (OR entre múltiples campos)
     if (search) {
-        query = query.or(`serial.ilike.%${search}%,razon_social.ilike.%${search}%,rif.ilike.%${search}%,aliado.ilike.%${search}%,modelo.ilike.%${search}%`);
+        if (isDirectTable) {
+            query = query.or(`serial.ilike.%${search}%,razn_social.ilike.%${search}%,rif.ilike.%${search}%,modelo.ilike.%${search}%`);
+        } else {
+            query = query.or(`serial.ilike.%${search}%,razon_social.ilike.%${search}%,rif.ilike.%${search}%,aliado.ilike.%${search}%,modelo.ilike.%${search}%`);
+        }
     }
 
     const { data, count, error } = await query
         .order('fecha', { ascending: false })
-        .order('created_at', { ascending: false })
         .range(from, to);
 
     if (error) throw new Error(error.message);
+
+    if (isDirectTable) {
+        return { data: data.map(mapTableToDevice), count };
+    }
     return { data, count };
 }
 
 export async function getDeviceById(id) {
-    const { data, error } = await supabase
+    if (!id) return null;
+
+    // Primero intentamos buscar en la vista general para saber el aliado
+    const { data: generalData, error: generalError } = await supabase
         .from('casos_pos')
         .select('*')
-        .eq('id', id)
+        .eq('internal_id', id)
         .single();
-    if (error) return null;
-    return data;
+
+    if (generalError || !generalData) return null;
+
+    const tableName = ALLY_TO_TABLE[generalData.aliado];
+    if (!tableName) return generalData;
+
+    // Si tiene tabla directa, buscamos allí para tener todos los campos específicos
+    const { data, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('internal_id', id)
+        .single();
+
+    if (error) return mapTableToDevice(generalData);
+    return mapTableToDevice(data);
 }
 
 export async function getDeviceBySerial(serial) {
+    // Primero en la vista general
     const { data, error } = await supabase
         .from('casos_pos')
         .select('*')
         .ilike('serial', serial)
         .order('fecha', { ascending: false });
-    if (error) return [];
-    return data;
+
+    if (error || data.length === 0) {
+        // Buscar específicamente en vatc
+        const { data: vatcData } = await supabase
+            .from('vatc')
+            .select('*')
+            .ilike('serial', serial)
+            .order('fecha', { ascending: false });
+        if (vatcData) return vatcData.map(mapFromVatc);
+    }
+    return data || [];
 }
 
+
 export async function addDevice(device) {
-    const payload = {
-        fecha: device.fecha || new Date().toISOString().slice(0, 10),
-        aliado: device.aliado,
-        modelo: device.modelo,
-        razon_social: device.razon_social,
-        serial: device.serial,
-        informes: device.informes,
-        rif: device.rif,
-        ingreso: device.ingreso,
-        serial_reemplazo: device.serial_reemplazo,
-        falla_notificada: device.falla_notificada,
-        categoria: device.categoria,
-        fecha_final: device.fecha_final,
-        estatus_caso: device.estatus_caso,
-        estatus: device.estatus,
-        nivel: device.nivel,
-        garantia: device.garantia,
-        informe: device.informe,
-        cotizacion: device.cotizacion,
-        repuesto_1: device.repuesto_1,
-        repuesto_2: device.repuesto_2,
-        repuesto_3: device.repuesto_3,
-        procesadora: device.procesadora,
-        tecnico: device.tecnico,
-        acepta_plan: device.acepta_plan,
-        nro_guia: device.nro_guia,
-        nro_factura: device.nro_factura,
-        lote: device.lote,
-        fecha_venta: device.fecha_venta,
-        observaciones: device.observaciones,
-    };
-    const { data, error } = await supabase.from('casos_pos').insert([payload]).select().single();
+    const tableName = ALLY_TO_TABLE[device.aliado] || 'vatc';
+    const payload = mapDeviceToTable(device, tableName);
+    const { data, error } = await supabase.from(tableName).insert([payload]).select().single();
     if (error) throw new Error(error.message);
-    return data;
+    return mapTableToDevice(data);
 }
 
 export async function addDevicesBulk(devices) {
-    const payloads = devices.map(device => ({
-        fecha: device.fecha || new Date().toISOString().slice(0, 10),
-        aliado: device.aliado,
-        modelo: device.modelo,
-        razon_social: device.razon_social,
-        serial: device.serial,
-        informes: device.informes,
-        rif: device.rif,
-        ingreso: device.ingreso,
-        serial_reemplazo: device.serial_reemplazo,
-        falla_notificada: device.falla_notificada,
-        categoria: device.categoria,
-        fecha_final: device.fecha_final,
-        estatus_caso: device.estatus_caso,
-        estatus: device.estatus,
-        nivel: device.nivel,
-        garantia: device.garantia,
-        informe: device.informe,
-        cotizacion: device.cotizacion,
-        repuesto_1: device.repuesto_1,
-        repuesto_2: device.repuesto_2,
-        repuesto_3: device.repuesto_3,
-        procesadora: device.procesadora,
-        tecnico: device.tecnico,
-        acepta_plan: device.acepta_plan,
-        nro_guia: device.nro_guia,
-        nro_factura: device.nro_factura,
-        lote: device.lote,
-        fecha_venta: device.fecha_venta,
-        observaciones: device.observaciones,
-    }));
+    const groups = {};
+    devices.forEach(d => {
+        const tableName = ALLY_TO_TABLE[d.aliado] || 'vatc';
+        if (!groups[tableName]) groups[tableName] = [];
+        groups[tableName].push(mapDeviceToTable(d, tableName));
+    });
 
-    const { data, error } = await supabase.from('casos_pos').insert(payloads).select();
-    if (error) throw new Error(error.message);
-    return data;
+    let results = [];
+    for (const tableName in groups) {
+        const { data, error } = await supabase.from(tableName).insert(groups[tableName]).select();
+        if (error) throw new Error(error.message);
+        results = [...results, ...data.map(mapTableToDevice)];
+    }
+    return results;
 }
 
 export async function updateDevice(id, updates) {
-    const payload = {
-        fecha: updates.fecha,
-        aliado: updates.aliado,
-        modelo: updates.modelo,
-        razon_social: updates.razon_social,
-        serial: updates.serial,
-        informes: updates.informes,
-        rif: updates.rif,
-        ingreso: updates.ingreso,
-        serial_reemplazo: updates.serial_reemplazo,
-        falla_notificada: updates.falla_notificada,
-        categoria: updates.categoria,
-        fecha_final: updates.fecha_final,
-        estatus_caso: updates.estatus_caso,
-        estatus: updates.estatus,
-        nivel: updates.nivel,
-        garantia: updates.garantia,
-        informe: updates.informe,
-        cotizacion: updates.cotizacion,
-        repuesto_1: updates.repuesto_1,
-        repuesto_2: updates.repuesto_2,
-        repuesto_3: updates.repuesto_3,
-        procesadora: updates.procesadora,
-        tecnico: updates.tecnico,
-        acepta_plan: updates.acepta_plan,
-        nro_guia: updates.nro_guia,
-        nro_factura: updates.nro_factura,
-        lote: updates.lote,
-        fecha_venta: updates.fecha_venta,
-        observaciones: updates.observaciones,
-    };
-    const { data, error } = await supabase.from('casos_pos').update(payload).eq('id', id).select().single();
+    const device = await getDeviceById(id);
+    if (!device) throw new Error("Equipo no encontrado");
+
+    const tableName = ALLY_TO_TABLE[updates.aliado] || ALLY_TO_TABLE[device.aliado] || 'vatc';
+    const payload = mapDeviceToTable({ ...device, ...updates }, tableName);
+
+    const { data, error } = await supabase
+        .from(tableName)
+        .update(payload)
+        .eq('internal_id', id)
+        .select()
+        .single();
+
     if (error) throw new Error(error.message);
-    return data;
+    return mapTableToDevice(data);
 }
 
 export async function deleteDevice(id) {
-    const { error } = await supabase.from('casos_pos').delete().eq('id', id);
+    const device = await getDeviceById(id);
+    if (!device) return;
+
+    const tableName = ALLY_TO_TABLE[device.aliado];
+    if (!tableName) return;
+
+    const { error } = await supabase.from(tableName).delete().eq('internal_id', id);
     if (error) throw new Error(error.message);
 }
 
@@ -363,15 +436,43 @@ export async function getUniqueAliados() {
 
 export async function getAtcCases() {
     const { data, error } = await supabase
-        .from('casos_atc')
+        .from('data')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('fecha', { ascending: false });
     if (error) throw new Error(error.message);
     return data;
 }
 
+export async function getAtcCasesPaged({ page = 1, pageSize = 10, search = '', startDate = '', endDate = '' }) {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = supabase
+        .from('data')
+        .select('*', { count: 'exact' });
+
+    if (search) {
+        query = query.or(`serial.ilike.%${search}%,nombre_comercio.ilike.%${search}%,rif.ilike.%${search}%`);
+    }
+
+    if (startDate) {
+        // Supabase dates handle ISO strings well
+        query = query.gte('fecha', startDate);
+    }
+    if (endDate) {
+        query = query.lte('fecha', endDate);
+    }
+
+    const { data, error, count } = await query
+        .order('fecha', { ascending: false })
+        .range(from, to);
+
+    if (error) throw new Error(error.message);
+    return { data, count };
+}
+
 export async function deleteAtcCase(id) {
-    const { error } = await supabase.from('casos_atc').delete().eq('id', id);
+    const { error } = await supabase.from('data').delete().eq('internal_id', id);
     if (error) throw new Error(error.message);
 }
 

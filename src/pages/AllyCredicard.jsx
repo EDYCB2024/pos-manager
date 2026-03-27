@@ -91,11 +91,11 @@ export default function AllyCredicard() {
                     </div>
                 </div>
                 <div className="page-header__actions">
-                    <button className="btn btn--secondary" onClick={() => navigate('/devices/new?mode=massive')}>
+                    <button className="btn btn--minimal" onClick={() => navigate('/devices/new?mode=massive&aliado=CREDICARD')}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                         Carga Masiva
                     </button>
-                    <button className="btn btn--primary" onClick={() => navigate('/devices/new')}>
+                    <button className="btn btn--minimal" onClick={() => navigate('/devices/new?aliado=CREDICARD')}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
                         Nuevo Equipo
                     </button>
@@ -111,7 +111,7 @@ export default function AllyCredicard() {
                     <input
                         className="search-box__input"
                         type="text"
-                        placeholder="Buscar por serial, RIF, razón social..."
+                        placeholder="Buscar en Credicard..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                     />
@@ -174,14 +174,14 @@ export default function AllyCredicard() {
             {loading ? (
                 <div className="empty-state anim-fadeIn">
                     <div className="loader-ring"></div>
-                    <p>Cargando casos de CREDICARD...</p>
+                    <p>Cargando tabla de Credicard...</p>
                 </div>
             ) : devices.length === 0 ? (
                 <div className="empty-state anim-fadeUp">
                     <div className="empty-state__icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
                     </div>
-                    <p>{search ? 'No hay resultados para esta búsqueda.' : 'No hay casos registrados para este aliado.'}</p>
+                    <p>{search ? 'No hay resultados para esta búsqueda en Credicard.' : 'No hay casos registrados para Credicard.'}</p>
                 </div>
             ) : (
                 <>
@@ -212,6 +212,9 @@ export default function AllyCredicard() {
                                     <th>REPUESTO/SERVICIO 2</th>
                                     <th>REPUESTO/SERVICIO 3</th>
                                     <th>OBSERVACIONES</th>
+                                    <th>FECHA VENTA</th>
+                                    <th>LOTE</th>
+                                    <th>FACTURA</th>
                                     <th style={{ textAlign: 'right' }}>ACCIONES</th>
                                 </tr>
                             </thead>
@@ -228,11 +231,11 @@ export default function AllyCredicard() {
                                             }).catch(() => setDetailLoading(false));
                                         }}
                                     >
-                                        <td>{(page - 1) * pageSize + index + 1}</td>
+                                        <td className="text-secondary" style={{ fontSize: '12px' }}>{(page - 1) * pageSize + index + 1}</td>
                                         <td>{formatDate(d.fecha)}</td>
                                         <td>{d.aliado}</td>
                                         <td>{d.modelo || '—'}</td>
-                                        <td>{d.razon_social}</td>
+                                        <td style={{ minWidth: '150px' }}>{d.razon_social}</td>
                                         <td>
                                             <div className="serial-container">
                                                 {copiedSerial === d.serial && (
@@ -273,6 +276,9 @@ export default function AllyCredicard() {
                                                 {d.observaciones || '—'}
                                             </div>
                                         </td>
+                                        <td>{formatDate(d.fecha_venta)}</td>
+                                        <td>{d.lote || '—'}</td>
+                                        <td>{d.nro_factura || '—'}</td>
                                         <td onClick={e => e.stopPropagation()}>
                                             <div className="action-btns">
                                                 <button
