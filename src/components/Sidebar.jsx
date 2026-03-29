@@ -15,7 +15,7 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
     const [isOpen, setIsOpen] = useState(false);
     const [isAliadosOpen, setIsAliadosOpen] = useState(false);
     const [isDataCenterOpen, setIsDataCenterOpen] = useState(false);
-    const [isAccionesOpen, setIsAccionesOpen] = useState(true);
+    const [isAccionesOpen, setIsAccionesOpen] = useState(false);
     const [isPartesOpen, setIsPartesOpen] = useState(false);
     const [isAtcOpen, setIsAtcOpen] = useState(false);
     const [isOtrosOpen, setIsOtrosOpen] = useState(false);
@@ -71,6 +71,20 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
                 </div>
 
                 <nav className="sidebar__nav">
+                    <NavLink
+                        to="/"
+                        onClick={close}
+                        className={({ isActive }) =>
+                            `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
+                        }
+                        end
+                    >
+                        <span className="sidebar__link-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        </span>
+                        <span>Inicio</span>
+                    </NavLink>
+
                     <NavLink
                         to="/devices"
                         onClick={close}
@@ -323,11 +337,10 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
                                 >
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                         <span className="sidebar__link-icon">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 16h6"></path><path d="M12 22a2 2 0 0 1-2-2v-4l-6-6V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6l-6 6v4a2 2 0 0 1-2 2z"></path></svg>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                                         </span>
                                         <span>Despacho</span>
                                     </div>
-                                    <span style={{ fontSize: '10px', background: 'var(--accent-dim)', color: 'var(--accent)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>OBRA</span>
                                 </div>
                                 {isDespachoOpen && (
                                     <div className="sidebar__sub-nav">
@@ -338,7 +351,12 @@ export default function Sidebar({ theme, onToggleTheme, isCollapsed, toggleColla
                                                 `sidebar__link sidebar__link--sub${isActive ? ' sidebar__link--sub-active' : ''}`
                                             }
                                         >
-                                            <span className="sidebar__link-icon">•</span>
+                                            <span className="sidebar__link-icon">
+                                                {/* Kangaroo / Zoom Mascot Icon */}
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                  <path d="M10 18h4M4 18l2-6 2 4M21 18l-2-6-2 4M10 10l2-4 2 4M10 6a2 2 0 1 1 4 0M12 12v6" />
+                                                </svg>
+                                            </span>
                                             <span>Rastreo Zoom</span>
                                         </NavLink>
                                     </div>

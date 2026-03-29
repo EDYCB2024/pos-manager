@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function Login() {
-    const { login, user } = useAuth();
+    const { login, user, loginAsDemo } = useAuth();
     const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
@@ -115,7 +115,11 @@ export default function Login() {
                         <p>Inicie sesión para acceder al panel administrativo</p>
                     </div>
 
-                    <form onSubmit={handleSubmit}>
+                    <div className="login-entry-cta">
+                        <p className="entry-tagline">
+                            Experimenta el futuro de la gestión POS.
+                        </p>
+                        
                         {errorMsg && (
                             <div className="error-alert-pro">
                                 <ShieldCheck size={18} />
@@ -123,53 +127,34 @@ export default function Login() {
                             </div>
                         )}
 
-                        <div className="form-group">
-                            <label htmlFor="email">Correo Corporativo</label>
-                            <div className="input-pro-wrap has-icon-left">
-                                <AtSign className="input-icon-left" size={18} />
-                                <input
-                                    type="email"
-                                    id="email"
-                                    placeholder="nombre@empresa.com"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="password">Contraseña</label>
-                            <div className="input-pro-wrap has-icon-left">
-                                <Lock className="input-icon-left" size={18} />
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    id="password"
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                    required
-                                />
-                                <button 
-                                    type="button" 
-                                    className="pass-toggle-pro"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <button type="submit" className="login-btn-pro" disabled={isSubmitting}>
+                        <button 
+                            type="button" 
+                            className="login-btn-pro hero-cta" 
+                            onClick={async () => {
+                                setIsSubmitting(true);
+                                const { success, error } = await loginAsDemo();
+                                if (success) {
+                                    navigate('/');
+                                } else {
+                                    setErrorMsg(error || 'Error al iniciar demo.');
+                                    setIsSubmitting(false);
+                                }
+                            }} 
+                            disabled={isSubmitting}
+                        >
                             {isSubmitting ? (
-                                'Cargando...'
+                                'Configurando...'
                             ) : (
                                 <>
-                                    Ingresar al Sistema <ArrowRight size={18} />
+                                    Comenzar ahora <ArrowRight size={20} />
                                 </>
                             )}
                         </button>
-                    </form>
+                        
+                        <p className="demo-hint text-center muted mt-4">
+                           Acceso libre para demostración • Sin necesidad de credenciales
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

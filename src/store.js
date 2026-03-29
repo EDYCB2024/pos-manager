@@ -1,5 +1,20 @@
 import { supabase } from './lib/supabase';
 import { utils, writeFile } from 'xlsx';
+import { 
+    ESTATUSES_CASO, ESTATUSES_REPARACION, CATEGORIAS, MODELOS, 
+    PROCESADORAS, TECNICOS, OPERADORAS, OPCIONES_SI_NO, ALLY_TO_TABLE 
+} from './constants';
+import { generateMockDevices, generateMockAtc, mockStats } from './lib/mockData';
+
+// Re-export for compatibility
+export { 
+    ESTATUSES_CASO, ESTATUSES_REPARACION, CATEGORIAS, MODELOS, 
+    PROCESADORAS, TECNICOS, OPERADORAS, OPCIONES_SI_NO, ALLY_TO_TABLE 
+};
+
+// --- MOCK DATABASE FOR DEMO MODE ---
+let _mockDevices = generateMockDevices(120);
+let _mockAtc = generateMockAtc(80);
 
 /**
  * Exporta todos los dispositivos a un archivo Excel.
@@ -72,78 +87,7 @@ export async function exportDevicesExcel(filters = {}) {
     }
 }
 
-// ─── Opciones de campos de selección ────────────────────────────
-export const ESTATUSES_CASO = [
-    'CASO ABIERTO',
-    'CASO CERRADO',
-];
-
-export const ESTATUSES_REPARACION = [
-    'Pendiente por pago',
-    'En diagnóstico',
-    'En reparación',
-    'Irreparable',
-    'Entregado',
-];
-
-export const CATEGORIAS = [
-    'Hardware',
-    'Software',
-    'Conectividad',
-    'Pantalla',
-    'Teclado / Pinpad',
-    'Batería',
-    'Lector de tarjetas',
-    'Impresora',
-    'Otro',
-];
-
-export const MODELOS = [
-    'N950S',
-    'N970',
-    'N910A7',
-    'N910A10',
-    'ME60',
-    'ME51',
-    'SP600',
-    'Otro',
-];
-
-export const PROCESADORAS = [
-    'Platco',
-    'Credicard',
-];
-
-export const TECNICOS = [
-    'Eduardo Castillo',
-    'Andelis Nuñez',
-    'Jenfil Gonzalez',
-    'Eduardo Mendieta',
-];
-
-export const OPERADORAS = ['Digitel', 'Movistar'];
-
-export const OPCIONES_SI_NO = ['Sí', 'No'];
-
-// Mapa de Aliados a sus Tablas específicas
-export const ALLY_TO_TABLE = {
-    'VAT&C': 'vatc',
-    'CREDICARD': 'ccr',
-    'PLATCO': 'platco',
-    'PLATCO POS': 'platco',
-    'BANCARIBE': 'bancaribe',
-    'BANPLUS': 'banplus',
-    'POSCOMERCIAL': 'poscom',
-    'BANCO EXTERIOR': 'exterior',
-    'TOKEN PAGOS': 'tokenp',
-    'INSTAPAGO': 'instapago',
-    'PAYTECH': 'paytech',
-    'BANCO ACTIVO': 'bactivo',
-    'BANCRECER': 'bancrecer',
-    'DEL SUR': 'delsur',
-    'BEST PAY': 'bestpay',
-    'OTROS': 'otros'
-};
+// Constants moved to constants.js
 
 export function getReportUrl(code) {
     if (!code) return null;
@@ -154,31 +98,7 @@ export function getReportUrl(code) {
 // ─── CRUD usando Supabase ─────────────────────────────────────────
 
 export async function getAllDevices() {
-    let allData = [];
-    let from = 0;
-    const pageSize = 1000;
-    let hasMore = true;
-
-    while (hasMore) {
-        const { data, error } = await supabase
-            .from('casos_pos')
-            .select('*')
-            .order('fecha', { ascending: false })
-            .order('created_at', { ascending: false })
-            .range(from, from + pageSize - 1);
-
-        if (error) throw new Error(error.message);
-
-        allData = [...allData, ...data];
-
-        if (data.length < pageSize) {
-            hasMore = false;
-        } else {
-            from += pageSize;
-        }
-    }
-
-    return allData;
+    return _mockDevices;
 }
 
 /**
@@ -258,216 +178,109 @@ function mapTableToDevice(row) {
  * Obtiene dispositivos con paginación, búsqueda y filtros en el servidor.
  */
 export async function getDevicesPaged({ page = 1, pageSize = 50, search = '', filterCaso = '', filterRep = '', filterAliado = '' }) {
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
+    let filtered = [..._mockDevices];
 
-    const tableName = ALLY_TO_TABLE[filterAliado] || 'casos_pos';
-    const isDirectTable = tableName !== 'casos_pos';
-
-    let query = supabase
-        .from(tableName)
-        .select('*', { count: 'exact' });
-
-    // Filtros en servidor
-    if (isDirectTable) {
-        if (filterCaso) query = query.eq('estatus_del_caso', filterCaso);
-        if (filterRep) query = query.eq('estatus', filterRep);
-        if (filterAliado) query = query.eq('aliado', filterAliado);
-    } else {
-        if (filterCaso) query = query.eq('estatus_caso', filterCaso);
-        if (filterRep) query = query.eq('estatus', filterRep);
-        if (filterAliado) query = query.eq('aliado', filterAliado);
-    }
-
-    // Búsqueda en servidor (OR entre múltiples campos)
     if (search) {
-        if (isDirectTable) {
-            query = query.or(`serial.ilike.%${search}%,razn_social.ilike.%${search}%,rif.ilike.%${search}%,modelo.ilike.%${search}%`);
-        } else {
-            query = query.or(`serial.ilike.%${search}%,razon_social.ilike.%${search}%,rif.ilike.%${search}%,aliado.ilike.%${search}%,modelo.ilike.%${search}%`);
-        }
+        const s = search.toLowerCase();
+        filtered = filtered.filter(d => 
+            d.serial.toLowerCase().includes(s) || 
+            d.razon_social.toLowerCase().includes(s) || 
+            d.rif.toLowerCase().includes(s)
+        );
     }
 
-    const { data, count, error } = await query
-        .order('fecha', { ascending: false })
-        .range(from, to);
+    if (filterCaso) filtered = filtered.filter(d => d.estatus_caso === filterCaso);
+    if (filterRep) filtered = filtered.filter(d => d.estatus === filterRep);
+    if (filterAliado) filtered = filtered.filter(d => d.aliado === filterAliado);
 
-    if (error) throw new Error(error.message);
+    const count = filtered.length;
+    const start = (page - 1) * pageSize;
+    const data = filtered.slice(start, start + pageSize);
 
-    if (isDirectTable) {
-        return { data: data.map(mapTableToDevice), count };
-    }
     return { data, count };
 }
 
 export async function getDeviceById(id) {
-    if (!id) return null;
-
-    // Primero intentamos buscar en la vista general para saber el aliado
-    const { data: generalData, error: generalError } = await supabase
-        .from('casos_pos')
-        .select('*')
-        .eq('internal_id', id)
-        .single();
-
-    if (generalError || !generalData) return null;
-
-    const tableName = ALLY_TO_TABLE[generalData.aliado];
-    if (!tableName) return generalData;
-
-    // Si tiene tabla directa, buscamos allí para tener todos los campos específicos
-    const { data, error } = await supabase
-        .from(tableName)
-        .select('*')
-        .eq('internal_id', id)
-        .single();
-
-    if (error) return mapTableToDevice(generalData);
-    return mapTableToDevice(data);
+    return _mockDevices.find(d => d.internal_id === Number(id) || d.id === Number(id)) || null;
 }
 
 export async function getDeviceBySerial(serial) {
-    // Primero en la vista general
-    const { data, error } = await supabase
-        .from('casos_pos')
-        .select('*')
-        .ilike('serial', serial)
-        .order('fecha', { ascending: false });
-
-    if (error || data.length === 0) {
-        // Buscar específicamente en vatc
-        const { data: vatcData } = await supabase
-            .from('vatc')
-            .select('*')
-            .ilike('serial', serial)
-            .order('fecha', { ascending: false });
-        if (vatcData) return vatcData.map(mapFromVatc);
-    }
-    return data || [];
+    return _mockDevices.filter(d => d.serial.toLowerCase() === serial.toLowerCase());
 }
 
 
 export async function addDevice(device) {
-    const tableName = ALLY_TO_TABLE[device.aliado] || 'vatc';
-    const payload = mapDeviceToTable(device, tableName);
-    const { data, error } = await supabase.from(tableName).insert([payload]).select().single();
-    if (error) throw new Error(error.message);
-    return mapTableToDevice(data);
+    const newDevice = { ...device, id: Date.now(), internal_id: Date.now(), created_at: new Date().toISOString() };
+    _mockDevices = [newDevice, ..._mockDevices];
+    return newDevice;
 }
 
 export async function addDevicesBulk(devices) {
-    const groups = {};
-    devices.forEach(d => {
-        const tableName = ALLY_TO_TABLE[d.aliado] || 'vatc';
-        if (!groups[tableName]) groups[tableName] = [];
-        groups[tableName].push(mapDeviceToTable(d, tableName));
-    });
-
-    let results = [];
-    for (const tableName in groups) {
-        const { data, error } = await supabase.from(tableName).insert(groups[tableName]).select();
-        if (error) throw new Error(error.message);
-        results = [...results, ...data.map(mapTableToDevice)];
-    }
-    return results;
+    const newItems = devices.map(d => ({
+        ...d,
+        id: Date.now() + Math.random(),
+        internal_id: Date.now() + Math.random(),
+        created_at: new Date().toISOString()
+    }));
+    _mockDevices = [...newItems, ..._mockDevices];
+    return newItems;
 }
 
 export async function updateDevice(id, updates) {
-    const device = await getDeviceById(id);
-    if (!device) throw new Error("Equipo no encontrado");
-
-    const tableName = ALLY_TO_TABLE[updates.aliado] || ALLY_TO_TABLE[device.aliado] || 'vatc';
-    const payload = mapDeviceToTable({ ...device, ...updates }, tableName);
-
-    const { data, error } = await supabase
-        .from(tableName)
-        .update(payload)
-        .eq('internal_id', id)
-        .select()
-        .single();
-
-    if (error) throw new Error(error.message);
-    return mapTableToDevice(data);
+    const index = _mockDevices.findIndex(d => d.internal_id === Number(id));
+    if (index === -1) throw new Error("Equipo no encontrado");
+    _mockDevices[index] = { ..._mockDevices[index], ...updates };
+    return _mockDevices[index];
 }
 
 export async function deleteDevice(id) {
-    const device = await getDeviceById(id);
-    if (!device) return;
-
-    const tableName = ALLY_TO_TABLE[device.aliado];
-    if (!tableName) return;
-
-    const { error } = await supabase.from(tableName).delete().eq('internal_id', id);
-    if (error) throw new Error(error.message);
+    _mockDevices = _mockDevices.filter(d => d.internal_id !== Number(id));
 }
 
 export async function getStats() {
-    const { data, error } = await supabase.rpc('get_dashboard_stats');
-    if (error) throw new Error(error.message);
-
-    const byCaso = data.byCaso || {};
-    const byReparacion = data.byReparacion || {};
-
-    // Aseguramos que todos los estatus existan en el objeto (como en el original)
-    ESTATUSES_CASO.forEach(s => { if (!(s in byCaso)) byCaso[s] = 0; });
-    ESTATUSES_REPARACION.forEach(s => { if (!(s in byReparacion)) byReparacion[s] = 0; });
-
-    // El total real es la suma de los estatus de caso actuales
-    const total = Object.values(byCaso).reduce((a, b) => a + (Number(b) || 0), 0);
-
-    return { total, byCaso, byReparacion };
+    // Dynamic stats from mock data
+    const byCaso = {
+        'CASO ABIERTO': _mockDevices.filter(d => d.estatus_caso === 'CASO ABIERTO').length,
+        'CASO CERRADO': _mockDevices.filter(d => d.estatus_caso === 'CASO CERRADO').length
+    };
+    const byReparacion = {};
+    ESTATUSES_REPARACION.forEach(s => {
+        byReparacion[s] = _mockDevices.filter(d => d.estatus === s).length;
+    });
+    return { total: _mockDevices.length, byCaso, byReparacion };
 }
 
 export async function getUniqueAliados() {
-    const { data, error } = await supabase
-        .from('casos_pos')
-        .select('aliado')
-        .not('aliado', 'is', null)
-        .order('aliado');
-    if (error) throw new Error(error.message);
-    const unique = [...new Set(data.map(d => d.aliado))];
-    return unique.filter(Boolean);
+    return [...new Set(_mockDevices.map(d => d.aliado))].sort();
 }
 
 export async function getAtcCases() {
-    const { data, error } = await supabase
-        .from('data')
-        .select('*')
-        .order('fecha', { ascending: false });
-    if (error) throw new Error(error.message);
-    return data;
+    return _mockAtc;
 }
 
 export async function getAtcCasesPaged({ page = 1, pageSize = 10, search = '', startDate = '', endDate = '' }) {
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-
-    let query = supabase
-        .from('data')
-        .select('*', { count: 'exact' });
+    let filtered = [..._mockAtc];
 
     if (search) {
-        query = query.or(`serial.ilike.%${search}%,nombre_comercio.ilike.%${search}%,rif.ilike.%${search}%`);
+        const s = search.toLowerCase();
+        filtered = filtered.filter(a => 
+            a.serial.toLowerCase().includes(s) || 
+            a.nombre_comercio.toLowerCase().includes(s) || 
+            a.rif.toLowerCase().includes(s)
+        );
     }
 
-    if (startDate) {
-        // Supabase dates handle ISO strings well
-        query = query.gte('fecha', startDate);
-    }
-    if (endDate) {
-        query = query.lte('fecha', endDate);
-    }
+    if (startDate) filtered = filtered.filter(a => a.fecha >= startDate);
+    if (endDate) filtered = filtered.filter(a => a.fecha <= endDate);
 
-    const { data, error, count } = await query
-        .order('fecha', { ascending: false })
-        .range(from, to);
+    const count = filtered.length;
+    const start = (page - 1) * pageSize;
+    const data = filtered.slice(start, start + pageSize);
 
-    if (error) throw new Error(error.message);
     return { data, count };
 }
 
 export async function deleteAtcCase(id) {
-    const { error } = await supabase.from('data').delete().eq('internal_id', id);
-    if (error) throw new Error(error.message);
+    _mockAtc = _mockAtc.filter(a => a.internal_id !== Number(id));
 }
 

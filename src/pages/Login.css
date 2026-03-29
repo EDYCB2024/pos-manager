@@ -254,6 +254,18 @@
   gap: 8px;
 }
 
+.demo-instruction {
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  color: #7dd3fc;
+  padding: 16px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
 /* --- Responsive --- */
 @media (max-width: 1200px) {
   .login-page-container {

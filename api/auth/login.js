@@ -27,7 +27,29 @@ export default async function handler(req, res) {
     attemptsInfo.count += 1;
     loginAttempts.set(ip, attemptsInfo);
 
-    const { email, password } = req.body;
+    const { email, password, isDemo } = req.body;
+
+    // --- DEMO MODE BYPASS ---
+    if (isDemo) {
+        const demoUser = {
+            id: 'bfc8b318-be54-4473-840c-e5e861ad3107',
+            email: 'demo@posmanager.app',
+            role: 'admin',
+            name: 'Demo Principal'
+        };
+
+        const token = signToken(demoUser);
+
+        res.setHeader('Set-Cookie', cookie.serialize('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 8 * 60 * 60, // 8 hours
+            path: '/',
+        }));
+
+        return res.status(200).json({ user: demoUser });
+    }
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Faltan credenciales' });

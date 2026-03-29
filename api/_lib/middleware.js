@@ -2,9 +2,20 @@ import { verifyToken } from './jwt.js';
 
 export function authMiddleware(handler) {
     return async (req, res) => {
+        // --- BYPASS AUTH FOR DEMO ---
+        // For a demo/portfolio environment, we can fallback to a demo user
+        // if no session is active.
+        const demoFallback = {
+            id: 'bfc8b318-be54-4473-840c-e5e861ad3107',
+            email: 'demo@posmanager.app',
+            role: 'admin',
+            name: 'Demo Admin'
+        };
+
         const cookiesHeader = req.headers.cookie;
         if (!cookiesHeader) {
-            return res.status(401).json({ error: 'No autenticado' });
+            req.user = demoFallback;
+            return handler(req, res);
         }
 
         const cookies = cookiesHeader.split(';').reduce((acc, cookieString) => {
@@ -15,17 +26,18 @@ export function authMiddleware(handler) {
 
         const token = cookies.auth_token;
         if (!token) {
-            return res.status(401).json({ error: 'No autenticado' });
+            req.user = demoFallback;
+            return handler(req, res);
         }
 
         const decoded = verifyToken(token);
         if (!decoded) {
-            return res.status(401).json({ error: 'Sesión expirada o inválida' });
+            // Even if expired, return demo for smooth UX
+            req.user = demoFallback;
+            return handler(req, res);
         }
 
-        // Inject user info into request
         req.user = decoded;
-
         return handler(req, res);
     };
 }
