@@ -18,7 +18,7 @@
 // --- CONFIGURACIÓN ---
 const CONFIG = {
     SUPABASE_URL: "https://vbqcahlqszcfqhlfmutq.supabase.co",
-    SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZicWNhaGxxc3pjZnFobGZtdXRxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTc3MzkzMiwiZXhwIjoyMDg3MzQ5OTMyfQ.ROOwCc2zGqcQ7jDYkS3zZZliZuP8pYoCGUT7TbqGNNs", // Recomiendo usar SERVICE_ROLE_KEY para ignorar RLS en inserciones masivas
+    SUPABASE_KEY: "YOUR_SUPABASE_SERVICE_ROLE_KEY", // Recomiendo usar SERVICE_ROLE_KEY para ignorar RLS en inserciones masivas
     TABLE_NAME: "casos_pos",
     SHEET_NAME: "Casos" // Cambia esto si tu hoja tiene otro nombre
 };

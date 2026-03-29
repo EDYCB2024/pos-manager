@@ -29,3 +29,8 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+# AI Agent Skills
+.agent
+.agents
+skills-lock.json
